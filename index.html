@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>五上數學雙維度視覺實驗室</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a1c;--panel:rgba(16,24,58,.84);--panel2:rgba(28,40,90,.7);--line:rgba(120,160,255,.25);
+  --cyan:#3ef0ff;--pink:#ff5ad9;--yellow:#ffd84a;--green:#4dff9a;--purple:#a37bff;--orange:#ff9f43;--red:#ff4d6d;
+  --text:#eaf2ff;--muted:#a7b6dc;--r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:radial-gradient(ellipse at 15% 0%,#1d2d75 0%,transparent 55%),radial-gradient(ellipse at 95% 100%,#3c1462 0%,transparent 50%),var(--bg);
+  background-attachment:fixed;color:var(--text);overflow-x:hidden;
+  font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",sans-serif;
+}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:74px 16px 48px}
+button{font-family:inherit;touch-action:manipulation}
+canvas{touch-action:none;display:block}
+[hidden]{display:none!important}
+
+/* fixed buttons */
+.home-btn{position:fixed;top:12px;left:12px;z-index:60;border:2px solid var(--cyan);background:rgba(8,14,40,.9);color:var(--text);
+  font-size:16px;font-weight:900;padding:10px 16px;border-radius:999px;cursor:pointer;box-shadow:0 0 16px rgba(62,240,255,.45);backdrop-filter:blur(6px)}
+.home-btn:active{transform:scale(.96)}
+.sound-btn{position:fixed;top:12px;right:12px;z-index:60;width:46px;height:46px;border-radius:50%;border:2px solid var(--purple);
+  background:rgba(8,14,40,.9);color:#fff;font-size:20px;cursor:pointer}
+
+/* hero */
+.hero{text-align:center;margin:6px 0 22px}
+.hero h1{margin:0;font-size:clamp(26px,5vw,46px);font-weight:900;letter-spacing:2px;line-height:1.25}
+.hero h1 span{display:block;font-size:.72em;background:linear-gradient(90deg,var(--cyan),var(--pink),var(--yellow));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(62,240,255,.35))}
+.hero p{color:var(--muted);margin:10px 0 0;font-size:15px}
+.total{display:inline-flex;gap:8px;align-items:center;margin-top:14px;padding:8px 18px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-weight:700}
+.total b{color:var(--yellow);font-size:20px}
+.reset-link{background:none;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:13px;margin-left:6px}
+
+/* coach */
+.coach{display:flex;gap:12px;align-items:flex-start;margin:14px 0}
+.coach-face{flex:0 0 74px;width:74px;height:74px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#2c3e8f,#121a45);border:3px solid var(--yellow);box-shadow:0 0 18px rgba(255,216,74,.45);overflow:hidden}
+.coach-face svg{width:100%;height:100%}
+.coach-bubble{position:relative;flex:1;background:linear-gradient(135deg,rgba(40,56,130,.92),rgba(30,22,80,.92));border:2px solid rgba(255,216,74,.6);border-radius:20px;padding:12px 16px;font-size:16px;line-height:1.65;min-height:60px}
+.coach-bubble::before{content:"";position:absolute;left:-12px;top:22px;border:10px solid transparent;border-right-color:rgba(255,216,74,.6);border-left:0}
+.coach-bubble .who{display:block;font-size:13px;color:var(--yellow);font-weight:900;margin-bottom:2px}
+.coach-bubble.pulse{animation:bubblePop .35s}
+@keyframes bubblePop{0%{transform:scale(.97)}60%{transform:scale(1.015)}100%{transform:scale(1)}}
+
+/* hub cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.ucard{position:relative;text-align:left;color:var(--text);cursor:pointer;border-radius:26px;padding:20px 20px 16px;background:linear-gradient(160deg,rgba(26,36,86,.92),rgba(12,16,44,.92));
+  border:2px solid color-mix(in srgb,var(--c) 55%,transparent);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 10px 30px rgba(0,0,0,.35);transition:transform .2s,box-shadow .2s;overflow:hidden}
+.ucard::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c) 45%,transparent),transparent 70%)}
+.ucard:hover{transform:translateY(-4px);box-shadow:0 0 24px color-mix(in srgb,var(--c) 50%,transparent)}
+.ucard:active{transform:scale(.98)}
+.u-no{display:inline-block;font-size:13px;font-weight:900;padding:3px 12px;border-radius:999px;background:var(--c);color:#0a0f2a}
+.u-icon{position:absolute;right:18px;top:14px;font-size:40px;z-index:1}
+.ucard h3{margin:10px 0 12px;font-size:23px;font-weight:900}
+.u-modes{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.u-modes div{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:12px;padding:6px 10px}
+.star{font-size:20px;color:rgba(255,255,255,.18);line-height:1}
+.star.on{color:var(--yellow);text-shadow:0 0 10px rgba(255,216,74,.9)}
+.u-stars{margin-top:10px;font-size:26px;letter-spacing:4px}
+
+/* unit */
+.unit-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.unit-head .u-no{font-size:15px}
+.unit-head h2{margin:0;font-size:clamp(22px,4vw,32px);font-weight:900}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tab{position:relative;border:2px solid var(--line);background:var(--panel);color:var(--muted);border-radius:18px;padding:12px 8px;font-size:15px;font-weight:900;cursor:pointer;min-height:58px;line-height:1.3}
+.tab small{display:block;font-weight:500;font-size:12px;opacity:.85}
+.tab.on{color:#0a0f2a;background:linear-gradient(135deg,var(--cyan),#7aa8ff);border-color:transparent;box-shadow:0 0 18px rgba(62,240,255,.55)}
+.tab.on small{opacity:1}
+.tab .ok{position:absolute;top:-8px;right:-6px;background:var(--yellow);color:#000;border-radius:50%;width:24px;height:24px;font-size:14px;display:grid;place-items:center;box-shadow:0 0 10px var(--yellow)}
+
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:26px;padding:18px;box-shadow:0 0 40px rgba(60,80,200,.18) inset}
+.mode-title{font-size:21px;font-weight:900;margin-bottom:4px}
+.mode-desc{color:var(--muted);font-size:15px;margin-bottom:12px;line-height:1.6}
+.cv-wrap{width:100%;display:flex;justify-content:center;margin:8px 0;border-radius:20px;
+  background:linear-gradient(rgba(62,240,255,.05) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,rgba(62,240,255,.05) 1px,transparent 1px) 0 0/24px 24px,rgba(4,8,26,.65);border:1px solid rgba(62,240,255,.15)}
+.cv-wrap canvas{border-radius:20px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:12px 0}
+.lbl{font-weight:700;color:var(--muted)}
+.btn{border:none;border-radius:18px;padding:13px 20px;min-height:52px;font-size:17px;font-weight:900;cursor:pointer;color:#071028;
+  background:linear-gradient(135deg,var(--cyan),#5d9bff);box-shadow:0 4px 0 #1b4f8a,0 0 18px rgba(62,240,255,.35);transition:transform .1s,filter .2s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1b4f8a}
+.btn.pink{background:linear-gradient(135deg,var(--pink),#b06bff);box-shadow:0 4px 0 #6b1f7a,0 0 18px rgba(255,90,217,.35)}
+.btn.yellow{background:linear-gradient(135deg,var(--yellow),var(--orange));box-shadow:0 4px 0 #8a5a12,0 0 18px rgba(255,216,74,.35)}
+.btn.green{background:linear-gradient(135deg,var(--green),#2bd4a4);box-shadow:0 4px 0 #13724f,0 0 18px rgba(77,255,154,.35)}
+.btn.ghost{background:rgba(255,255,255,.08);color:var(--text);box-shadow:0 4px 0 rgba(0,0,0,.4);border:1px solid var(--line)}
+.btn.sm{padding:10px 14px;font-size:15px;min-height:46px}
+.btn:disabled{filter:grayscale(1) brightness(.55);cursor:not-allowed;transform:none}
+.btn.glow{animation:btnGlow 1.2s infinite}
+@keyframes btnGlow{50%{filter:brightness(1.25);box-shadow:0 4px 0 #1b4f8a,0 0 34px rgba(255,255,255,.65)}}
+.chip{border:2px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:9px 16px;border-radius:999px;font-weight:900;font-size:15px;cursor:pointer;min-height:44px}
+.chip.on{border-color:var(--yellow);background:rgba(255,216,74,.18);color:var(--yellow);box-shadow:0 0 12px rgba(255,216,74,.4)}
+.slider-row{display:flex;align-items:center;gap:12px;width:100%;max-width:520px}
+.slider-row input{flex:1}
+.tag{font-weight:900;padding:6px 12px;border-radius:12px;white-space:nowrap}
+.tag.blue{background:rgba(62,140,255,.25);color:#8ec3ff}.tag.yellow{background:rgba(255,216,74,.2);color:var(--yellow)}.tag.purple{background:rgba(163,123,255,.22);color:#d2c0ff}
+.val{min-width:52px;text-align:center;font-size:22px;color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;height:14px;border-radius:999px;background:linear-gradient(90deg,#24306b,#3a4a9a);outline:none;touch-action:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,var(--cyan));box-shadow:0 0 14px var(--cyan);cursor:pointer;border:3px solid #0a1030}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);border:3px solid #0a1030}
+.readout{text-align:center;font-size:20px;font-weight:700;line-height:1.7;padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.25);min-height:52px}
+.readout small{display:block;font-size:14px;color:var(--muted);font-weight:500}
+.readout .note{font-size:15px;color:var(--yellow)}
+.task-bar{background:linear-gradient(90deg,rgba(255,216,74,.18),rgba(255,90,217,.12));border:1px dashed rgba(255,216,74,.6);border-radius:14px;padding:10px 14px;font-weight:700;text-align:center}
+.big{font-size:1.35em}
+.c-blue{color:#8ec3ff}.c-yellow{color:var(--yellow)}.c-green{color:var(--green)}.c-pink{color:var(--pink)}.c-cyan{color:var(--cyan)}.c-red{color:var(--red)}.c-purple{color:#d2c0ff}
+.tip{margin-top:16px;padding:14px 18px;border-radius:20px;background:linear-gradient(135deg,rgba(255,216,74,.16),rgba(255,159,67,.1));border:2px solid rgba(255,216,74,.45);line-height:1.7;font-size:16px}
+.tip b{color:var(--yellow);display:block;font-size:15px}
+.guide{display:grid;gap:6px;margin:6px 0 10px}
+.gstep{padding:9px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:2px solid var(--line);opacity:.55;font-size:16px;line-height:1.6;transition:.3s}
+.gstep .gn{color:var(--yellow);font-weight:900;margin-right:6px}
+.gstep.now{opacity:1;border-color:var(--yellow);background:rgba(255,216,74,.12);box-shadow:0 0 14px rgba(255,216,74,.25)}
+.gstep.done{opacity:.85;border-color:rgba(77,255,154,.5)}
+.gstep.done .gn::before{content:"✅ "}
+.question{font-size:clamp(19px,3.6vw,24px);font-weight:900;text-align:center;padding:10px 12px;margin:4px 0 8px;border-radius:16px;background:rgba(62,240,255,.08);border:2px solid rgba(62,240,255,.35);line-height:1.6}
+.nav-next{display:flex;justify-content:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+
+/* fractions */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 3px;font-weight:900}
+.fr i{font-style:normal;padding:0 3px}
+.fr i:first-child{border-bottom:2px solid currentColor}
+
+/* U1B frog */
+.formula{text-align:center;font-size:clamp(28px,6vw,44px);font-weight:900;letter-spacing:2px;margin:6px 0}
+.mag-panel{display:grid;gap:8px;max-width:620px;margin:0 auto 10px}
+.mag-line{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-size:19px;font-weight:700;background:rgba(255,255,255,.05);border-radius:14px;padding:8px 10px;animation:slideIn .45s both}
+.mag-line .n{font-size:26px;font-weight:900}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.frog-stage{position:relative;margin:10px auto;max-width:640px;padding:70px 10px 24px;border-radius:20px;background:linear-gradient(180deg,rgba(77,255,154,.05),rgba(62,240,255,.1));border:1px solid rgba(77,255,154,.25);overflow:hidden}
+.frog-track{position:relative;display:flex;justify-content:center}
+.digits{display:flex;align-items:flex-end;gap:2px}
+.dg{width:clamp(46px,12vw,64px);height:clamp(58px,15vw,78px);display:grid;place-items:center;font-size:clamp(34px,9vw,50px);font-weight:900;border-radius:14px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);animation:slideIn .35s both}
+.dg.zero{color:var(--pink);border-color:var(--pink);box-shadow:0 0 14px rgba(255,90,217,.6)}
+.dg.zero::after{content:"補0";position:absolute;transform:translateY(46px);font-size:12px;color:var(--pink)}
+.dg{position:relative}
+.pt{width:22px;height:clamp(58px,15vw,78px);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.pt span{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.25);border:2px dashed rgba(255,255,255,.5)}
+.pt.final span{width:16px;height:16px;background:var(--red);border:none;box-shadow:0 0 16px var(--red)}
+.frog{position:absolute;top:-62px;left:0;font-size:46px;transform:translateX(-50%);transition:left .45s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 8px rgba(77,255,154,.8));z-index:2}
+.frog.hop{animation:hop .45s}
+@keyframes hop{0%{transform:translateX(-50%) translateY(0)}45%{transform:translateX(-50%) translateY(-34px) scale(1.15) rotate(-12deg)}100%{transform:translateX(-50%) translateY(0)}}
+.stamp{position:absolute;top:-68px;left:0;width:66px;height:66px;margin-left:-33px;border-radius:50%;border:5px double var(--red);color:var(--red);font-weight:900;font-size:14px;display:grid;place-items:center;text-align:center;line-height:1.15;opacity:0;pointer-events:none;background:rgba(255,77,109,.1);transform:rotate(-14deg) scale(2.4)}
+.stamp.go{animation:stampIn .55s forwards}
+@keyframes stampIn{0%{opacity:0;transform:rotate(-14deg) scale(2.4)}70%{opacity:1;transform:rotate(-14deg) scale(.92)}100%{opacity:.92;transform:rotate(-14deg) scale(1)}}
+.jumps{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.pip{padding:6px 12px;border-radius:999px;font-size:14px;font-weight:900;border:2px solid currentColor;opacity:.4}
+.pip.on{opacity:1;box-shadow:0 0 12px currentColor}
+
+/* U5A fold */
+.fold-scene{perspective:1700px;display:flex;justify-content:center;padding:56px 0 40px;pointer-events:none}
+.fold-paper{position:relative;width:min(100%,560px);aspect-ratio:2/1.25;transform-style:preserve-3d;transform:rotateX(20deg)}
+.fold-paper .rhalf{position:absolute;right:0;top:0;width:50%;height:100%;border-radius:0 18px 18px 0;background:rgba(20,30,80,.75);border:2px solid rgba(163,123,255,.35);transform:translateZ(-2px);transition:box-shadow .3s}
+.flap{position:absolute;left:0;top:0;width:50%;height:100%;transform-origin:100% 50%;transform-style:preserve-3d}
+.flap-face{position:absolute;inset:0;border-radius:18px 0 0 18px;background:linear-gradient(135deg,rgba(40,58,140,.95),rgba(26,36,96,.95));border:2px solid rgba(62,240,255,.55);overflow:hidden}
+.fold-paper svg{position:absolute;inset:0;width:100%;height:100%}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(255,255,255,.12));opacity:0;pointer-events:none}
+.axis-line{position:absolute;left:50%;top:-12px;bottom:-12px;width:6px;margin-left:-3px;border-radius:4px;background:linear-gradient(var(--purple),var(--pink));box-shadow:0 0 18px var(--pink),0 0 36px var(--purple);transform:translateZ(1px)}
+.fold-paper.matched .rhalf{box-shadow:0 0 40px var(--green),0 0 80px rgba(77,255,154,.5)}
+.fold-paper.matched .flap-face{border-color:var(--green);box-shadow:0 0 30px var(--green) inset}
+
+/* long division */
+.ld{position:relative;margin:0 auto;font-weight:900}
+.ldc{position:absolute;z-index:2;width:40px;height:44px;display:grid;place-items:center;font-size:30px;color:#fff;animation:popIn .35s both}
+.ldc.dot{color:var(--yellow);text-shadow:0 0 10px var(--yellow),0 0 3px #000;font-size:38px}
+.ldc.q{color:var(--cyan)}
+.ldc.hl{color:var(--pink);text-shadow:0 0 12px var(--pink)}
+.ldc.new{color:var(--green);text-shadow:0 0 14px var(--green)}
+.ldc.divisor{color:var(--orange)}
+.ldl{position:absolute;height:3px;background:rgba(255,255,255,.75);border-radius:2px;animation:popIn .35s both}
+.ldb{position:absolute;border-top:3px solid #fff;border-left:3px solid #fff;border-top-left-radius:16px}
+@keyframes popIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+.laser{position:absolute;width:6px;margin-left:-3px;border-radius:3px;background:linear-gradient(#fff,var(--red));box-shadow:0 0 10px var(--red),0 0 24px var(--red);height:0;transition:height 1s ease-in,opacity .6s;z-index:1;opacity:.85}
+.ld-box{background:rgba(0,0,0,.28);border-radius:20px;padding:14px 10px;display:flex;justify-content:center;overflow-x:auto}
+
+/* U6A juice */
+.juice-lab{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+.cups-area{display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px;border-radius:20px;background:rgba(0,0,0,.25)}
+.jug-row{display:flex;align-items:flex-end;gap:18px}
+.cups{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.vessel{position:relative;border:3px solid rgba(255,255,255,.7);border-top:none;overflow:hidden;background:rgba(255,255,255,.05)}
+.vessel .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(#ffcb5a,#ff8a00);transition:height 1.4s ease;box-shadow:0 0 14px rgba(255,159,67,.7) inset}
+.jug{width:86px;height:140px;border-radius:0 0 18px 18px}
+.cup{width:54px;height:86px;border-radius:0 0 14px 14px}
+.vlabel{text-align:center;font-size:14px;font-weight:900;margin-top:4px}
+.left-bubble{font-size:15px;font-weight:900;padding:8px 12px;border-radius:14px;background:rgba(255,77,109,.15);border:2px dashed var(--red);color:#ffb3c1;text-align:center}
+.left-bubble.ok{background:rgba(77,255,154,.12);border-color:var(--green);color:var(--green)}
+
+/* U6B coins */
+.coin-lab{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+.pool-wrap{background:rgba(0,0,0,.25);border-radius:20px;padding:10px 12px;margin-bottom:12px}
+.pool-label{font-weight:900;color:var(--yellow);margin-bottom:6px}
+.pool{display:flex;flex-wrap:wrap;gap:6px;min-height:58px;align-items:center;justify-content:center}
+.people{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.person{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:8px 4px;text-align:center}
+.ava{font-size:30px}
+.pname{font-size:13px;color:var(--muted)}
+.wallet{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:56px;align-content:flex-start;padding:4px}
+.amt{font-weight:900;color:var(--green);font-size:16px}
+.coin{display:grid;place-items:center;border-radius:50%;font-weight:900;color:#3a2600;flex:0 0 auto}
+.coin.c1{width:46px;height:46px;font-size:13px;background:radial-gradient(circle at 35% 30%,#fff6c4,#ffcc33 45%,#c98a00);box-shadow:0 0 10px rgba(255,204,51,.7)}
+.coin.c01{width:30px;height:30px;font-size:10px;color:#1d2433;background:radial-gradient(circle at 35% 30%,#ffffff,#c9d4e6 50%,#7b8aa6);box-shadow:0 0 8px rgba(200,220,255,.6)}
+.coin.c001{width:22px;height:22px;font-size:8px;color:#fff;background:radial-gradient(circle at 35% 30%,#ffd0a8,#d9782d 55%,#8b4513);box-shadow:0 0 6px rgba(217,120,45,.7)}
+.person .coin.c1{width:34px;height:34px;font-size:10px}
+.person .coin.c01{width:22px;height:22px;font-size:8px}
+.person .coin.c001{width:16px;height:16px;font-size:6px}
+.coin.boom{animation:boom .45s forwards}
+@keyframes boom{to{transform:scale(2.4);opacity:0;filter:brightness(3)}}
+.coin.spawn{animation:spawn .55s both}
+@keyframes spawn{from{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}to{transform:none;opacity:1}}
+
+/* scaffold */
+.problem{text-align:center;font-size:clamp(24px,5vw,36px);font-weight:900;margin:6px 0 12px}
+.visual{display:flex;justify-content:center;margin-bottom:12px}
+.steps{display:grid;gap:14px}
+.step{border-radius:20px;padding:14px 16px;background:var(--panel2);border:2px solid var(--line);animation:slideIn .4s both}
+.step.solved{border-color:rgba(77,255,154,.6);background:rgba(20,70,60,.35)}
+.step-no{display:inline-block;font-size:13px;font-weight:900;padding:3px 12px;border-radius:999px;background:var(--purple);color:#fff;margin-bottom:6px}
+.step.solved .step-no{background:var(--green);color:#062}
+.step-q{font-size:18px;font-weight:700;line-height:1.7}
+.blank{display:inline-block;min-width:54px;padding:0 8px;margin:0 3px;border-bottom:3px solid var(--yellow);color:var(--yellow);text-align:center;font-weight:900}
+.opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.opt{min-width:84px;min-height:52px;padding:10px 16px;border-radius:16px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.07);color:#fff;font-size:18px;font-weight:900;cursor:pointer}
+.opt.sel{border-color:var(--yellow);background:rgba(255,216,74,.2);color:var(--yellow)}
+.opt.right{border-color:var(--green);background:rgba(77,255,154,.22);color:var(--green)}
+.opt.wrong{border-color:var(--red);background:rgba(255,77,109,.2);animation:shake .4s}
+.opt:disabled{cursor:default}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.ok-msg{margin-top:8px;color:var(--green);font-weight:700;font-size:16px}
+.final-card{text-align:center;padding:18px;border-radius:20px;background:linear-gradient(135deg,rgba(255,216,74,.2),rgba(77,255,154,.15));border:2px solid var(--yellow);font-size:19px;font-weight:900;animation:slideIn .4s both}
+.factor-lists{display:grid;gap:8px;font-size:17px;font-weight:700}
+.factor-lists span{display:inline-block;min-width:34px;padding:4px 8px;margin:2px;border-radius:10px;background:rgba(255,255,255,.08);text-align:center}
+
+/* toast & confetti */
+.toast{position:fixed;left:50%;top:76px;transform:translateX(-50%) translateY(-20px);z-index:80;padding:14px 26px;border-radius:999px;font-size:20px;font-weight:900;color:#1a1200;
+  background:linear-gradient(135deg,var(--yellow),var(--orange));box-shadow:0 0 30px rgba(255,216,74,.8);opacity:0;transition:.35s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:79;pointer-events:none;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--x),110vh) rotate(var(--r));opacity:.9}}
+
+@media (max-width:720px){
+  #app{padding:70px 12px 40px}
+  .stage{padding:14px 10px;border-radius:20px}
+  .tab{font-size:13px;padding:10px 4px}
+  .tab small{font-size:11px}
+  .coach-face{flex-basis:56px;width:56px;height:56px}
+  .coach-bubble{font-size:15px;padding:10px 12px}
+  .juice-lab,.coin-lab{grid-template-columns:1fr}
+  .btn{font-size:16px;padding:12px 16px}
+  .readout{font-size:17px}
+  .home-btn{font-size:14px;padding:9px 13px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<button class="home-btn" id="homeBtn">🏠 返回首頁選單</button>
+<button class="sound-btn" id="soundBtn" title="音效開關">🔊</button>
+<div class="toast" id="toast"></div>
+
+<div id="app">
+  <!-- ========== 首頁大廳 ========== -->
+  <section id="hub">
+    <header class="hero">
+      <h1>🚀 五上數學<span>雙維度視覺實驗室</span></h1>
+      <p>康軒五上 6 大單元 × 每單元 3 關｜空間感知 ✦ 邏輯拆解 ✦ 鷹架挑戰</p>
+      <div class="total">⭐ 已收集 <b id="totalStars">0</b> / <span id="totalMax">19</span> 顆星 <button class="reset-link" id="resetBtn">重置進度</button></div>
+    </header>
+    <div class="coach">
+      <div class="coach-face" data-face></div>
+      <div class="coach-bubble"><span class="who">石虎博士 Dr. Leo</span>歡迎來到星際數學實驗室！我是石虎博士 🐾 每個單元都有「玩法 A」「玩法 B」和「終極挑戰」三顆星星等你收集，選一個單元出發吧！</div>
+    </div>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <!-- ========== 單元頁 ========== -->
+  <section id="unit" hidden>
+    <div class="unit-head"><span class="u-no" id="unitNo" style="--c:var(--cyan)">單元 1</span><h2 id="unitTitle"></h2></div>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="coach">
+      <div class="coach-face" data-face></div>
+      <div class="coach-bubble" id="coachText"></div>
+    </div>
+    <div class="stage" id="stage"></div>
+    <div class="tip" id="tip"></div>
+    <div class="nav-next" id="navNext"></div>
+  </section>
+</div>
+
+<script>
+/* =========================================================
+   共用工具
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const ease = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
+const fmt = n => String(parseFloat(n.toFixed(6)));
+const f1 = n => (n / 10).toFixed(1);
+const F = (n, d) => `<span class="fr"><i>${n}</i><i>${d}</i></span>`;
+const FONT = '"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+const TAU = Math.PI * 2;
+
+let cleanups = [];
+function onCleanup(fn) { cleanups.push(fn); }
+function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; }
+function later(fn, ms) { const id = setTimeout(fn, ms); onCleanup(() => clearTimeout(id)); return id; }
+function loop(fn) {
+  let id, last = performance.now();
+  const f = now => { const dt = Math.min(0.05, (now - last) / 1000); last = now; fn(dt, now / 1000); id = requestAnimationFrame(f); };
+  id = requestAnimationFrame(f);
+  onCleanup(() => cancelAnimationFrame(id));
+}
+/* 以「邏輯座標 W×H」設計畫面，自動等比縮放到容器寬度 */
+function setupCanvas(cv, W, H, maxW) {
+  const ctx = cv.getContext('2d');
+  const C = { W, H, ctx, s: 1, dw: 0 };
+  function resize() {
+    const pw = cv.parentElement.clientWidth;
+    if (!pw) return;
+    const dw = Math.min(pw, maxW || W);
+    if (dw === C.dw) return;
+    C.dw = dw;
+    const s = dw / W, dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.style.width = dw + 'px'; cv.style.height = (H * s) + 'px';
+    cv.width = Math.round(dw * dpr); cv.height = Math.round(H * s * dpr);
+    ctx.setTransform(s * dpr, 0, 0, s * dpr, 0, 0);
+    C.s = s;
+  }
+  resize();
+  const ro = new ResizeObserver(resize); ro.observe(cv.parentElement);
+  onCleanup(() => ro.disconnect());
+  C.pt = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H }; };
+  C.clear = () => { ctx.clearRect(0, 0, W, H); };
+  return C;
+}
+function txt(ctx, t, x, y, o = {}) {
+  const { size = 20, color = '#fff', align = 'center', weight = 900, glow = null, stroke = null } = o;
+  ctx.font = `${weight} ${size}px ${FONT}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  if (stroke) { ctx.lineWidth = 5; ctx.strokeStyle = stroke; ctx.lineJoin = 'round'; ctx.strokeText(t, x, y); }
+  if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 14; }
+  ctx.fillStyle = color; ctx.fillText(t, x, y); ctx.shadowBlur = 0;
+}
+function rrect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function fracC(ctx, n, d, x, y, size, color, glow) {
+  txt(ctx, String(n), x, y - size * 0.62, { size, color, glow });
+  ctx.fillStyle = color; ctx.fillRect(x - size * 0.6, y - 2, size * 1.2, 4);
+  txt(ctx, String(d), x, y + size * 0.62, { size, color, glow });
+}
+function glowLine(ctx, x1, y1, x2, y2, color, w = 4) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round';
+  ctx.shadowColor = color; ctx.shadowBlur = 16;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = w * 0.35; ctx.shadowBlur = 0; ctx.stroke(); ctx.restore();
+}
+function star(ctx, x, y, r, color) {
+  ctx.save(); ctx.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; ctx.lineTo(x + rr * Math.cos(a), y + rr * Math.sin(a)); }
+  ctx.closePath(); ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = 16; ctx.fill(); ctx.restore();
+}
+
+/* 音效 */
+let AC = null, soundOn = true;
+function sfx(type) {
+  if (!soundOn) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const map = { ok: [660, 990, 'triangle'], bad: [240, 150, 'sawtooth'], click: [520, 640, 'sine'], win: [523, 1318, 'triangle'], zap: [1200, 180, 'square'], hop: [380, 760, 'sine'] };
+    const [a, b, w] = map[type] || map.click;
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+    o.type = w; o.frequency.setValueAtTime(a, t); o.frequency.exponentialRampToValueAtTime(b, t + 0.22);
+    g.gain.setValueAtTime(type === 'zap' ? 0.05 : 0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + 0.32);
+  } catch (e) {}
+}
+
+/* 石虎博士頭像 SVG */
+const LEO_SVG = `<svg viewBox="0 0 100 100"><defs><radialGradient id="lf" cx="50%" cy="45%"><stop offset="0" stop-color="#e9b877"/><stop offset="1" stop-color="#b57b3e"/></radialGradient></defs>
+<path d="M18 40 L22 10 L42 28 Z" fill="#b57b3e"/><path d="M82 40 L78 10 L58 28 Z" fill="#b57b3e"/>
+<path d="M24 34 L25 18 L36 29 Z" fill="#3b2a1a"/><path d="M76 34 L75 18 L64 29 Z" fill="#3b2a1a"/>
+<ellipse cx="50" cy="56" rx="36" ry="32" fill="url(#lf)"/>
+<path d="M40 26 Q42 36 41 44 M50 24 L50 42 M60 26 Q58 36 59 44" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="28" cy="50" r="3" fill="#5a3a1c"/><circle cx="72" cy="50" r="3" fill="#5a3a1c"/><circle cx="24" cy="62" r="2.5" fill="#5a3a1c"/><circle cx="76" cy="62" r="2.5" fill="#5a3a1c"/>
+<rect x="24" y="44" width="22" height="16" rx="8" fill="#0d2a4a" stroke="#3ef0ff" stroke-width="3"/><rect x="54" y="44" width="22" height="16" rx="8" fill="#0d2a4a" stroke="#3ef0ff" stroke-width="3"/>
+<line x1="46" y1="51" x2="54" y2="51" stroke="#3ef0ff" stroke-width="3"/>
+<circle cx="35" cy="52" r="4" fill="#ffe680"/><circle cx="65" cy="52" r="4" fill="#ffe680"/>
+<ellipse cx="50" cy="72" rx="14" ry="10" fill="#fff3e0"/><path d="M45 67 L55 67 L50 72 Z" fill="#d9646e"/>
+<path d="M50 72 Q46 78 42 76 M50 72 Q54 78 58 76" stroke="#5a3a1c" stroke-width="2" fill="none"/>
+<path d="M30 70 L14 66 M30 74 L14 76 M70 70 L86 66 M70 74 L86 76" stroke="#fff" stroke-width="1.5"/></svg>`;
+$$('[data-face]').forEach(e => e.innerHTML = LEO_SVG);
+
+function coach(html) {
+  const b = $('#coachText');
+  b.innerHTML = `<span class="who">石虎博士 Dr. Leo</span>${html}`;
+  b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse');
+}
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function confetti() {
+  const colors = ['#3ef0ff', '#ff5ad9', '#ffd84a', '#4dff9a', '#a37bff', '#ff9f43'];
+  for (let i = 0; i < 46; i++) {
+    const d = document.createElement('div'); d.className = 'confetti';
+    d.style.left = Math.random() * 100 + 'vw'; d.style.background = colors[i % colors.length];
+    d.style.setProperty('--x', (Math.random() * 200 - 100) + 'px'); d.style.setProperty('--r', (Math.random() * 900) + 'deg');
+    d.style.animationDuration = (1.6 + Math.random() * 1.4) + 's'; d.style.animationDelay = (Math.random() * 0.3) + 's';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 3400);
+  }
+}
+
+/* =========================================================
+   進度儲存
+   ========================================================= */
+const KEY = 'mathlab5A_progress_v1';
+let P = {};
+function loadP() { try { P = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { P = {}; } for (let i = 1; i <= 6; i++) P[i] = Object.assign({ A: false, B: false, C: false, S: false }, P[i] || {}); }
+function saveP() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
+loadP();
+
+let cur = { uid: 1, mode: 'A' };
+function complete(uid, m, msg) {
+  const first = !P[uid][m];
+  P[uid][m] = true; saveP(); renderTabs(); renderNext();
+  sfx('win');
+  if (first) { confetti(); toast(`⭐ 獲得星星！${UNITS[uid - 1].title}・${modeName(UNITS[uid - 1], m)}`); }
+  if (msg) coach(msg);
+}
+
+/* =========================================================
+   單元資料
+   ========================================================= */
+const MODE_NAMES = { A: '玩法 A', B: '玩法 B', C: '終極挑戰', S: '三邊關係' };
+const TAB_INFO = {
+  A: ['🎮 玩法 A', '空間與物理感知'],
+  B: ['🧩 玩法 B', '規則與邏輯拆解'],
+  C: ['🎯 終極挑戰', '步驟鷹架填空']
+};
+const UNITS = [
+  { id: 1, icon: '✖️', color: '#3ef0ff', title: '小數的乘法', A: '光影百格面積陣', B: '小數點跳跳蛙', C: '小數位數鷹架' },
+  { id: 2, icon: '🪖', color: '#4dff9a', title: '因數與倍數', A: '閱兵方陣排排站', B: '雙軌太空電梯', C: '公因數大搜查' },
+  { id: 3, icon: '🍕', color: '#ffd84a', title: '異分母分數的加減', A: '3D 披薩雷射切片廠', B: '分數積木軌道尺', C: '通分三步驟' },
+  { id: 4, icon: '🔺', color: '#ff9f43', title: '三角形與多邊形內角和', S: '三根木棒圍圍看', B: '撕角拼圖（三角形內角和）', A: '頂點雷射切割機（多邊形）', C: '內角和公式',
+    modes: ['S', 'B', 'A', 'C'],
+    tabs: { S: ['📏 第 1 關', '三角形三邊關係'], B: ['🔺 第 2 關', '三角形內角和'], A: ['🔷 第 3 關', '多邊形內角和'], C: ['🎯 終極挑戰', '步驟鷹架填空'] },
+    names: { S: '第 1 關', B: '第 2 關', A: '第 3 關', C: '終極挑戰' } },
+  { id: 5, icon: '🦋', color: '#a37bff', title: '線對稱圖形', A: '3D 空間摺紙鏡', B: '方格步數探測器', C: '對稱點偵探' },
+  { id: 6, icon: '🥤', color: '#ff5ad9', title: '整數與小數除以整數', A: '果汁分裝與餘數雷射', B: '退位換幣拆解機', C: '小數點對齊術' }
+];
+UNITS.forEach(u => { u.modes = u.modes || ['A', 'B', 'C']; });
+const tabInfo = (u, m) => (u.tabs && u.tabs[m]) || TAB_INFO[m];
+const modeName = (u, m) => (u.names && u.names[m]) || MODE_NAMES[m];
+const TOTAL_STARS = UNITS.reduce((a, u) => a + u.modes.length, 0);
+const TIPS = {
+  '1A': '小數乘小數，就像在一塊巧克力上「切一部分的一部分」：拿 0.4 塊巧克力的 0.3，當然越切越小，只剩 0.12 塊！所以兩個比 1 小的數相乘，答案會變小喔。',
+  '1B': '小數點是一隻愛玩的青蛙！先把牠請出去，當整數乘；算完再數一數「被乘數幾位 + 乘數幾位」，青蛙就從最右邊往左跳幾格，跳到沒格子時，就踩一個 0 當墊腳石！',
+  '1C': '三句話秒殺：①先數被乘數的小數位 ②再數乘數的小數位 ③加起來，就是小數點從右往左跳的格數！',
+  '2A': '閱兵隊伍不能有人落單！能排得「剛剛好、整整齊齊」的排數就是因數。12 人能排 1、2、3、4、6、12 排，排 5 排就會有人哭哭落單。',
+  '2B': '兩部電梯各走各的步伐：A 兩樓兩樓跳、B 三樓三樓跳。牠們在同一層樓「撞見」的樓層都是公倍數，第一次撞見的就是最小公倍數！',
+  '2C': '公因數就是「兩個數的共同好朋友」，最大公因數就是「好朋友裡面最高的那一位」！',
+  '3A': '大小不一樣的披薩片不能直接數！先用雷射切成「一樣大」的小片（通分），再裝進同一個盒子，數一數有幾片就好啦。',
+  '3B': '要量兩塊積木，就要用同一把尺，而且兩塊都要量出「剛好整格」！格線對不齊就量不準！找到一把讓兩塊積木都「剛好對齊」的尺，那把尺的格子就是公分母。',
+  '3C': '異分母加減三招：①找最小公倍數當新分母 ②分子跟著分母一起放大（擴分）③分母一樣後，分子直接加減！',
+  '4S': '三根木棒要圍成三角形，就像兩隻手要牽到手：兩根短的加起來一定要「比最長的還長」才牽得到！剛好一樣長只會平躺成一條線，比較短就怎樣都碰不到。',
+  '4A': '站在一個頂點朝其他頂點發射雷射，N 邊形就被切成「N − 2」塊三角形披薩，每塊 180°，乘起來就是內角和！',
+  '4B': '三角形把三個角撕下來排一排，剛好拼成一條直線 180°；四邊形四個角拼起來，剛好轉一整圈 360°！',
+  '4C': '三句話：①兩短邊加起來要比最長邊長 ②三角形內角和 180° ③多邊形內角和公式只有一句：(邊數 − 2) × 180°。五邊形 3 塊、六邊形 4 塊、七邊形 5 塊三角形！',
+  '5A': '線對稱圖形就像蝴蝶照鏡子：沿著對稱軸一摺，左右兩邊「完完全全」疊在一起，一點都不多、一點都不少！',
+  '5B': '對稱點是一對雙胞胎：牠們離鏡子（對稱軸）一樣遠，而且走的路線跟鏡子成直角（垂直）！',
+  '5C': '對稱點三寶：①到對稱軸一樣遠 ②連線跟對稱軸垂直 ③對稱軸把連線切成一樣長！',
+  '6A': '直式最後剩下的數字最會騙人！用雷射把被除數的小數點「直直射下來」，餘數的小數點就要點在同一條線上，2 就現出原形變成 0.2！',
+  '6B': '錢不夠分時別放棄！把 1 元換成 10 個 1 角（0.1 元）繼續分。在直式上，就是「點上小數點、補一個 0」繼續除！',
+  '6C': '小數點對齊口訣：商的小數點看被除數，餘數的小數點也看被除數，大家都對齊被除數就不會錯！'
+};
+const INTRO = {
+  '1A': '我是石虎博士！拉動滑桿讓<span class="c-blue">藍光（長）</span>和<span class="c-yellow">黃光（寬）</span>交會，<span class="c-green">綠色格子</span>就是「長 × 寬」的答案喔！先完成上方的任務吧。',
+  '1B': '小數乘法有個秘密：先把小數點「請出去」，當整數算；最後再讓青蛙把小數點背回來！先按 🔍 放大鏡。',
+  '2A': '閱兵開始！士兵要排成整齊的方陣，不能有人落單。按下「排成 1～6 排」試試看，把所有因數都收集起來！',
+  '2B': 'A、B 兩部太空電梯從地面出發，每次跳的樓層不一樣。按發射鍵，注意牠們會在哪幾層樓「撞見」！',
+  '3A': '題目是：半個披薩 + 1/3 個披薩 = 多少個披薩？先看看兩片一樣大嗎？然後跟著「第 1 步、第 2 步」按按鈕！',
+  '3B': '題目是：1/2 長的積木 + 1/3 長的積木，接起來有多長？我們要找一把尺，能把兩塊積木都量成「剛好整格」。',
+  '4S': '單元 4 從三角形開始！先來玩木棒：隨便三根木棒都能圍成三角形嗎？用「快速試試」的按鈕，把三種情況都試一遍！',
+  '4A': '點一下閃爍的頂點 A（或按按鈕），從 A 發射雷射對角線，把多邊形切成三角形！',
+  '4B': '三角形不管長什麼樣子，三個角加起來都一樣喔！按「把角撕下來」看看拼成什麼，三角形和四邊形都要試！',
+  '5A': '慢慢拉動摺疊滑桿，把左半邊立體翻過去，看看能不能和右邊虛線完全重合！',
+  '5B': '探測機器人要從 A 點出發：先「垂直」走到對稱軸，再走一樣多步，就能找到對稱點 A′！',
+  '6A': '5.8 公升果汁要平分到 4 個杯子。先按「開始分裝」，看直式怎麼算！',
+  '6B': '5 元要平分給 4 個小朋友。每人先拿 1 元……剩下的 1 元怎麼辦？跟著按鈕一步一步來！',
+  'C': '終極挑戰來了！不用算很久，只要把每一個 Step 的「觀念」點對，就能拿到星星 ⭐'
+};
+
+/* =========================================================
+   首頁與分頁
+   ========================================================= */
+function renderHub() {
+  let total = 0;
+  $('#cards').innerHTML = UNITS.map(u => {
+    const p = P[u.id]; u.modes.forEach(m => total += p[m] ? 1 : 0);
+    const s = m => `<span class="star ${p[m] ? 'on' : ''}">★</span>`;
+    const ic = { A: '🎮 A', B: '🧩 B', C: '🎯 挑戰' };
+    return `<button class="ucard" style="--c:${u.color}" data-u="${u.id}">
+      <span class="u-no">單元 ${u.id}</span><div class="u-icon">${u.icon}</div>
+      <h3>${u.title}</h3>
+      <div class="u-modes">
+        ${u.modes.map(m => `<div>${s(m)} ${u.tabs ? tabInfo(u, m)[0] : ic[m]}｜${u[m]}</div>`).join('')}
+      </div>
+      <div class="u-stars">${u.modes.map(s).join('')}</div>
+    </button>`;
+  }).join('');
+  $('#totalStars').textContent = total; $('#totalMax').textContent = TOTAL_STARS;
+  $$('.ucard').forEach(b => b.onclick = () => { sfx('click'); openUnit(+b.dataset.u); });
+}
+function goHome() {
+  runCleanup();
+  $('#unit').hidden = true; $('#hub').hidden = false;
+  renderHub(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function openUnit(uid, mode) {
+  cur.uid = uid;
+  const u = UNITS[uid - 1];
+  mode = mode || u.modes[0];
+  $('#hub').hidden = true; $('#unit').hidden = false;
+  $('#unitNo').textContent = `單元 ${uid} ${u.icon}`; $('#unitNo').style.setProperty('--c', u.color); $('#unitNo').style.background = u.color;
+  $('#unitTitle').textContent = u.title;
+  window.scrollTo({ top: 0 });
+  openMode(mode);
+}
+function renderTabs() {
+  const u = UNITS[cur.uid - 1];
+  $('#tabs').style.gridTemplateColumns = `repeat(${u.modes.length},1fr)`;
+  $('#tabs').innerHTML = u.modes.map(m => `<button class="tab ${cur.mode === m ? 'on' : ''}" data-m="${m}">
+    ${P[cur.uid][m] ? '<span class="ok">★</span>' : ''}${tabInfo(u, m)[0]}<small>${tabInfo(u, m)[1]}<br>${u[m]}</small></button>`).join('');
+  $$('.tab').forEach(b => b.onclick = () => { if (b.dataset.m !== cur.mode) { sfx('click'); openMode(b.dataset.m); } });
+}
+function renderNext() {
+  const u = UNITS[cur.uid - 1], order = u.modes, i = order.indexOf(cur.mode), last = order.length - 1;
+  const nav = $('#navNext');
+  const done = P[cur.uid][cur.mode];
+  if (i < last) nav.innerHTML = `<button class="btn ${done ? 'yellow glow' : 'ghost'}" id="nextBtn">下一關：${tabInfo(u, order[i + 1])[0]} ➜</button>`;
+  else if (cur.uid < 6) nav.innerHTML = `<button class="btn ghost" id="homeBtn2">🏠 回大廳</button><button class="btn ${done ? 'yellow glow' : 'ghost'}" id="nextBtn">前往單元 ${cur.uid + 1} ➜</button>`;
+  else nav.innerHTML = `<button class="btn ${done ? 'yellow glow' : 'ghost'}" id="homeBtn2">🏠 回大廳看星星</button>`;
+  const nb = $('#nextBtn'); if (nb) nb.onclick = () => { sfx('click'); i < last ? openMode(order[i + 1]) : openUnit(cur.uid + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const hb = $('#homeBtn2'); if (hb) hb.onclick = goHome;
+}
+function guideHTML(steps) { return `<div class="guide">${steps.map((t, i) => `<div class="gstep" data-g="${i}"><span class="gn">第 ${i + 1} 步</span>${t}</div>`).join('')}</div>`; }
+function setGuide(st, i) { $$('.gstep', st).forEach((g, k) => { g.classList.toggle('done', k < i); g.classList.toggle('now', k === i); }); }
+function modeHead(title, desc) { return `<div class="mode-title">${title}</div><div class="mode-desc">${desc}</div>`; }
+function openMode(m) {
+  runCleanup();
+  cur.mode = m;
+  renderTabs(); renderNext();
+  const key = cur.uid + m;
+  $('#tip').innerHTML = `<b>💡 30 秒白話秒懂口訣</b>${TIPS[key]}`;
+  coach(INTRO[key] || INTRO.C);
+  const st = $('#stage'); st.innerHTML = '';
+  MODES[cur.uid][m](st);
+}
+
+/* =========================================================
+   單元 1A：光影百格面積陣
+   ========================================================= */
+function m1A(st) {
+  st.innerHTML = modeHead('🎮 玩法 A：光影百格面積陣', '整張 10×10 方格代表 1 × 1 = 1。藍光照亮「長」、黃光照亮「寬」，兩道光交會變成綠光，綠光格數 ÷ 100 就是答案！') +
+    `<div class="task-bar" id="task"></div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls">
+      <div class="slider-row"><span class="tag blue">🔵 長</span><input type="range" id="sa" min="1" max="10" value="10"><b class="val" id="va">1.0</b></div>
+      <div class="slider-row"><span class="tag yellow">🟡 寬</span><input type="range" id="sb" min="1" max="10" value="10"><b class="val" id="vb">1.0</b></div>
+    </div>
+    <div class="readout" id="ro"></div>`;
+  const C = setupCanvas($('#cv', st), 520, 520, 470), ctx = C.ctx;
+  const sa = $('#sa', st), sb = $('#sb', st);
+  const tasks = [[4, 3], [6, 7]];
+  let a = 10, b = 10, ti = 0, flash = 0;
+  function renderTask() {
+    $('#task', st).innerHTML = ti < tasks.length
+      ? `🎯 任務 ${ti + 1}/${tasks.length}：調出 <b class="c-blue">${f1(tasks[ti][0])}</b> × <b class="c-yellow">${f1(tasks[ti][1])}</b>，數數綠光有幾格？`
+      : `✅ 任務全部完成！你可以自由拉動，觀察「越乘越小」的秘密。`;
+  }
+  function upd() {
+    a = +sa.value; b = +sb.value;
+    $('#va', st).textContent = f1(a); $('#vb', st).textContent = f1(b);
+    const g = a * b;
+    $('#ro', st).innerHTML = `<span class="c-blue">${f1(a)}</span> × <span class="c-yellow">${f1(b)}</span> = <b class="c-green big">${fmt(g / 100)}</b>
+      <small>綠光 ${g} 格 ÷ 全部 100 格 = ${fmt(g / 100)}</small>` +
+      (a < 10 && b < 10 ? `<div class="note">✨ 兩個數都比 1 小，答案 ${fmt(g / 100)} 比 ${f1(Math.min(a, b))} 和 ${f1(Math.max(a, b))} 都還小！</div>` : '');
+    if (ti < tasks.length && a === tasks[ti][0] && b === tasks[ti][1]) {
+      ti++; flash = 1;
+      if (ti < tasks.length) { sfx('ok'); coach(`太棒了！${f1(a)} × ${f1(b)} = <b class="c-green">${fmt(g / 100)}</b>，綠光剛好 ${g} 格！再挑戰下一個任務。`); }
+      else complete(1, 'A', `全部完成！你發現了嗎？<b>0.6 × 0.7 = 0.42</b>，綠色面積只佔一部分，所以小數乘小數，答案會「變小」！`);
+    }
+    renderTask();
+  }
+  sa.oninput = upd; sb.oninput = upd; upd();
+  const ox = 70, oy = 70, cs = 42;
+  loop((dt, t) => {
+    C.clear(); flash = Math.max(0, flash - dt);
+    // 光束
+    ctx.save(); ctx.shadowBlur = 20;
+    ctx.shadowColor = '#3e8cff'; ctx.fillStyle = '#3e8cff'; rrect(ctx, ox, oy - 26, a * cs, 12, 6); ctx.fill();
+    ctx.shadowColor = '#ffd84a'; ctx.fillStyle = '#ffd84a'; rrect(ctx, ox - 26, oy, 12, b * cs, 6); ctx.fill();
+    ctx.restore();
+    txt(ctx, `長 ${f1(a)}`, ox + a * cs / 2, oy - 48, { size: 20, color: '#8ec3ff' });
+    ctx.save(); ctx.translate(ox - 50, oy + b * cs / 2); ctx.rotate(-Math.PI / 2); txt(ctx, `寬 ${f1(b)}`, 0, 0, { size: 20, color: '#ffd84a' }); ctx.restore();
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) {
+      const x = ox + c * cs, y = oy + r * cs, inA = c < a, inB = r < b;
+      rrect(ctx, x + 2, y + 2, cs - 4, cs - 4, 7);
+      if (inA && inB) {
+        const p = 0.75 + 0.2 * Math.sin(t * 3 + (r + c) * 0.5);
+        ctx.save(); ctx.shadowColor = '#4dff9a'; ctx.shadowBlur = 12 + flash * 20;
+        ctx.fillStyle = `rgba(77,255,154,${p})`; ctx.fill(); ctx.restore();
+      } else if (inA) { ctx.fillStyle = 'rgba(62,140,255,.38)'; ctx.fill(); }
+      else if (inB) { ctx.fillStyle = 'rgba(255,216,74,.34)'; ctx.fill(); }
+      else { ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fill(); }
+      ctx.strokeStyle = 'rgba(140,180,255,.22)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2; ctx.strokeRect(ox, oy, cs * 10, cs * 10);
+    txt(ctx, '1', ox + cs * 10 + 14, oy + cs * 10 + 14, { size: 16, color: '#a7b6dc' });
+    txt(ctx, `${a * b} 格`, ox + a * cs / 2, oy + b * cs / 2, { size: a * b < 6 ? 18 : 30, color: '#fff', stroke: '#063' });
+    txt(ctx, '整張 = 1 × 1 = 100 格', 260, 505, { size: 16, color: '#a7b6dc', weight: 700 });
+  });
+}
+
+/* =========================================================
+   單元 1B：小數點跳跳蛙
+   ========================================================= */
+function m1B(st) {
+  const probs = [['1.2', '0.04'], ['0.15', '0.3'], ['0.6', '0.07'], ['2.3', '0.3']];
+  let pi = 0, s;
+  st.innerHTML = modeHead('🧩 玩法 B：小數點跳跳蛙', '先用放大鏡把小數變整數相乘，再控制青蛙把小數點從最右邊往左「跳」回正確位置！') +
+    `<div class="formula" id="fm"></div>
+    <div class="controls">
+      <button class="btn" id="bMag">🔍 第一步：放大鏡變整數</button>
+      <button class="btn pink" id="bJump" disabled>🐸 第二步：青蛙往左跳</button>
+      <button class="btn ghost sm" id="bNew">🔄 換一題</button>
+    </div>
+    <div class="mag-panel" id="mag"></div>
+    <div class="frog-stage"><div class="frog-track" id="track"><div class="digits" id="dg"></div><div class="frog" id="frog" hidden>🐸</div><div class="stamp" id="stamp">小數點<br>印章</div></div></div>
+    <div class="jumps" id="jumps"></div>
+    <div class="readout" id="ro">點擊「🔍 放大鏡」開始！</div>`;
+  const dec = x => (x.split('.')[1] || '').length;
+  const bMag = $('#bMag', st), bJump = $('#bJump', st);
+  function setup() {
+    const [A, B] = probs[pi];
+    const dA = dec(A), dB = dec(B), iA = parseInt(A.replace('.', ''), 10), iB = parseInt(B.replace('.', ''), 10);
+    s = { A, B, dA, dB, iA, iB, total: dA + dB, digits: [], p: 0, jumped: 0, zeros: 0, done: false };
+    $('#fm', st).innerHTML = `<span class="c-cyan">${A}</span> × <span class="c-pink">${B}</span> = <span class="c-yellow">?</span>`;
+    $('#mag', st).innerHTML = ''; $('#dg', st).innerHTML = ''; $('#jumps', st).innerHTML = '';
+    $('#frog', st).hidden = true; $('#stamp', st).classList.remove('go');
+    $('#ro', st).innerHTML = '點擊「🔍 放大鏡」開始！';
+    bMag.disabled = false; bJump.disabled = true; bJump.textContent = '🐸 第二步：青蛙往左跳';
+  }
+  function placeFrog() {
+    const pt = $('.pt', st), track = $('#track', st), frog = $('#frog', st);
+    if (!pt) return;
+    const r1 = pt.getBoundingClientRect(), r0 = track.getBoundingClientRect();
+    const x = r1.left - r0.left + r1.width / 2;
+    frog.style.left = x + 'px'; $('#stamp', st).style.left = x + 'px';
+  }
+  function renderDigits(final) {
+    const dg = $('#dg', st); dg.innerHTML = '';
+    const pt = () => { const e = document.createElement('div'); e.className = 'pt' + (final ? ' final' : ''); e.innerHTML = '<span></span>'; return e; };
+    s.digits.forEach((d, i) => {
+      if (i === s.p) dg.appendChild(pt());
+      const e = document.createElement('div'); e.className = 'dg' + (i < s.zeros ? ' zero' : ''); e.textContent = d; dg.appendChild(e);
+    });
+    if (s.p === s.digits.length) dg.appendChild(pt());
+    requestAnimationFrame(placeFrog);
+  }
+  function renderPips() {
+    let h = '';
+    for (let i = 0; i < s.total; i++) {
+      const fromA = i < s.dA;
+      h += `<span class="pip ${i < s.jumped ? 'on' : ''}" style="color:${fromA ? 'var(--cyan)' : 'var(--pink)'}">第 ${i + 1} 跳（${fromA ? '被乘數' : '乘數'}）</span>`;
+    }
+    $('#jumps', st).innerHTML = h;
+  }
+  bMag.onclick = () => {
+    sfx('ok'); bMag.disabled = true;
+    const prod = s.iA * s.iB;
+    $('#mag', st).innerHTML =
+      `<div class="mag-line"><span class="n c-cyan">${s.A}</span> 🔍➜ <span class="n c-cyan">${s.iA}</span><span>（小數 <b class="c-cyan">${s.dA}</b> 位 → 青蛙要跳 ${s.dA} 格）</span></div>
+       <div class="mag-line" style="animation-delay:.25s"><span class="n c-pink">${s.B}</span> 🔍➜ <span class="n c-pink">${s.iB}</span><span>（小數 <b class="c-pink">${s.dB}</b> 位 → 青蛙要跳 ${s.dB} 格）</span></div>
+       <div class="mag-line" style="animation-delay:.5s">先當整數算：<span class="n">${s.iA} × ${s.iB} = <span class="c-yellow">${prod}</span></span></div>`;
+    s.digits = String(prod).split(''); s.p = s.digits.length;
+    $('#frog', st).hidden = false; renderDigits(false); renderPips();
+    bJump.disabled = false; bJump.classList.add('glow');
+    $('#ro', st).innerHTML = `青蛙 🐸 現在站在 ${prod} 的最右邊，總共要往左跳 <b class="c-yellow">${s.dA} + ${s.dB} = ${s.total}</b> 格！`;
+    coach(`放大鏡把小數點都請走了！${s.iA} × ${s.iB} = ${prod}。現在按「青蛙往左跳」，跳 <b>${s.dA} + ${s.dB} = ${s.total}</b> 格把小數點背回來。`);
+  };
+  bJump.onclick = () => {
+    if (s.done || s.jumped >= s.total) return;
+    let padded = false;
+    if (s.p === 0) { s.digits.unshift('0'); s.zeros++; padded = true; } else s.p--;
+    s.jumped++; sfx('hop');
+    const frog = $('#frog', st); frog.classList.remove('hop'); void frog.offsetWidth; frog.classList.add('hop');
+    renderDigits(false); renderPips();
+    bJump.textContent = `🐸 往左跳（還剩 ${s.total - s.jumped} 跳）`;
+    $('#ro', st).innerHTML = padded ? `沒有格子可以跳了！青蛙踩了一個 <b class="c-pink">0</b> 當墊腳石 🪨` : `跳了第 ${s.jumped} 格！`;
+    if (s.jumped >= s.total) {
+      s.done = true; bJump.disabled = true; bJump.classList.remove('glow');
+      later(() => {
+        if (s.p === 0) { s.digits.unshift('0'); s.zeros++; s.p = 1; }
+        renderDigits(true);
+        $('#frog', st).hidden = true;
+        later(() => { $('#stamp', st).classList.remove('go'); void $('#stamp', st).offsetWidth; $('#stamp', st).classList.add('go'); sfx('ok'); }, 120);
+        const res = s.digits.slice(0, s.p).join('') + '.' + s.digits.slice(s.p).join('');
+        $('#fm', st).innerHTML = `<span class="c-cyan">${s.A}</span> × <span class="c-pink">${s.B}</span> = <span class="c-green">${res}</span>`;
+        $('#ro', st).innerHTML = `蓋上小數點印章！<b class="c-green big">${s.A} × ${s.B} = ${res}</b>${s.zeros ? `<small>前面不夠位數就「補 0」，個位沒有數字也要補 0</small>` : ''}`;
+        complete(1, 'B', `成功！小數位數 ${s.dA} + ${s.dB} = ${s.total}，青蛙往左跳 ${s.total} 格，答案是 <b class="c-green">${res}</b>。按「換一題」再玩一次吧！`);
+      }, 520);
+    }
+  };
+  $('#bNew', st).onclick = () => { pi = (pi + 1) % probs.length; sfx('click'); setup(); coach(INTRO['1B']); };
+  const onR = () => placeFrog(); window.addEventListener('resize', onR); onCleanup(() => window.removeEventListener('resize', onR));
+  setup();
+}
+
+/* =========================================================
+   鷹架填空引擎（各單元終極挑戰共用）
+   ========================================================= */
+function scaffold(st, uid, cfg) {
+  st.innerHTML = modeHead('🎯 終極挑戰：步驟鷹架填空', '不用算很久！跟著 Step 1 ➜ Step 4，點選正確的觀念就能過關。答錯沒關係，石虎博士會給提示。') +
+    `<div class="problem">${cfg.problem}</div>${cfg.visual ? `<div class="visual">${cfg.visual}</div>` : ''}<div class="steps" id="steps"></div>`;
+  if (cfg.after) cfg.after(st);
+  const box = $('#steps', st);
+  let idx = 0;
+  function showStep() {
+    if (idx >= cfg.steps.length) {
+      const f = document.createElement('div'); f.className = 'final-card'; f.innerHTML = `🏆 挑戰成功！<br>${cfg.final}`;
+      box.appendChild(f); f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      complete(uid, 'C', `你把每一步都想清楚了！${cfg.final}`); return;
+    }
+    const sp = cfg.steps[idx], card = document.createElement('div');
+    card.className = 'step';
+    const multi = !!sp.multi;
+    card.innerHTML = `<span class="step-no">Step ${idx + 1}</span><div class="step-q">${sp.q}</div>
+      <div class="opts">${sp.opts.map((o, i) => `<button class="opt" data-i="${i}">${o}</button>`).join('')}</div>
+      ${multi ? `<div class="controls" style="justify-content:flex-start"><button class="btn sm green" data-check>✔ 確認選好了</button></div>` : ''}
+      <div class="ok-msg" hidden></div>`;
+    box.appendChild(card);
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const solve = () => {
+      card.classList.add('solved'); sfx('ok');
+      $$('.opt', card).forEach(b => b.disabled = true);
+      const ck = $('[data-check]', card); if (ck) ck.disabled = true;
+      $$('.blank', card).forEach(bl => bl.textContent = bl.dataset.a);
+      const m = $('.ok-msg', card); m.hidden = false; m.innerHTML = '✅ ' + sp.ok;
+      coach('答對了！' + sp.ok);
+      idx++; later(showStep, 650);
+    };
+    if (!multi) {
+      $$('.opt', card).forEach(b => b.onclick = () => {
+        if (+b.dataset.i === sp.ans) { b.classList.add('right'); solve(); }
+        else { b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); sfx('bad'); coach('🤔 再想想看～' + (sp.hint || '')); }
+      });
+    } else {
+      const sel = new Set();
+      $$('.opt', card).forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); b.classList.toggle('sel'); sfx('click'); });
+      $('[data-check]', card).onclick = () => {
+        const ok = sp.ans.length === sel.size && sp.ans.every(i => sel.has(i));
+        if (ok) { $$('.opt', card).forEach(b => { if (sel.has(+b.dataset.i)) b.classList.add('right'); }); solve(); }
+        else { sfx('bad'); $$('.opt.sel', card).forEach(b => { if (!sp.ans.includes(+b.dataset.i)) { b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong'); } }); coach('🤔 還差一點！' + (sp.hint || '')); }
+      };
+    }
+  }
+  showStep();
+}
+const BL = a => `<span class="blank" data-a="${a}">?</span>`;
+
+/* =========================================================
+   單元 2A：閱兵方陣排排站
+   ========================================================= */
+function m2A(st) {
+  st.innerHTML = modeHead('🎮 玩法 A：閱兵方陣排排站（找因數）', '把發光小士兵排成整齊的方陣。如果每一排人數一樣、沒有人落單，這個排數就是因數！') +
+    `<div class="controls"><span class="lbl">士兵人數：</span><button class="chip on" data-n="12">12 位士兵</button><button class="chip" data-n="18">18 位士兵</button></div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls" id="rows">${[1, 2, 3, 4, 5, 6].map(r => `<button class="btn sm" data-r="${r}">排成 ${r} 排</button>`).join('')}</div>
+    <div class="readout" id="ro">選一個排數，下達閱兵口令！</div>`;
+  const C = setupCanvas($('#cv', st), 600, 400, 640), ctx = C.ctx;
+  let N = 12, sol = [], status = null, found = new Set(), flash = 0;
+  const factorsOf = n => { const f = []; for (let i = 1; i <= n; i++) if (n % i === 0) f.push(i); return f; };
+  function init() {
+    sol = []; status = null; found = new Set();
+    for (let i = 0; i < N; i++) {
+      const x = 80 + Math.random() * 440, y = 110 + Math.random() * 230;
+      sol.push({ x, y, tx: x, ty: y, sz: 46, bad: false, ph: Math.random() * 6 });
+    }
+    updRO();
+  }
+  function arrange(r) {
+    const c = Math.floor(N / r), rem = N % r, cols = c + (rem ? 1 : 0);
+    const cell = Math.min(540 / cols, 270 / r, 58);
+    const x0 = 300 - cols * cell / 2 + cell / 2, y0 = 95 + (290 - r * cell) / 2 + cell / 2;
+    sol.forEach((s, i) => {
+      let col, row;
+      if (i < r * c) { col = Math.floor(i / r); row = i % r; s.bad = false; }
+      else { col = c; row = i - r * c; s.bad = true; }
+      s.tx = x0 + col * cell; s.ty = y0 + row * cell; s.sz = cell;
+    });
+    status = { r, c, rem }; flash = 1;
+    if (!rem) { found.add(r); found.add(c); sfx('ok'); } else sfx('bad');
+    updRO();
+    const all = factorsOf(N);
+    if (!rem) {
+      if (all.every(f => found.has(f))) complete(2, 'A', `全部找到了！<b>${N} 的因數有 ${all.join('、')}</b>。能排成整齊方陣的排數（和每排人數）都是因數！`);
+      else coach(`整齊！${r} 排 × 每排 ${c} 人 = ${N}，所以 <b class="c-green">${r} 和 ${c} 都是 ${N} 的因數</b>！`);
+    } else coach(`糟糕！排成 ${r} 排，最後有 <b class="c-red">${rem} 位士兵落單</b>在發抖……${N} ÷ ${r} 有餘數，所以 ${r} <b>不是</b> ${N} 的因數。`);
+  }
+  function updRO() {
+    const all = factorsOf(N);
+    let h = status ? (status.rem
+      ? `<span class="c-red">🔴 ${N} ÷ ${status.r} = ${status.c} …… ${status.rem}　有人落單！</span>`
+      : `<span class="c-green">🟢 ${status.r} 排 × ${status.c} 人 = ${N}　整整齊齊！</span>`) : '選一個排數，下達閱兵口令！';
+    h += `<small>${N} 的因數收集：${all.map(f => found.has(f) ? `<b class="c-green">${f}</b>` : '<span style="opacity:.4">□</span>').join('　')}（${[...found].filter(f => all.includes(f)).length}/${all.length}）</small>`;
+    $('#ro', st).innerHTML = h;
+  }
+  $$('[data-n]', st).forEach(b => b.onclick = () => { $$('[data-n]', st).forEach(x => x.classList.remove('on')); b.classList.add('on'); N = +b.dataset.n; sfx('click'); init(); coach(`換成 ${N} 位士兵！試試看哪些排數能整整齊齊？`); });
+  $$('[data-r]', st).forEach(b => b.onclick = () => arrange(+b.dataset.r));
+  init();
+  function soldier(s, t) {
+    const k = s.sz / 58; let x = s.x;
+    const bad = s.bad && status && status.rem;
+    if (bad) x += Math.sin(t * 40 + s.ph) * 3;
+    const col = bad ? '#ff4d6d' : (status && !status.rem ? '#4dff9a' : '#3ef0ff');
+    ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 12;
+    ctx.fillStyle = col; rrect(ctx, x - 10 * k, s.y - 2 * k, 20 * k, 20 * k, 6 * k); ctx.fill();
+    ctx.fillStyle = '#ffe1c4'; ctx.beginPath(); ctx.arc(x, s.y - 10 * k, 8 * k, 0, TAU); ctx.fill();
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, s.y - 12 * k, 9 * k, Math.PI, TAU); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#06102a'; ctx.fillRect(x - 4 * k, s.y - 10 * k, 2.4 * k, 2.4 * k); ctx.fillRect(x + 1.6 * k, s.y - 10 * k, 2.4 * k, 2.4 * k);
+    if (bad) txt(ctx, '😢', x, s.y - 28 * k, { size: 14 * Math.max(k, .8) });
+  }
+  loop((dt, t) => {
+    C.clear(); flash = Math.max(0, flash - dt * 1.5);
+    sol.forEach(s => { s.x += (s.tx - s.x) * Math.min(1, dt * 7); s.y += (s.ty - s.y) * Math.min(1, dt * 7); });
+    const lampC = !status ? '#5a6aa0' : status.rem ? '#ff4d6d' : '#4dff9a';
+    ctx.save(); ctx.shadowColor = lampC; ctx.shadowBlur = 20 + flash * 30; ctx.fillStyle = lampC;
+    ctx.beginPath(); ctx.arc(46, 42, 18, 0, TAU); ctx.fill(); ctx.restore();
+    txt(ctx, !status ? `${N} 位士兵自由站` : status.rem ? `排成 ${status.r} 排：有 ${status.rem} 人落單！` : `排成 ${status.r} 排 × 每排 ${status.c} 人`, 76, 42, { size: 22, align: 'left', color: lampC === '#5a6aa0' ? '#cfd8ff' : lampC });
+    sol.forEach(s => soldier(s, t));
+  });
+}
+
+/* =========================================================
+   單元 2B：雙軌太空電梯
+   ========================================================= */
+function m2B(st) {
+  const pairs = [[2, 3], [3, 4], [4, 6]];
+  st.innerHTML = modeHead('🧩 玩法 B：雙軌太空電梯（找公倍數）', '兩座電梯從地面（0 樓）出發，每次往上跳固定樓層。停過的樓層會亮燈；兩部電梯都停過的樓層會打出閃電 ⚡') +
+    `<div class="controls"><span class="lbl">電梯組合：</span>${pairs.map((p, i) => `<button class="chip ${i ? '' : 'on'}" data-p="${i}">A 跳 ${p[0]}・B 跳 ${p[1]}</button>`).join('')}</div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls">
+      <button class="btn" id="bA">🚀 A 往上發射</button>
+      <button class="btn pink" id="bB">🚀 B 往上發射</button>
+      <button class="btn yellow sm" id="bAuto">⚡ 自動連發</button>
+      <button class="btn ghost sm" id="bR">↺ 重來</button>
+    </div>
+    <div class="readout" id="ro"></div>`;
+  const C = setupCanvas($('#cv', st), 600, 690, 520), ctx = C.ctx;
+  const MAXF = 24, top = 90, bottom = 660, fh = (bottom - top) / MAXF, yOf = f => bottom - f * fh;
+  let pair = pairs[0], E, commons, bolts, auto = false, autoT = 0;
+  const gcd = (a, b) => b ? gcd(b, a % b) : a, lcm = (a, b) => a * b / gcd(a, b);
+  function reset() {
+    E = [{ x: 170, step: pair[0], pos: 0, target: 0, lit: new Set(), col: '#3ef0ff', name: 'A' },
+         { x: 430, step: pair[1], pos: 0, target: 0, lit: new Set(), col: '#ff5ad9', name: 'B' }];
+    commons = []; bolts = []; auto = false;
+    $('#bA', st).textContent = `🚀 A 往上發射（+${pair[0]} 樓）`; $('#bB', st).textContent = `🚀 B 往上發射（+${pair[1]} 樓）`;
+    updRO();
+  }
+  function launch(i) {
+    const e = E[i]; if (e.pos !== e.target) return false;
+    const nt = e.target + e.step; if (nt > MAXF) return false;
+    e.target = nt; sfx('click'); return true;
+  }
+  function arrive(e) {
+    e.lit.add(e.pos);
+    const other = E[e === E[0] ? 1 : 0];
+    if (other.lit.has(e.pos) && !commons.includes(e.pos)) {
+      commons.push(e.pos); commons.sort((a, b) => a - b); bolts.push({ f: e.pos, t: 0 }); sfx('zap');
+      const L = lcm(pair[0], pair[1]);
+      const need = Math.floor(MAXF / L);
+      if (commons.length >= need) { auto = false; complete(2, 'B', `⚡ 全部找到！${pair[0]} 和 ${pair[1]} 的公倍數有 <b class="c-yellow">${commons.join('、')}</b>……，最小公倍數是 <b class="c-yellow">${L}</b>！`); }
+      else coach(e.pos === L ? `⚡ 兩部電梯第一次在 <b class="c-yellow">${e.pos} 樓</b>撞見！${e.pos} 是 ${pair[0]} 和 ${pair[1]} 的<b>最小公倍數</b>！繼續往上找還有哪些公倍數。` : `⚡ 又撞見了！<b class="c-yellow">${e.pos} 樓</b>也是公倍數！`);
+    }
+    updRO();
+  }
+  function updRO() {
+    const L = lcm(pair[0], pair[1]);
+    $('#ro', st).innerHTML = `<span class="c-cyan">A 停過：${[...E[0].lit].filter(x => x).sort((a, b) => a - b).join('、') || '—'}</span><br>
+      <span class="c-pink">B 停過：${[...E[1].lit].filter(x => x).sort((a, b) => a - b).join('、') || '—'}</span>
+      <small>⚡ 公倍數：<b class="c-yellow">${commons.join('、') || '還沒找到'}</b>${commons.length ? `　｜　最小公倍數：<b class="c-yellow">${commons[0]}</b>` : ''}（目標：找出 ${MAXF} 樓以內 ${Math.floor(MAXF / L)} 個）</small>`;
+  }
+  $$('[data-p]', st).forEach(b => b.onclick = () => { $$('[data-p]', st).forEach(x => x.classList.remove('on')); b.classList.add('on'); pair = pairs[+b.dataset.p]; sfx('click'); reset(); coach(`換成 A 每次跳 ${pair[0]} 樓、B 每次跳 ${pair[1]} 樓，牠們會在哪裡碰面？`); });
+  $('#bA', st).onclick = () => { if (!launch(0) && E[0].target + E[0].step > MAXF) coach('A 電梯已經快到頂樓了！'); };
+  $('#bB', st).onclick = () => { if (!launch(1) && E[1].target + E[1].step > MAXF) coach('B 電梯已經快到頂樓了！'); };
+  $('#bAuto', st).onclick = () => { auto = !auto; autoT = 0; sfx('click'); };
+  $('#bR', st).onclick = () => { sfx('click'); reset(); };
+  reset();
+  loop((dt, t) => {
+    C.clear();
+    if (auto) {
+      autoT -= dt;
+      if (autoT <= 0) { autoT = 0.55; const a = launch(0), b = launch(1); if (!a && !b && E.every(e => e.pos === e.target)) auto = false; }
+    }
+    $('#bAuto', st).textContent = auto ? '⏸ 暫停連發' : '⚡ 自動連發';
+    E.forEach(e => { if (e.pos < e.target) { e.pos = Math.min(e.target, e.pos + dt * 10); if (e.pos === e.target) arrive(e); } });
+    // 樓層
+    for (let f = 0; f <= MAXF; f++) {
+      const y = yOf(f), com = commons.includes(f);
+      ctx.strokeStyle = com ? 'rgba(255,216,74,.9)' : 'rgba(140,170,255,.13)'; ctx.lineWidth = com ? 3 : 1;
+      ctx.beginPath(); ctx.moveTo(110, y); ctx.lineTo(490, y); ctx.stroke();
+      txt(ctx, f === 0 ? '地面' : `${f}F`, 300, y - fh / 2 + 2, { size: f === 0 ? 12 : 14, color: com ? '#ffd84a' : 'rgba(200,215,255,.6)', weight: 700 });
+      if (com) {
+        txt(ctx, f === commons[0] ? '最小公倍數' : '公倍數', 548, y - fh / 2, { size: 14, color: '#ffd84a', glow: '#ffd84a' });
+      }
+    }
+    // 電梯井與亮燈
+    E.forEach(e => {
+      ctx.fillStyle = 'rgba(255,255,255,.04)'; rrect(ctx, e.x - 46, top - 46, 92, bottom - top + 50, 14); ctx.fill();
+      ctx.strokeStyle = e.col + '55'; ctx.lineWidth = 2; ctx.stroke();
+      e.lit.forEach(f => { if (!f) return; const y = yOf(f); ctx.save(); ctx.shadowColor = e.col; ctx.shadowBlur = 14; ctx.fillStyle = e.col; rrect(ctx, e.x - 42, y - fh + 3, 84, fh - 5, 5); ctx.globalAlpha = .28; ctx.fill(); ctx.restore();
+        txt(ctx, String(f), e.x + (e === E[0] ? -60 : 60), y - fh / 2, { size: 13, color: e.col }); });
+      txt(ctx, `${e.name} 電梯（每次 +${e.step}）`, e.x, top - 66, { size: 15, color: e.col });
+    });
+    // 閃電
+    bolts.forEach(b => {
+      b.t += dt; const y = yOf(b.f) - fh / 2, a = b.t < 1.2 ? (0.6 + 0.4 * Math.sin(b.t * 50)) : 0.45;
+      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = '#ffd84a'; ctx.lineWidth = 4; ctx.shadowColor = '#ffd84a'; ctx.shadowBlur = 22;
+      ctx.beginPath(); ctx.moveTo(216, y); for (let i = 1; i <= 8; i++) ctx.lineTo(216 + i * 21, y + (i % 2 ? -8 : 8) * (i < 8 ? 1 : 0)); ctx.stroke(); ctx.restore();
+    });
+    // 車廂
+    E.forEach(e => {
+      const y = yOf(e.pos);
+      ctx.save(); ctx.shadowColor = e.col; ctx.shadowBlur = 20; ctx.fillStyle = e.col; rrect(ctx, e.x - 38, y - 30, 76, 28, 9); ctx.fill(); ctx.restore();
+      ctx.fillStyle = '#0a1238'; rrect(ctx, e.x - 30, y - 25, 60, 18, 6); ctx.fill();
+      txt(ctx, `🚀 ${e.name}`, e.x, y - 16, { size: 13, color: '#fff' });
+    });
+  });
+}
+
+/* =========================================================
+   單元 3A：3D 披薩雷射切片廠
+   ========================================================= */
+function m3A(st) {
+  st.innerHTML = `<div class="mode-title">🎮 玩法 A：3D 披薩雷射切片廠</div>
+    <div class="question">🍕 題目：半個披薩 ${F(1, 2)} ＋ 三分之一個披薩 ${F(1, 3)} ＝ 多少個披薩？</div>` +
+    guideHTML([
+      '看一看：左邊那片（半個）比右邊那片（1/3 個）<b>大</b>！大小不一樣，不能說「1 片 + 1 片 = 2 片」。→ 按「① 切成一樣大」',
+      '兩盤都被切成「6 等份」的小片了（2 和 3 都能變成 6）。每一小片都一樣大，都是 1/6 個披薩。→ 按「② 放進同一個盒子」',
+      '數一數：盒子分成 6 格，裡面裝了幾小片？裝了幾片，答案就是「幾/6」個披薩！'
+    ]) +
+    `<div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls">
+      <button class="btn glow" id="bCut">① 🔦 雷射切成一樣大</button>
+      <button class="btn yellow" id="bBox" disabled>② 📦 放進同一個盒子數片數</button>
+      <button class="btn ghost sm" id="bR">↺ 重來</button>
+    </div>
+    <div class="readout" id="ro"></div>`;
+  const C = setupCanvas($('#cv', st), 600, 540, 620), ctx = C.ctx;
+  const Lp = { cx: 155, cy: 130 }, Rp = { cx: 445, cy: 130 }, Bx = { cx: 300, cy: 392 }, RAD = 102, K = 0.55, SL = Math.PI / 3, A0 = -Math.PI / 2;
+  let phase = 'whole', t = 0;
+  const pieces = [];
+  for (let i = 0; i < 3; i++) pieces.push({ src: Lp, a: A0 + i * SL, ta: A0 + i * SL, delay: i * 0.12 });
+  for (let i = 0; i < 2; i++) pieces.push({ src: Rp, a: A0 + i * SL, ta: A0 + (3 + i) * SL, delay: 0.45 + i * 0.12 });
+  const bCut = $('#bCut', st), bBox = $('#bBox', st);
+  function reset() { phase = 'whole'; t = 0; bCut.disabled = false; bCut.classList.add('glow'); bBox.disabled = true; bBox.classList.remove('glow'); setGuide(st, 0);
+    $('#ro', st).innerHTML = `${F(1, 2)} + ${F(1, 3)} = ？<small>左邊那片大、右邊那片小，「大片」和「小片」不能直接加在一起數！</small>`; }
+  bCut.onclick = () => { if (phase !== 'whole') return; phase = 'cutting'; t = 0; bCut.disabled = true; bCut.classList.remove('glow'); sfx('zap'); coach('雷射啟動！要讓兩邊切出來一樣大：2 和 3 都能變成 6，所以兩盤都切成「6 等份」。'); };
+  bBox.onclick = () => { if (phase !== 'cut') return; phase = 'pack'; t = 0; bBox.disabled = true; bBox.classList.remove('glow'); sfx('click'); };
+  $('#bR', st).onclick = () => { sfx('click'); reset(); coach(INTRO['3A']); };
+  reset();
+  function wedge(cx, cy, r, a0, a1) {
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    const n = Math.max(6, Math.ceil((a1 - a0) / 0.08));
+    for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a) * K); }
+    ctx.closePath();
+  }
+  function piece(cx, cy, a0, nS, lift = 0) {
+    const a1 = a0 + nS * SL; cy -= lift;
+    ctx.save(); if (lift) { ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = lift * 0.6; }
+    wedge(cx, cy + 13, RAD, a0, a1); ctx.fillStyle = '#a8621f'; ctx.fill(); ctx.restore();
+    ctx.fillStyle = '#c47a2c';
+    for (let y = 12; y > 0; y -= 3) { wedge(cx, cy + y, RAD, a0, a1); ctx.fill(); }
+    wedge(cx, cy, RAD, a0, a1);
+    const g = ctx.createRadialGradient(cx, cy, 10, cx, cy, RAD); g.addColorStop(0, '#ffe27a'); g.addColorStop(0.8, '#ffc23d'); g.addColorStop(1, '#e8952e');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.strokeStyle = '#d98a2b'; ctx.lineWidth = 7; ctx.beginPath();
+    for (let i = 0; i <= 30; i++) { const a = a0 + (a1 - a0) * i / 30; const x = cx + (RAD - 3) * Math.cos(a), y = cy + (RAD - 3) * Math.sin(a) * K; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke();
+    for (let k = 0; k < nS; k++) {
+      const m = a0 + (k + 0.5) * SL;
+      [[0.62, 10], [0.33, 8]].forEach(([rr, pr]) => { ctx.fillStyle = '#d63a3a'; ctx.beginPath(); ctx.ellipse(cx + RAD * rr * Math.cos(m), cy + RAD * rr * Math.sin(m) * K, pr, pr * K, 0, 0, TAU); ctx.fill(); });
+      ctx.fillStyle = '#3f9e3a'; ctx.beginPath(); ctx.ellipse(cx + RAD * 0.48 * Math.cos(m + 0.35), cy + RAD * 0.48 * Math.sin(m + 0.35) * K, 5, 3, m, 0, TAU); ctx.fill();
+    }
+  }
+  function plate(cx, cy) {
+    ctx.save(); ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.strokeStyle = 'rgba(160,200,255,.45)'; ctx.setLineDash([6, 6]); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(cx, cy + 6, RAD + 14, (RAD + 14) * K, 0, 0, TAU); ctx.fill(); ctx.stroke();
+    ctx.setLineDash([]); ctx.strokeStyle = 'rgba(160,200,255,.3)'; ctx.beginPath(); ctx.ellipse(cx, cy, RAD, RAD * K, 0, 0, TAU); ctx.stroke(); ctx.restore();
+  }
+  function cutLines(p, prog, color) {
+    for (let j = 0; j < 3; j++) {
+      const f = clamp(prog * 3 - j, 0, 1); if (f <= 0) continue;
+      const a = A0 + j * SL, dx = RAD * Math.cos(a), dy = RAD * Math.sin(a) * K;
+      const x1 = p.cx + dx, y1 = p.cy + dy, x2 = p.cx - dx, y2 = p.cy - dy;
+      const xe = lerp(x1, x2, f), ye = lerp(y1, y2, f);
+      ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(xe, ye); ctx.stroke(); ctx.restore();
+      if (f < 1 && phase === 'cutting') { glowLine(ctx, p.cx, 8, xe, ye, '#ff4d6d', 4); ctx.save(); ctx.fillStyle = '#fff'; ctx.shadowColor = '#ff4d6d'; ctx.shadowBlur = 25; ctx.beginPath(); ctx.arc(xe, ye, 6, 0, TAU); ctx.fill(); ctx.restore(); }
+    }
+  }
+  function box() {
+    const { cx, cy } = Bx;
+    ctx.save();
+    ctx.fillStyle = '#2b1c55'; ctx.beginPath(); ctx.moveTo(cx - 160, cy + 72); ctx.lineTo(cx + 160, cy + 72); ctx.lineTo(cx + 160, cy + 98); ctx.lineTo(cx - 160, cy + 98); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3a2a72'; ctx.strokeStyle = '#a37bff'; ctx.lineWidth = 2; ctx.shadowColor = '#a37bff'; ctx.shadowBlur = 16;
+    ctx.beginPath(); ctx.moveTo(cx - 135, cy - 72); ctx.lineTo(cx + 135, cy - 72); ctx.lineTo(cx + 160, cy + 72); ctx.lineTo(cx - 160, cy + 72); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.ellipse(cx, cy, RAD, RAD * K, 0, 0, TAU); ctx.stroke();
+    for (let j = 0; j < 3; j++) { const a = A0 + j * SL; ctx.beginPath(); ctx.moveTo(cx + RAD * Math.cos(a), cy + RAD * Math.sin(a) * K); ctx.lineTo(cx - RAD * Math.cos(a), cy - RAD * Math.sin(a) * K); ctx.stroke(); }
+    ctx.restore();
+    txt(ctx, '6 格披薩盒', cx, cy + 86, { size: 14, color: '#d2c0ff' });
+  }
+  loop((dt, tm) => {
+    C.clear(); t += dt;
+    box(); plate(Lp.cx, Lp.cy); plate(Rp.cx, Rp.cy);
+    const cutP = phase === 'whole' ? 0 : phase === 'cutting' ? clamp(t / 2.2, 0, 1) : 1;
+    if (phase === 'cutting' && t > 2.4) {
+      phase = 'cut'; bBox.disabled = false; bBox.classList.add('glow'); sfx('ok'); setGuide(st, 1);
+      $('#ro', st).innerHTML = `左盤：半個披薩 = <b class="c-cyan">3 小片</b> = ${F(3, 6)}　　右盤：1/3 個披薩 = <b class="c-pink">2 小片</b> = ${F(2, 6)}<small>現在每一小片都一樣大，都是 ${F(1, 6)} 個披薩，可以一起數了！</small>`;
+      coach('切好了！左盤的 1/2 變成 <b>3 小片</b>（3/6），右盤的 1/3 變成 <b>2 小片</b>（2/6）。現在大小一樣，可以裝進同一個盒子了！');
+    }
+    if (phase === 'whole' || phase === 'cutting') {
+      piece(Lp.cx, Lp.cy, A0, 3); piece(Rp.cx, Rp.cy, A0, 2);
+      cutLines(Lp, cutP, 'rgba(255,255,255,.8)'); cutLines(Rp, clamp(cutP * 1.0, 0, 1), 'rgba(255,255,255,.8)');
+    } else {
+      const pp = phase === 'pack' ? t : (phase === 'done' ? 99 : 0);
+      pieces.forEach(p => {
+        const e = phase === 'cut' ? 0 : ease((pp - p.delay) / 1.1);
+        const mid = p.a + SL / 2, ex = 7 * (1 - e);
+        const cx0 = p.src.cx + Math.cos(mid) * ex, cy0 = p.src.cy + Math.sin(mid) * ex * K;
+        const da = p.ta - p.a;
+        const cx = lerp(cx0, Bx.cx, e), cy = lerp(cy0, Bx.cy, e), a = p.a + da * e;
+        piece(cx, cy, a, 1, Math.sin(e * Math.PI) * 70);
+      });
+      if (phase !== 'done') { cutLines(Lp, 1, 'rgba(255,255,255,.35)'); cutLines(Rp, 1, 'rgba(255,255,255,.35)'); }
+      if (phase === 'pack' && t > 2.0) {
+        phase = 'done'; setGuide(st, 3);
+        $('#ro', st).innerHTML = `${F(1, 2)} + ${F(1, 3)} = ${F(3, 6)} + ${F(2, 6)} = <b class="c-green big">${F(5, 6)}</b><small>盒子分成 6 格，裝了 3 + 2 = 5 小片 → 5/6 個披薩</small>`;
+        complete(3, 'A', '裝盒完成！6 格披薩盒裡有 3 + 2 = <b class="c-green">5 片</b>，所以 1/2 + 1/3 = <b class="c-green">5/6</b>。先切成一樣大（通分），才能相加！');
+      }
+    }
+    // 標籤
+    const cut = phase !== 'whole' && phase !== 'cutting';
+    fracC(ctx, cut ? 3 : 1, cut ? 6 : 2, Lp.cx, 238, 22, '#3ef0ff', '#3ef0ff');
+    fracC(ctx, cut ? 2 : 1, cut ? 6 : 3, Rp.cx, 238, 22, '#ff5ad9', '#ff5ad9');
+    txt(ctx, cut ? '3 小片' : '1 大片', Lp.cx - 62, 238, { size: 17, color: '#8ef6ff' }); txt(ctx, cut ? '2 小片' : '1 小片', Rp.cx + 62, 238, { size: 17, color: '#ff8ae6' });
+    if (!cut) txt(ctx, '⬅ 一樣大嗎？➡', 300, 212, { size: 18, color: '#ffd84a', glow: '#ffd84a' });
+    if (phase === 'done') { fracC(ctx, 5, 6, 528, 392, 30, '#4dff9a', '#4dff9a'); txt(ctx, '5 片', 528, 450, { size: 18, color: '#4dff9a' }); }
+    else fracC(ctx, '?', 6, 520, 392, 26, '#d2c0ff');
+    txt(ctx, '雷射', 300, 18, { size: 14, color: '#ff8aa0' });
+  });
+}
+
+/* =========================================================
+   單元 3B：分數積木軌道尺
+   ========================================================= */
+function m3B(st) {
+  st.innerHTML = `<div class="mode-title">🧩 玩法 B：分數積木軌道尺</div>
+    <div class="question">📏 題目：<span class="c-cyan">藍積木 ${F(1, 2)}</span> 接上 <span class="c-pink">粉紅積木 ${F(1, 3)}</span>，一共多長？</div>` +
+    guideHTML([
+      '從下面選一把尺（1/4 尺、1/5 尺、1/6 尺），放到積木下面量量看。',
+      '數一數：藍積木佔幾格？粉紅積木佔幾格？兩塊都要「剛好整格」才量得準；有「多一點點」就是量不準，換一把！',
+      '找到兩塊都「剛好整格」的尺後，把兩塊的格數加起來，就是答案。'
+    ]) +
+    `<div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls"><span class="lbl">選一把尺：</span>${[4, 5, 6].map(n => `<button class="btn sm ghost" data-n="${n}">📏 ${F(1, n)} 尺</button>`).join('')}</div>
+    <div class="readout" id="ro">選一把尺試試看！</div>`;
+  const C = setupCanvas($('#cv', st), 600, 330, 640), ctx = C.ctx;
+  const X0 = 40, LEN = 520, X = f => X0 + f * LEN;
+  let n = 3, nd = 3, picked = false, tried = new Set();
+  const blocks = [{ a: 0, b: 1 / 2, col: '#3ef0ff', name: [1, 2] }, { a: 1 / 2, b: 5 / 6, col: '#ff5ad9', name: [1, 3] }];
+  const bounds = [1 / 2, 5 / 6];
+  const isAl = (f, m) => Math.abs(f * m - Math.round(f * m)) < 1e-6;
+  const cellsTxt = (len, m) => { const c = len * m; return isAl(len, m) ? `剛好 ${Math.round(c)} 格 ✔` : `${Math.floor(c)} 格多一點 ✘`; };
+  setGuide(st, 0);
+  $$('[data-n]', st).forEach(b => b.onclick = () => {
+    n = +b.dataset.n; picked = true; tried.add(n);
+    $$('[data-n]', st).forEach(x => { x.classList.toggle('ghost', x !== b); x.classList.toggle('yellow', x === b); });
+    const ok = bounds.every(f => isAl(f, n));
+    const line = `用 ${F(1, n)} 尺量：<span class="c-cyan">藍積木 ${cellsTxt(1 / 2, n)}</span>　<span class="c-pink">粉紅積木 ${cellsTxt(1 / 3, n)}</span>`;
+    if (ok) {
+      sfx('ok'); setGuide(st, 3);
+      $('#ro', st).innerHTML = `${line}<br>藍 3 格 + 粉紅 2 格 = 5 格，每格是 ${F(1, 6)} → 一共 <b class="c-green big">${F(5, 6)}</b>`;
+      complete(3, 'B', '找到了！用 <b>1/6 尺</b>，藍積木剛好 3 格（3/6）、粉紅積木剛好 2 格（2/6），合起來 5 格 = <b class="c-green">5/6</b>。分母不一樣時，先換成「同一把尺」（同分母）再加，這就叫<b>通分</b>！');
+    } else {
+      sfx('bad'); setGuide(st, 1);
+      $('#ro', st).innerHTML = `${line}<small>有一塊量不出整格，說不出「一共幾格」，這把尺不行，換一把！</small>`;
+      coach(`用 1/${n} 尺量，有積木是「${Math.floor((isAl(1 / 2, n) ? 1 / 3 : 1 / 2) * n)} 格多一點」，量不準！再換一把尺試試。`);
+    }
+  });
+  loop((dt, t) => {
+    C.clear(); nd += (n - nd) * Math.min(1, dt * 6);
+    const settled = Math.abs(nd - n) < 0.02, okAll = picked && settled && bounds.every(f => isAl(f, n));
+    // 軌道
+    ctx.fillStyle = 'rgba(255,255,255,.05)'; rrect(ctx, X0 - 6, 50, LEN + 12, 82, 12); ctx.fill();
+    txt(ctx, '0', X0, 36, { size: 15, color: '#a7b6dc' }); txt(ctx, '1', X(1), 36, { size: 15, color: '#a7b6dc' });
+    blocks.forEach(bk => {
+      ctx.save(); ctx.shadowColor = bk.col; ctx.shadowBlur = 16; ctx.fillStyle = bk.col + 'cc';
+      rrect(ctx, X(bk.a) + 2, 58, X(bk.b) - X(bk.a) - 4, 66, 10); ctx.fill(); ctx.restore();
+      if (okAll) {
+        ctx.strokeStyle = 'rgba(6,16,42,.85)'; ctx.lineWidth = 3;
+        for (let k = 1; k < 6; k++) { const f = k / 6; if (f > bk.a + 1e-6 && f < bk.b - 1e-6) { ctx.beginPath(); ctx.moveTo(X(f), 60); ctx.lineTo(X(f), 122); ctx.stroke(); } }
+      }
+      if (picked && settled) {
+        const ok = isAl(bk.b - bk.a, n), cnt = Math.round((bk.b - bk.a) * n);
+        txt(ctx, ok ? `${bk.name[0]}/${bk.name[1]} = ${cnt}/${n}（${cnt} 格）` : cellsTxt(bk.b - bk.a, n), (X(bk.a) + X(bk.b)) / 2, 150, { size: 17, color: ok ? bk.col : '#ff8aa0' });
+      }
+      if (!okAll) fracC(ctx, bk.name[0], bk.name[1], (X(bk.a) + X(bk.b)) / 2, 91, 20, '#071028');
+    });
+    // 基準尺
+    if (picked) {
+      const step = LEN / nd;
+      for (let k = 0; k * step < LEN - 0.5; k++) {
+        const x = X0 + k * step, w = Math.min(step, X0 + LEN - x);
+        ctx.fillStyle = k % 2 ? 'rgba(255,216,74,.22)' : 'rgba(255,216,74,.38)'; ctx.fillRect(x, 230, w, 40);
+        ctx.strokeStyle = '#ffd84a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, 222); ctx.lineTo(x, 278); ctx.stroke();
+        if (settled) fracC(ctx, 1, n, x + w / 2, 250, 13, '#fff3b0');
+      }
+      ctx.strokeStyle = '#ffd84a'; ctx.beginPath(); ctx.moveTo(X(1), 222); ctx.lineTo(X(1), 278); ctx.stroke();
+      txt(ctx, `基準尺：每格 1/${n}`, 300, 300, { size: 16, color: '#ffd84a' });
+      // 對齊檢查線
+      bounds.forEach(f => {
+        const al = isAl(f, n) && settled, col = al ? '#4dff9a' : '#ff4d6d';
+        ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([7, 6]); ctx.shadowColor = col; ctx.shadowBlur = 10;
+        ctx.beginPath(); ctx.moveTo(X(f), 126); ctx.lineTo(X(f), 230); ctx.stroke(); ctx.restore();
+        if (settled) txt(ctx, al ? '✔ 對齊' : '✘ 卡在格子中間', X(f) + (f > 0.7 ? -8 : 10), 196, { size: 15, color: col, align: f > 0.7 ? 'right' : 'left' });
+      });
+    } else txt(ctx, '⬇ 選一把基準尺放到這裡', 300, 250, { size: 20, color: '#a7b6dc' });
+  });
+}
+
+/* =========================================================
+   單元 4 第 1 關：三根木棒圍圍看（三角形三邊關係）
+   ========================================================= */
+function m4S(st) {
+  st.innerHTML = modeHead('📏 第 1 關：三根木棒圍圍看（三角形三邊關係）',
+    '問題：<b>隨便拿三根木棒，一定能圍成三角形嗎？</b><br>做法：最長的木棒放在底下，另外兩根「短木棒」從兩端倒向中間，看看它們的頭<b>碰不碰得到</b>。') +
+    `<div class="task-bar" id="task"></div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls"><span class="lbl">快速試試：</span>
+      <button class="chip" data-p="3,4,5">3、4、5</button><button class="chip" data-p="2,3,7">2、3、7</button>
+      <button class="chip" data-p="3,4,7">3、4、7</button><button class="chip" data-p="5,5,8">5、5、8</button></div>
+    <div class="controls">
+      <div class="slider-row"><span class="tag" style="background:rgba(62,240,255,.18);color:var(--cyan)">木棒①</span><input type="range" min="1" max="10" value="3" data-k="0"><b class="val" data-v="0">3</b></div>
+      <div class="slider-row"><span class="tag" style="background:rgba(255,90,217,.18);color:var(--pink)">木棒②</span><input type="range" min="1" max="10" value="4" data-k="1"><b class="val" data-v="1">4</b></div>
+      <div class="slider-row"><span class="tag yellow">木棒③</span><input type="range" min="1" max="10" value="5" data-k="2"><b class="val" data-v="2">5</b></div>
+    </div>
+    <div class="controls"><button class="btn glow" id="bGo">🔨 倒下來圍圍看！</button></div>
+    <div class="readout" id="ro">先選三根木棒的長度（公分），再按「倒下來圍圍看」！</div>`;
+  const C = setupCanvas($('#cv', st), 600, 470, 620), ctx = C.ctx;
+  const COLS = ['#3ef0ff', '#ff5ad9', '#ffd84a'], U = 34, BY = 304;
+  let L = [3, 4, 5], e = 0, going = false, res = null;
+  const seen = { ok: false, eq: false, lt: false };
+  function sticks() {
+    const arr = L.map((v, i) => ({ v, col: COLS[i], n: '①②③'[i] }));
+    arr.sort((a, b) => a.v - b.v);
+    return { a: arr[0], b: arr[1], c: arr[2] };   // c = 最長（放在底邊）
+  }
+  function task() {
+    const it = (ok, t) => `<span style="opacity:${ok ? 1 : .6}">${ok ? '✅' : '⬜'} ${t}</span>`;
+    $('#task', st).innerHTML = `🎯 任務：三種情況都試一次<br>${it(seen.ok, '圍成功')}　${it(seen.lt, '短+短「比較短」')}　${it(seen.eq, '短+短「剛好一樣長」')}`;
+  }
+  function setL(arr) {
+    L = arr.slice(); e = 0; going = false; res = null;
+    $$('input[data-k]', st).forEach((r, i) => { r.value = L[i]; $(`[data-v="${i}"]`, st).textContent = L[i]; });
+    $('#ro', st).innerHTML = '按「倒下來圍圍看」！';
+  }
+  $$('input[data-k]', st).forEach(r => r.oninput = () => { L[+r.dataset.k] = +r.value; setL(L); });
+  $$('[data-p]', st).forEach(b => b.onclick = () => { sfx('click'); setL(b.dataset.p.split(',').map(Number)); });
+  $('#bGo', st).onclick = () => {
+    const { a, b, c } = sticks(), sum = a.v + b.v;
+    res = sum > c.v ? 'ok' : sum === c.v ? 'eq' : 'lt';
+    e = 0; going = true; sfx('click');
+  };
+  function finish() {
+    const { a, b, c } = sticks(), sum = a.v + b.v;
+    const head = `兩根短的：<b class="c-cyan">${a.v}</b> + <b class="c-pink">${b.v}</b> = <b>${sum}</b>　比一比　最長的：<b class="c-yellow">${c.v}</b>`;
+    if (res === 'ok') { sfx('ok'); $('#ro', st).innerHTML = `${head}<br><b class="c-green">${sum} ＞ ${c.v}，頭碰到了！✅ 可以圍成三角形</b>`; coach(`兩根短木棒加起來 ${sum} 公分，比最長的 ${c.v} 公分還長，所以倒下來時頭會碰在一起，圍成三角形！`); }
+    else if (res === 'eq') { sfx('bad'); $('#ro', st).innerHTML = `${head}<br><b class="c-yellow">${sum} ＝ ${c.v}，剛好碰到，但平平貼在底邊上，變成一條直線 ❌ 圍不起來</b>`; coach(`剛好一樣長時，兩根木棒只能「躺平」在底邊上碰到，完全沒有高度，變成一條線，<b>不是三角形</b>！`); }
+    else { sfx('bad'); $('#ro', st).innerHTML = `${head}<br><b class="c-red">${sum} ＜ ${c.v}，倒下來也碰不到，還差 ${c.v - sum} 公分 ❌ 圍不起來</b>`; coach(`兩根短木棒加起來只有 ${sum} 公分，比 ${c.v} 公分短，就算整根躺平也碰不到對方！`); }
+    seen[res] = true; task();
+    if (seen.ok && seen.eq && seen.lt) complete(4, 'S', '三種情況都試過了！記住規則：<b>兩根短邊加起來，一定要「大於」最長邊</b>，才能圍成三角形。（課本說法：任意兩邊長的和大於第三邊）');
+  }
+  task();
+  const stick = (xa, ya, xb, yb, col, label) => {
+    ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.shadowColor = col; ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.moveTo(xa, ya); ctx.lineTo(xb, yb); ctx.stroke(); ctx.restore();
+    if (label) txt(ctx, label, (xa + xb) / 2, (ya + yb) / 2, { size: 17, color: '#fff', stroke: '#06102a' });
+  };
+  loop((dt, t) => {
+    C.clear();
+    const { a, b, c } = sticks();
+    if (going) { e = Math.min(1, e + dt / 1.4); if (e >= 1) { going = false; finish(); } }
+    const k = ease(e), x0 = 300 - c.v * U / 2, x1 = 300 + c.v * U / 2;
+    let ta = 0, tb = Math.PI;   // 目標角度（從 +x 軸量）；圍不起來時就躺平
+    if (res === 'ok') {
+      ta = Math.acos((a.v * a.v + c.v * c.v - b.v * b.v) / (2 * a.v * c.v));
+      tb = Math.PI - Math.acos((b.v * b.v + c.v * c.v - a.v * a.v) / (2 * b.v * c.v));
+    }
+    const th1 = res ? lerp(Math.PI / 2, ta, k) : Math.PI / 2, th2 = res ? lerp(Math.PI / 2, tb, k) : Math.PI / 2;
+    const lift = res && res !== 'ok' ? 12 * k : 0;
+    const p1 = { x: x0 + a.v * U * Math.cos(th1), y: BY - lift - a.v * U * Math.sin(th1) };
+    const p2 = { x: x1 + b.v * U * Math.cos(th2), y: BY - lift - b.v * U * Math.sin(th2) };
+    const done = !going && e >= 1;
+    if (done && res === 'ok') {
+      ctx.save(); ctx.fillStyle = 'rgba(77,255,154,.16)'; ctx.beginPath(); ctx.moveTo(x0, BY); ctx.lineTo(p1.x, p1.y); ctx.lineTo(x1, BY); ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+    stick(x0, BY, x1, BY, c.col, null);
+    txt(ctx, `${c.n} 最長的 ${c.v} 公分（放底下）`, 300, BY + 28, { size: 16, color: c.col });
+    stick(x0, BY - lift, p1.x, p1.y, a.col, `${a.v}`);
+    stick(x1, BY - lift, p2.x, p2.y, b.col, `${b.v}`);
+    [[x0, BY], [x1, BY]].forEach(([x, y]) => { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 6, 0, TAU); ctx.fill(); });
+    if (done && res === 'ok') { star(ctx, p1.x, p1.y - 4, 12 + 2 * Math.sin(t * 6), '#4dff9a'); txt(ctx, '碰到了！是三角形', p1.x, Math.max(20, p1.y - 34), { size: 20, color: '#4dff9a', glow: '#4dff9a' }); }
+    if (done && res === 'lt') {
+      glowLine(ctx, p1.x, p1.y, p2.x, p2.y, '#ff4d6d', 4);
+      txt(ctx, `還差 ${c.v - a.v - b.v} 公分，碰不到！`, (p1.x + p2.x) / 2, BY - 50, { size: 19, color: '#ff8aa0', glow: '#ff4d6d' });
+    }
+    if (done && res === 'eq') {
+      ctx.save(); ctx.fillStyle = '#ffd84a'; ctx.shadowColor = '#ffd84a'; ctx.shadowBlur = 18; ctx.beginPath(); ctx.arc(p1.x, p1.y, 7, 0, TAU); ctx.fill(); ctx.restore();
+      txt(ctx, '剛好碰到，但平平的 → 只是一條線', p1.x, BY - 52, { size: 18, color: '#ffd84a', glow: '#ffd84a' });
+    }
+    if (!res) txt(ctx, '兩根短木棒先直直站好，按按鈕讓它們倒向中間 ⬇', 300, 24, { size: 16, color: '#a7b6dc' });
+    // 比長短條
+    const s = 13, bx = 300 - 10 * s, y1 = 372, y2 = 420, sum = a.v + b.v;
+    txt(ctx, '短+短', bx - 42, y1, { size: 15, color: '#cfe0ff' }); txt(ctx, '最長', bx - 42, y2, { size: 15, color: '#cfe0ff' });
+    ctx.fillStyle = a.col; rrect(ctx, bx, y1 - 12, a.v * s, 24, 6); ctx.fill();
+    ctx.fillStyle = b.col; rrect(ctx, bx + a.v * s, y1 - 12, b.v * s, 24, 6); ctx.fill();
+    ctx.fillStyle = c.col; rrect(ctx, bx, y2 - 12, c.v * s, 24, 6); ctx.fill();
+    const sign = sum > c.v ? '＞' : sum === c.v ? '＝' : '＜', scol = sum > c.v ? '#4dff9a' : sum === c.v ? '#ffd84a' : '#ff4d6d';
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(bx + c.v * s, y1 - 18); ctx.lineTo(bx + c.v * s, y2 + 14); ctx.stroke(); ctx.restore();
+    txt(ctx, `${a.v} + ${b.v} = ${sum}`, bx + Math.max(sum, c.v) * s + 12, y1, { size: 16, color: '#fff', align: 'left' });
+    txt(ctx, `${c.v}`, bx + Math.max(sum, c.v) * s + 12, y2, { size: 16, color: '#fff', align: 'left' });
+    txt(ctx, sign, 576, (y1 + y2) / 2, { size: 40, color: scol, glow: scol });
+  });
+}
+
+/* =========================================================
+   單元 4A：頂點雷射切割機
+   ========================================================= */
+function m4A(st) {
+  st.innerHTML = modeHead('🔷 第 3 關：頂點雷射切割機（多邊形內角和）', '上一關學到：<b>三角形內角和 = 180°</b>。那五邊形、六邊形呢？從頂點 A 發射雷射，把多邊形切成好幾個三角形，有幾個三角形就有幾個 180°！') +
+    `<div class="controls"><span class="lbl">選擇形狀：</span>${[4, 5, 6, 7, 8].map(k => `<button class="chip ${k === 5 ? 'on' : ''}" data-k="${k}">${['', '', '', '', '四', '五', '六', '七', '八'][k]}邊形</button>`).join('')}</div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls"><button class="btn glow" id="bFire">🔫 從頂點 A 發射雷射</button><button class="btn ghost sm" id="bR">↺ 重來</button></div>
+    <div class="readout" id="ro"></div>`;
+  const cv = $('#cv', st), C = setupCanvas(cv, 600, 470, 600), ctx = C.ctx;
+  const CX = 300, CY = 245, R = 175, cols = ['#3ef0ff', '#ff5ad9', '#ffd84a', '#4dff9a', '#a37bff', '#ff9f43'];
+  let n = 5, V = [], phase = 'idle', t = 0;
+  function build() { V = []; for (let i = 0; i < n; i++) { const a = Math.PI / 2 + Math.PI / n + TAU * i / n; V.push({ x: CX + R * Math.cos(a), y: CY + R * Math.sin(a) }); } phase = 'idle'; t = 0; updRO(0); $('#bFire', st).disabled = false; }
+  const nm = ['四', '五', '六', '七', '八'];
+  function updRO(k) {
+    const name = nm[n - 4] + '邊形';
+    $('#ro', st).innerHTML = phase === 'idle' ? `${name}有 ${n} 個頂點。點擊頂點 A 發射雷射！`
+      : k === 0 ? `🔴 雷射對角線切割中……A 點可以連到 ${n - 3} 個不相鄰的頂點`
+      : `<span class="c-yellow">${k} 個三角形</span> × 180° = <b class="c-green">${k * 180}°</b>` + (phase === 'done' ? `<small>${name}：${n} − 2 = ${n - 2} 個三角形，內角和 = ${n - 2} × 180° = ${(n - 2) * 180}°</small>` : '');
+  }
+  function fire() { if (phase !== 'idle') return; phase = 'fire'; t = 0; sfx('zap'); $('#bFire', st).disabled = true; $('#bFire', st).classList.remove('glow'); }
+  $$('[data-k]', st).forEach(b => b.onclick = () => { $$('[data-k]', st).forEach(x => x.classList.remove('on')); b.classList.add('on'); n = +b.dataset.k; sfx('click'); build(); $('#bFire', st).classList.add('glow'); });
+  $('#bFire', st).onclick = fire;
+  $('#bR', st).onclick = () => { sfx('click'); build(); $('#bFire', st).classList.add('glow'); };
+  cv.addEventListener('pointerdown', e => { const p = C.pt(e); if (Math.hypot(p.x - V[0].x, p.y - V[0].y) < 45) fire(); });
+  build();
+  let lastK = -1;
+  loop((dt, tm) => {
+    C.clear(); if (phase !== 'idle') t += dt;
+    const nd = n - 3, nt = n - 2, DT = 0.55, TT = 0.45, tStart = nd * DT + 0.2;
+    // 三角形填色
+    let filled = 0;
+    if (phase !== 'idle') for (let k = 0; k < nt; k++) {
+      const e = ease((t - tStart - k * TT) / 0.35); if (e <= 0) continue; filled = k + 1;
+      const a = V[0], b = V[k + 1], c = V[k + 2];
+      ctx.save(); ctx.globalAlpha = 0.55 * e; ctx.fillStyle = cols[k % cols.length]; ctx.shadowColor = cols[k % cols.length]; ctx.shadowBlur = 20;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.closePath(); ctx.fill(); ctx.restore();
+      const gx = (a.x + b.x + c.x) / 3, gy = (a.y + b.y + c.y) / 3;
+      ctx.globalAlpha = e; txt(ctx, `${k + 1}`, gx, gy - 12, { size: 22, color: '#fff', stroke: '#06102a' }); txt(ctx, '180°', gx, gy + 14, { size: 18, color: '#fff', stroke: '#06102a' }); ctx.globalAlpha = 1;
+    }
+    if (filled !== lastK && phase !== 'idle') { lastK = filled; if (filled) sfx('click'); updRO(filled); }
+    // 多邊形外框
+    ctx.save(); ctx.strokeStyle = '#cfe0ff'; ctx.lineWidth = 4; ctx.shadowColor = '#3ef0ff'; ctx.shadowBlur = 14;
+    ctx.beginPath(); V.forEach((v, i) => i ? ctx.lineTo(v.x, v.y) : ctx.moveTo(v.x, v.y)); ctx.closePath(); ctx.stroke(); ctx.restore();
+    // 對角線雷射
+    if (phase !== 'idle') for (let k = 0; k < nd; k++) {
+      const e = clamp((t - k * DT) / 0.4, 0, 1); if (e <= 0) continue;
+      const b = V[k + 2]; glowLine(ctx, V[0].x, V[0].y, lerp(V[0].x, b.x, e), lerp(V[0].y, b.y, e), '#ff4d6d', 4);
+    }
+    // 頂點
+    V.forEach((v, i) => {
+      const lx = CX + (R + 26) * (v.x - CX) / R, ly = CY + (R + 26) * (v.y - CY) / R;
+      if (i === 0) {
+        const pr = 10 + (phase === 'idle' ? 4 * Math.sin(tm * 6) : 0);
+        ctx.save(); ctx.fillStyle = '#ff4d6d'; ctx.shadowColor = '#ff4d6d'; ctx.shadowBlur = 24; ctx.beginPath(); ctx.arc(v.x, v.y, pr, 0, TAU); ctx.fill(); ctx.restore();
+        txt(ctx, 'A', lx, ly, { size: 24, color: '#ff8aa0', glow: '#ff4d6d' });
+      } else { ctx.fillStyle = '#cfe0ff'; ctx.beginPath(); ctx.arc(v.x, v.y, 6, 0, TAU); ctx.fill(); txt(ctx, String.fromCharCode(65 + i), lx, ly, { size: 20, color: '#cfe0ff' }); }
+    });
+    if (phase === 'fire' && t > tStart + nt * TT + 0.4) {
+      phase = 'done'; updRO(nt);
+      if (n >= 5) complete(4, 'A', `${nm[n - 4]}邊形從 A 點出發可以切成 <b>${n} − 2 = ${nt} 個三角形</b>，內角和 = ${nt} × 180° = <b class="c-green">${nt * 180}°</b>！換其他形狀試試看規律。`);
+      else coach(`四邊形切成 2 個三角形，2 × 180° = 360°！再試試五邊形、六邊形。`);
+    }
+    if (phase === 'done') txt(ctx, `${nt} × 180° = ${nt * 180}°`, 300, 455, { size: 22, color: '#4dff9a', glow: '#4dff9a' });
+  });
+}
+
+/* =========================================================
+   單元 4B：撕角拼圖大轉盤
+   ========================================================= */
+function m4B(st) {
+  st.innerHTML = modeHead('🔺 第 2 關：撕角拼圖（三角形內角和）', '問題：<b>三角形的三個角加起來是幾度？</b>按「把角撕下來」，三個角會飛到下面的直線上拼在一起。先玩三角形，再試試四邊形！') +
+    `<div class="controls"><button class="chip on" data-s="0">🔺 三角形</button><button class="chip" data-s="1">⬜ 四邊形</button></div>
+    <div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls"><button class="btn pink glow" id="bTear">✋ 把角撕下來</button><button class="btn ghost sm" id="bR">↺ 貼回去</button></div>
+    <div class="readout" id="ro"></div>`;
+  const C = setupCanvas($('#cv', st), 600, 520, 600), ctx = C.ctx;
+  const shapes = [[[110, 250], [250, 60], [480, 250]], [[90, 250], [160, 70], [430, 90], [510, 250]]];
+  const cols = ['#ff5ad9', '#3ef0ff', '#ffd84a', '#4dff9a'];
+  const norm = a => { a %= TAU; return a < 0 ? a + TAU : a; };
+  const TC = { x: 300, y: 430 }, WR = 50;
+  let si = 0, W = [], phase = 'idle', t = 0, doneSet = new Set();
+  function build() {
+    const pts = shapes[si], n = pts.length; W = [];
+    for (let i = 0; i < n; i++) {
+      const v = pts[i], p = pts[(i + n - 1) % n], q = pts[(i + 1) % n];
+      const dP = Math.atan2(p[1] - v[1], p[0] - v[0]), dN = Math.atan2(q[1] - v[1], q[0] - v[0]);
+      let sw = norm(dN - dP), s = dP; if (sw > Math.PI) { s = dN; sw = TAU - sw; }
+      W.push({ x: v[0], y: v[1], s, sw, deg: Math.round(sw * 180 / Math.PI) });
+    }
+    const total = n === 3 ? 180 : 360; W[n - 1].deg = total - W.slice(0, n - 1).reduce((a, w) => a + w.deg, 0);
+    let cum = Math.PI; W.forEach(w => { w.ts = cum; cum += w.sw; });
+    phase = 'idle'; t = 0; $('#bTear', st).disabled = false; $('#bTear', st).classList.add('glow');
+    $('#ro', st).innerHTML = `${n === 3 ? '三角形' : '四邊形'}的內角：${W.map((w, i) => `<span style="color:${cols[i]}">${w.deg}°</span>`).join('、')}，合起來是多少？`;
+  }
+  $$('[data-s]', st).forEach(b => b.onclick = () => { $$('[data-s]', st).forEach(x => x.classList.remove('on')); b.classList.add('on'); si = +b.dataset.s; sfx('click'); build(); });
+  $('#bTear', st).onclick = () => { if (phase !== 'idle') return; phase = 'tear'; t = 0; sfx('click'); $('#bTear', st).disabled = true; $('#bTear', st).classList.remove('glow'); };
+  $('#bR', st).onclick = () => { sfx('click'); build(); };
+  build();
+  function drawW(x, y, s, sw, col, deg, alpha = 1) {
+    ctx.save(); ctx.globalAlpha = alpha; ctx.fillStyle = col; ctx.shadowColor = col; ctx.shadowBlur = 14;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, WR, s, s + sw); ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = 'rgba(6,16,42,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, WR, s, s + sw); ctx.closePath(); ctx.stroke();
+    const m = s + sw / 2; txt(ctx, deg + '°', x + Math.cos(m) * (WR + 18), y + Math.sin(m) * (WR + 18), { size: 16, color: col, stroke: '#06102a' });
+  }
+  loop((dt, tm) => {
+    C.clear(); if (phase !== 'idle') t += dt;
+    const pts = shapes[si], n = pts.length;
+    // 形狀
+    ctx.save(); ctx.fillStyle = 'rgba(62,240,255,.1)'; ctx.strokeStyle = '#cfe0ff'; ctx.lineWidth = 3; ctx.shadowColor = '#3ef0ff'; ctx.shadowBlur = 10;
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+    // 直線 / 圓
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(90, TC.y); ctx.lineTo(510, TC.y); ctx.stroke();
+    ctx.setLineDash([5, 6]); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 2; ctx.beginPath();
+    n === 3 ? ctx.arc(TC.x, TC.y, WR + 2, Math.PI, TAU) : ctx.arc(TC.x, TC.y, WR + 2, 0, TAU); ctx.stroke(); ctx.restore();
+    let allIn = true;
+    W.forEach((w, i) => {
+      const e = phase === 'idle' ? 0 : ease((t - i * 0.45) / 1.0);
+      if (e < 1) allIn = false;
+      if (e > 0) { ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = cols[i]; ctx.globalAlpha = .6; ctx.beginPath(); ctx.moveTo(w.x, w.y); ctx.arc(w.x, w.y, WR, w.s, w.s + w.sw); ctx.closePath(); ctx.stroke(); ctx.restore(); }
+      let d = w.ts - w.s; d = norm(d + Math.PI) - Math.PI;
+      const x = lerp(w.x, TC.x, e), y = lerp(w.y, TC.y, e) - Math.sin(e * Math.PI) * 60;
+      drawW(x, y, w.s + d * e, w.sw, cols[i], w.deg);
+    });
+    if (phase === 'tear' && allIn && t > n * 0.45 + 0.8) {
+      phase = 'done'; doneSet.add(si); sfx('ok');
+      const sum = W.map(w => w.deg).join('° + ') + '°';
+      $('#ro', st).innerHTML = n === 3 ? `${sum} = <b class="c-green big">180°</b><small>三個角拼成一個「平角」——剛好一條直線！</small>`
+        : `${sum} = <b class="c-green big">360°</b><small>四個角拼成一個「周角」——剛好轉一整圈！</small>`;
+      if (doneSet.size === 2) complete(4, 'B', '兩種都拼好了！三角形三個角 = <b>180°</b>（一直線），四邊形四個角 = <b>360°</b>（一整圈）。四邊形其實就是 2 個三角形喔！');
+      else coach(n === 3 ? '哇！三個角剛好拼成一條直線，三角形內角和 = <b class="c-green">180°</b>！再按上面的「四邊形」試試看。' : '四個角拼成一整個圓，四邊形內角和 = <b class="c-green">360°</b>！也試試三角形吧。');
+    }
+    if (phase === 'done') txt(ctx, n === 3 ? '平角 180°' : '周角 360°', TC.x + (n === 3 ? 0 : 178), n === 3 ? TC.y + 34 : TC.y, { size: 24, color: '#4dff9a', glow: '#4dff9a' });
+  });
+}
+
+/* =========================================================
+   單元 5A：3D 空間摺紙鏡
+   ========================================================= */
+function m5A(st) {
+  const SH = [
+    { name: '💗 愛心', col: '#ff5ad9', d: 'M100 32 C 88 8, 46 2, 26 24 C 6 48, 34 84, 100 116 Z', extra: '<circle cx="60" cy="46" r="8" fill="#fff" opacity=".7"/>' },
+    { name: '🌲 聖誕樹', col: '#4dff9a', d: 'M100 6 L58 46 L76 46 L40 80 L66 80 L28 108 L88 108 L88 120 L100 120 Z', extra: '<circle cx="78" cy="62" r="6" fill="#ffd84a"/><circle cx="62" cy="94" r="6" fill="#ff4d6d"/>' },
+    { name: '🦋 蝴蝶', col: '#3ef0ff', d: 'M100 34 C 72 0, 8 8, 18 50 C 24 64, 62 62, 100 62 C 60 64, 18 76, 34 102 C 50 120, 84 104, 100 82 Z', extra: '<circle cx="48" cy="38" r="9" fill="#ffd84a"/><circle cx="56" cy="88" r="7" fill="#ff5ad9"/>' }
+  ];
+  st.innerHTML = modeHead('🎮 玩法 A：3D 空間摺紙鏡', '中間發光的是對稱軸。拉動摺疊滑桿，讓左半邊的圖形在 3D 空間翻過去，蓋到右邊的虛線上！') +
+    `<div class="controls">${SH.map((s, i) => `<button class="chip ${i ? '' : 'on'}" data-s="${i}">${s.name}</button>`).join('')}</div>
+    <div class="fold-scene"><div class="fold-paper" id="paper">
+      <div class="rhalf"><svg viewBox="0 0 100 120" preserveAspectRatio="none" id="ghost"></svg></div>
+      <div class="flap" id="flap"><div class="flap-face"><svg viewBox="0 0 100 120" preserveAspectRatio="none" id="art"></svg><div class="shade" id="shade"></div></div></div>
+      <div class="axis-line"></div>
+    </div></div>
+    <div class="controls"><div class="slider-row"><span class="tag purple">📐 摺疊角度</span><input type="range" id="ang" min="0" max="180" value="0"><b class="val" id="angV">0°</b></div></div>
+    <div class="controls"><button class="btn sm" id="bPlay">▶ 自動摺過去</button><button class="btn ghost sm" id="bBack">↺ 打開</button></div>
+    <div class="readout" id="ro">拉動滑桿到 180°！</div>`;
+  const flap = $('#flap', st), shade = $('#shade', st), paper = $('#paper', st), ang = $('#ang', st);
+  let si = 0, matched = new Set(), anim = null;
+  function drawShape() {
+    const s = SH[si];
+    $('#art', st).innerHTML = `<path d="${s.d}" fill="${s.col}" opacity=".9" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/>${s.extra}`;
+    $('#ghost', st).innerHTML = `<g transform="translate(100,0) scale(-1,1)"><path d="${s.d}" fill="none" stroke="${s.col}" stroke-width="2.5" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/></g>`;
+  }
+  function set(a) {
+    ang.value = a; $('#angV', st).textContent = Math.round(a) + '°';
+    flap.style.transform = `rotateY(${a}deg)`;
+    shade.style.opacity = (Math.sin(a * Math.PI / 180) * 0.8).toFixed(2);
+    const ok = a >= 177; paper.classList.toggle('matched', ok);
+    $('#ro', st).innerHTML = ok ? `<span class="c-green">✨ 完全重合！左右兩邊一模一樣 → 這是「線對稱圖形」</span>` : a > 90 ? `快蓋上了……（${Math.round(a)}°）` : `拉動滑桿到 180°！（現在 ${Math.round(a)}°）`;
+    if (ok && !matched.has(si)) {
+      matched.add(si); sfx('ok');
+      complete(5, 'A', `完全重合！沿著對稱軸對摺後，左右兩邊每一個點都疊在一起，所以${SH[si].name.slice(2)}是<b>線對稱圖形</b>。換其他圖案試試！`);
+    }
+  }
+  ang.oninput = () => { if (anim) { cancelAnimationFrame(anim); anim = null; } set(+ang.value); };
+  function animate(to) {
+    if (anim) cancelAnimationFrame(anim);
+    const from = +ang.value, t0 = performance.now(), dur = 1600;
+    const f = now => { const e = ease((now - t0) / dur); set(lerp(from, to, e)); anim = e < 1 ? requestAnimationFrame(f) : null; };
+    anim = requestAnimationFrame(f);
+  }
+  onCleanup(() => anim && cancelAnimationFrame(anim));
+  $('#bPlay', st).onclick = () => { sfx('click'); animate(180); };
+  $('#bBack', st).onclick = () => { sfx('click'); animate(0); };
+  $$('[data-s]', st).forEach(b => b.onclick = () => { $$('[data-s]', st).forEach(x => x.classList.remove('on')); b.classList.add('on'); si = +b.dataset.s; sfx('click'); drawShape(); set(0); });
+  drawShape(); set(0);
+}
+
+/* =========================================================
+   單元 5B：方格步數探測器
+   ========================================================= */
+function m5B(st) {
+  st.innerHTML = modeHead('🧩 玩法 B：方格步數探測器', '控制探測機器人從 A 點出發，先「垂直」走向對稱軸，再穿過去走一樣的步數，點亮對稱點 A′！') +
+    `<div class="cv-wrap"><canvas id="cv"></canvas></div>
+    <div class="controls"><button class="btn glow" id="bStep">🤖 往對稱軸走一步</button><button class="btn ghost sm" id="bNew">🔄 換一個點</button></div>
+    <div class="readout" id="ro"></div>`;
+  const C = setupCanvas($('#cv', st), 600, 420, 620), ctx = C.ctx;
+  const cs = 40, ox = 20, oy = 30, COLS = 14, ROWS = 9, AXC = 7;
+  const gx = c => ox + c * cs, gy = r => oy + r * cs;
+  let d = 4, row = 4, phase = 0, steps = 0, rx, foot = [], doneT = 0, rounds = 0;
+  const bStep = $('#bStep', st);
+  function setup() {
+    phase = 0; steps = 0; rx = AXC - d; foot = []; doneT = 0;
+    bStep.disabled = false; bStep.classList.add('glow'); label();
+    $('#ro', st).innerHTML = `A 點在對稱軸左邊。機器人要走幾步才會碰到對稱軸呢？`;
+  }
+  function label() { bStep.textContent = phase === 0 ? `🤖 往對稱軸走一步（${steps}/${d}）` : phase === 1 ? `🤖 穿過鏡子繼續走（${steps}/${d}）` : '✅ 找到 A′ 了！'; }
+  bStep.onclick = () => {
+    if (phase > 1) return;
+    steps++; sfx('hop');
+    foot.push({ c: rx + 0.5, n: steps, ph: phase });
+    rx += 1;
+    if (phase === 0 && steps === d) {
+      phase = 1; steps = 0; sfx('ok');
+      $('#ro', st).innerHTML = `走了 <b class="c-cyan">${d} 步</b>碰到對稱軸！路線和對稱軸成 <b class="c-yellow">直角（垂直 ⊥）</b>。繼續穿過去走！`;
+      coach(`A 點到對稱軸是 <b>${d} 格</b>，而且是「垂直」走過來的。對稱點也要在另一邊同樣的距離喔！`);
+    } else if (phase === 1 && steps === d) {
+      phase = 2; doneT = 0; rounds++; bStep.disabled = true; bStep.classList.remove('glow');
+      $('#ro', st).innerHTML = `<span class="c-green">A′ 點亮了！</span> A 到軸 <b class="c-cyan">${d} 格</b> ＝ 軸到 A′ <b class="c-pink">${d} 格</b><small>連線 AA′ 和對稱軸「垂直」，而且對稱軸把它分成一樣長（等距 ∥）</small>`;
+      complete(5, 'B', `找到對稱點 A′！兩邊都是 ${d} 格（等距），連線和對稱軸垂直。按「換一個點」再試試！`);
+    } else if (phase === 1) $('#ro', st).innerHTML = `對稱軸右邊第 <b class="c-pink">${steps}</b> 步……要走到和左邊一樣多（${d} 步）！`;
+    else $('#ro', st).innerHTML = `第 <b class="c-cyan">${steps}</b> 步……`;
+    label();
+  };
+  $('#bNew', st).onclick = () => { sfx('click'); let nd; do { nd = 2 + Math.floor(Math.random() * 5); } while (nd === d); d = nd; row = 1 + Math.floor(Math.random() * 7); setup(); coach(INTRO['5B']); };
+  setup();
+  let rDisp = rx;
+  loop((dt, t) => {
+    C.clear(); doneT += dt; rDisp += (rx - rDisp) * Math.min(1, dt * 8);
+    if (Math.abs(rDisp - rx) > 3) rDisp = rx;
+    // 方格
+    ctx.strokeStyle = 'rgba(140,180,255,.18)'; ctx.lineWidth = 1;
+    for (let c = 0; c <= COLS; c++) { ctx.beginPath(); ctx.moveTo(gx(c), oy); ctx.lineTo(gx(c), gy(ROWS)); ctx.stroke(); }
+    for (let r = 0; r <= ROWS; r++) { ctx.beginPath(); ctx.moveTo(ox, gy(r)); ctx.lineTo(gx(COLS), gy(r)); ctx.stroke(); }
+    // 對稱軸
+    ctx.save(); ctx.strokeStyle = '#a37bff'; ctx.lineWidth = 5; ctx.shadowColor = '#ff5ad9'; ctx.shadowBlur = 18; ctx.beginPath(); ctx.moveTo(gx(AXC), oy - 10); ctx.lineTo(gx(AXC), gy(ROWS) + 10); ctx.stroke(); ctx.restore();
+    txt(ctx, '對稱軸', gx(AXC), 14, { size: 15, color: '#d2c0ff' });
+    const y = gy(row), ax = gx(AXC - d), apx = gx(AXC + d);
+    // 路徑
+    const walked1 = phase === 0 ? rDisp : AXC, walked2 = phase === 1 ? rDisp : phase === 2 ? AXC + d : AXC;
+    glowLine(ctx, ax, y, gx(Math.min(walked1, AXC)), y, '#3ef0ff', 4);
+    if (phase >= 1) glowLine(ctx, gx(AXC), y, gx(walked2), y, '#ff5ad9', 4);
+    // 腳印
+    foot.forEach(f => { const col = f.ph ? '#ff5ad9' : '#3ef0ff'; ctx.fillStyle = col + '33'; ctx.beginPath(); ctx.arc(gx(f.c), y + 22, 11, 0, TAU); ctx.fill(); txt(ctx, String(f.n), gx(f.c), y + 22, { size: 14, color: col }); });
+    // 垂直符號
+    if (phase >= 1) { ctx.strokeStyle = '#ffd84a'; ctx.lineWidth = 2.5; ctx.strokeRect(gx(AXC) - 14, y - 14, 14, 14); txt(ctx, '⊥ 垂直', gx(AXC) + 2, y - 30, { size: 14, color: '#ffd84a', align: 'left' }); }
+    // 距離標籤 & 等距記號
+    if (phase >= 1) txt(ctx, `${d} 格`, (ax + gx(AXC)) / 2, y - 18, { size: 16, color: '#3ef0ff' });
+    if (phase === 2) {
+      txt(ctx, `${d} 格`, (apx + gx(AXC)) / 2, y - 18, { size: 16, color: '#ff5ad9' });
+      [(ax + gx(AXC)) / 2, (apx + gx(AXC)) / 2].forEach(mx => { ctx.strokeStyle = '#4dff9a'; ctx.lineWidth = 2.5; [-4, 4].forEach(o => { ctx.beginPath(); ctx.moveTo(mx + o - 3, y + 8); ctx.lineTo(mx + o + 3, y - 8); ctx.stroke(); }); });
+      const pr = 16 + 3 * Math.sin(t * 6);
+      star(ctx, apx, y, pr, '#ff5ad9'); txt(ctx, 'A′', apx + 22, y - 22, { size: 22, color: '#ff8ae6', glow: '#ff5ad9' });
+    } else { ctx.save(); ctx.strokeStyle = 'rgba(255,90,217,.4)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(apx, y, 12, 0, TAU); ctx.stroke(); ctx.restore(); txt(ctx, '?', apx, y, { size: 16, color: 'rgba(255,90,217,.6)' }); }
+    star(ctx, ax, y, 15, '#3ef0ff'); txt(ctx, 'A', ax - 20, y - 22, { size: 22, color: '#8ef6ff', glow: '#3ef0ff' });
+    // 機器人
+    if (phase < 2) {
+      const x = gx(rDisp), by = y - 34 + Math.sin(t * 8) * 2;
+      ctx.save(); ctx.shadowColor = '#4dff9a'; ctx.shadowBlur = 16; ctx.fillStyle = '#c9ffe0'; rrect(ctx, x - 14, by - 12, 28, 22, 7); ctx.fill(); ctx.restore();
+      ctx.fillStyle = '#06102a'; ctx.beginPath(); ctx.arc(x - 6, by - 2, 3.5, 0, TAU); ctx.arc(x + 6, by - 2, 3.5, 0, TAU); ctx.fill();
+      ctx.strokeStyle = '#c9ffe0'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, by - 12); ctx.lineTo(x, by - 20); ctx.stroke();
+      ctx.fillStyle = '#ff4d6d'; ctx.beginPath(); ctx.arc(x, by - 22, 3.5, 0, TAU); ctx.fill();
+      ctx.fillStyle = '#4dff9a'; ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x - 6, y - 18); ctx.lineTo(x + 6, y - 18); ctx.fill();
+    }
+  });
+}
+
+/* =========================================================
+   直式除法排版器
+   ========================================================= */
+function makeLD(el, cols, rows, divisor) {
+  const cw = 40, ch = 44, ox = 66, oy = 6;
+  el.className = 'ld'; el.innerHTML = '';
+  el.style.width = (ox + cols * cw + 16) + 'px'; el.style.height = (oy + rows * ch + 10) + 'px';
+  return {
+    cw, ch, ox, oy,
+    cell(r, c, t, cls = '') { const d = document.createElement('div'); d.className = 'ldc ' + cls; d.style.left = (ox + c * cw) + 'px'; d.style.top = (oy + r * ch) + 'px'; d.textContent = t; el.appendChild(d); return d; },
+    line(r, c0, c1) { const d = document.createElement('div'); d.className = 'ldl'; d.style.left = (ox + c0 * cw - 4) + 'px'; d.style.top = (oy + r * ch - 2) + 'px'; d.style.width = ((c1 - c0 + 1) * cw + 8) + 'px'; el.appendChild(d); return d; },
+    bracket(r, n) {
+      const d = document.createElement('div'); d.className = 'ldb'; d.style.left = (ox - 12) + 'px'; d.style.top = (oy + r * ch - 2) + 'px'; d.style.width = (n * cw + 20) + 'px'; d.style.height = (ch + 2) + 'px'; el.appendChild(d);
+      const v = document.createElement('div'); v.className = 'ldc divisor'; v.style.left = (ox - 56) + 'px'; v.style.top = (oy + r * ch) + 'px'; v.textContent = divisor; el.appendChild(v);
+    }
+  };
+}
+
+/* =========================================================
+   單元 6A：果汁分裝與餘數雷射
+   ========================================================= */
+function m6A(st) {
+  st.innerHTML = modeHead('🎮 玩法 A：果汁分裝與餘數雷射', '5.8 公升果汁平分到 4 個杯子，每杯可以裝多少？直式最後剩下的數字，真的是剩下的公升數嗎？') +
+    `<div class="juice-lab">
+      <div class="cups-area">
+        <div class="jug-row">
+          <div><div class="vessel jug"><div class="fill" id="jug"></div></div><div class="vlabel" id="jugL">大壺 5.8 L</div></div>
+          <div class="left-bubble" id="leftB" hidden></div>
+        </div>
+        <div class="cups">${[1, 2, 3, 4].map(i => `<div><div class="vessel cup"><div class="fill" data-cup></div></div><div class="vlabel" data-cupl>第${i}杯</div></div>`).join('')}</div>
+      </div>
+      <div class="ld-box"><div id="ld"></div></div>
+    </div>
+    <div class="controls"><button class="btn glow" id="bPour">🥤 開始分裝（算直式）</button><button class="btn pink" id="bLaser" disabled>🔦 垂直雷射對齊</button><button class="btn ghost sm" id="bR">↺ 重來</button></div>
+    <div class="readout" id="ro">5.8 ÷ 4 = ？</div>`;
+  const bPour = $('#bPour', st), bLaser = $('#bLaser', st);
+  let L, phase = 0;
+  function reset() {
+    phase = 0; L = makeLD($('#ld', st), 3, 6, '4'); L.bracket(1, 3);
+    L.cell(1, 0, '5'); L.cell(1, 1, '.', 'dot'); L.cell(1, 2, '8');
+    $('#jug', st).style.height = (5.8 / 6 * 100) + '%'; $('#jugL', st).textContent = '大壺 5.8 L';
+    $$('[data-cup]', st).forEach(c => c.style.height = '0'); $$('[data-cupl]', st).forEach((c, i) => c.textContent = `第${i + 1}杯`);
+    $('#leftB', st).hidden = true; $('#leftB', st).className = 'left-bubble';
+    bPour.disabled = false; bPour.classList.add('glow'); bLaser.disabled = true; bLaser.classList.remove('glow');
+    $('#ro', st).innerHTML = '5.8 ÷ 4 = ？';
+  }
+  bPour.onclick = () => {
+    if (phase) return; phase = 1; bPour.disabled = true; bPour.classList.remove('glow'); sfx('click');
+    const seq = [
+      () => { L.cell(0, 0, '1', 'q'); L.cell(2, 0, '4'); L.line(3, 0, 2); coach('5 公升先分給 4 杯：每杯 <b>1</b> 公升，用掉 4 公升。'); },
+      () => { L.cell(3, 0, '1'); L.cell(3, 2, '8', 'hl'); L.cell(0, 1, '.', 'dot'); coach('剩下 1 公升，再把 0.8 接下來變成「18 個 0.1 公升」。商的小數點對齊被除數的小數點！'); },
+      () => { L.cell(0, 2, '4', 'q'); L.cell(4, 0, '1'); L.cell(4, 2, '6'); L.line(5, 0, 2); },
+      () => {
+        L.cell(5, 2, '2', 'hl');
+        $('#jug', st).style.height = (0.2 / 6 * 100) + '%'; $('#jugL', st).textContent = '大壺 剩下 ?';
+        $$('[data-cup]', st).forEach(c => c.style.height = '70%'); $$('[data-cupl]', st).forEach(c => c.textContent = '1.4 L');
+        const lb = $('#leftB', st); lb.hidden = false; lb.innerHTML = '直式最後剩「2」<br>難道還剩 2 公升？🤔';
+        $('#ro', st).innerHTML = `5.8 ÷ 4 = 1.4 …… <span class="c-red">2？</span><small>如果真的剩 2 公升，每杯還能再分 0.5 公升，太奇怪了！</small>`;
+        coach('咦？直式最後剩下 <b class="c-red">2</b>。可是如果剩 2 公升，明明還可以再分呀……一定有詐！按「垂直雷射對齊」看看真相！');
+        bLaser.disabled = false; bLaser.classList.add('glow'); sfx('bad');
+      }
+    ];
+    seq.forEach((f, i) => later(() => { f(); sfx('click'); }, 300 + i * 900));
+  };
+  bLaser.onclick = () => {
+    if (phase !== 1) return; phase = 2; bLaser.disabled = true; bLaser.classList.remove('glow'); sfx('zap');
+    const lz = document.createElement('div'); lz.className = 'laser';
+    lz.style.left = (L.ox + L.cw * 1.5) + 'px'; lz.style.top = (L.oy + L.ch * 1.5) + 'px';
+    $('#ld', st).appendChild(lz); void lz.offsetWidth; lz.style.height = (L.ch * 4.4) + 'px';
+    later(() => {
+      L.cell(5, 0, '0', 'new'); L.cell(5, 1, '.', 'dot new'); sfx('ok');
+      const lb = $('#leftB', st); lb.className = 'left-bubble ok'; lb.innerHTML = '真相大白！<br>只剩 0.2 公升 ✔';
+      $('#jugL', st).textContent = '大壺 剩 0.2 L';
+      $('#ro', st).innerHTML = `5.8 ÷ 4 = 1.4 …… <b class="c-green big">0.2</b><small>驗算：4 × 1.4 + 0.2 = 5.6 + 0.2 = 5.8 ✔</small>`;
+      complete(6, 'A', '雷射從被除數的小數點直直射下來，餘數的小數點也要對齊它，所以 2 其實是 <b class="c-green">0.2 公升</b>！記住：<b>餘數的小數點對齊被除數</b>。');
+    }, 1050);
+  };
+  $('#bR', st).onclick = () => { runCleanup(); m6A(st); coach(INTRO['6A']); };
+  reset();
+}
+
+/* =========================================================
+   單元 6B：退位換幣拆解機
+   ========================================================= */
+function m6B(st) {
+  const names = [['👦', '小明'], ['👧', '小美'], ['🧒', '阿哲'], ['👩‍🚀', '小宇']];
+  st.innerHTML = modeHead('🧩 玩法 B：退位換幣拆解機（除不盡補零）', '5 元平分給 4 人。分不完的錢就拿去換更小的零錢繼續分，對照右邊直式看看「補 0」是什麼意思！') +
+    `<div class="coin-lab">
+      <div>
+        <div class="pool-wrap"><div class="pool-label">💰 還沒分的錢：<span id="poolV">5 元</span></div><div class="pool" id="pool"></div></div>
+        <div class="people">${names.map(n => `<div class="person"><div class="ava">${n[0]}</div><div class="pname">${n[1]}</div><div class="wallet"></div><div class="amt">0 元</div></div>`).join('')}</div>
+      </div>
+      <div class="ld-box"><div id="ld"></div></div>
+    </div>
+    <div class="controls"><button class="btn glow" id="bGo">① 平分 1 元硬幣</button><button class="btn ghost sm" id="bR">↺ 重來</button></div>
+    <div class="readout" id="ro">5 ÷ 4 = ？</div>`;
+  const pool = $('#pool', st), bGo = $('#bGo', st), wallets = $$('.wallet', st), amts = $$('.amt', st);
+  let step = 0, busy = false, cents = [0, 0, 0, 0], L;
+  const T = { c1: ['1元', 100], c01: ['0.1', 10], c001: ['0.01', 1] };
+  function coin(type) { const c = document.createElement('div'); c.className = 'coin ' + type; c.textContent = T[type][0]; c.dataset.t = type; return c; }
+  function poolValue() { return $$('.coin', pool).reduce((a, c) => a + T[c.dataset.t][1], 0); }
+  const money = v => fmt(v / 100) + ' 元';
+  function updMoney() { $('#poolV', st).textContent = money(poolValue()); amts.forEach((a, i) => a.textContent = money(cents[i])); }
+  function fly(c, target, delay) {
+    later(() => {
+      const r1 = c.getBoundingClientRect(); target.appendChild(c); const r2 = c.getBoundingClientRect();
+      c.style.transition = 'none'; c.style.transform = `translate(${r1.left - r2.left}px,${r1.top - r2.top}px)`;
+      void c.offsetWidth; c.style.transition = 'transform .6s cubic-bezier(.3,1.3,.5,1)'; c.style.transform = '';
+      sfx('click');
+    }, delay);
+  }
+  function share(type, each) {
+    const cs = $$('.coin', pool).filter(c => c.dataset.t === type);
+    let k = 0;
+    for (let r = 0; r < each; r++) for (let p = 0; p < 4; p++) { const c = cs[k++]; fly(c, wallets[p], k * 110); cents[p] += T[type][1]; }
+    later(updMoney, k * 110 + 650);
+    return k * 110 + 700;
+  }
+  function burst(type, into) {
+    const cs = $$('.coin', pool).filter(c => c.dataset.t === type);
+    cs.forEach(c => c.classList.add('boom')); sfx('zap');
+    later(() => {
+      cs.forEach(c => c.remove());
+      for (let i = 0; i < cs.length * 10; i++) { const n = coin(into); n.classList.add('spawn'); n.style.setProperty('--dx', (Math.random() * 80 - 40) + 'px'); n.style.setProperty('--dy', (Math.random() * 60 - 30) + 'px'); n.style.animationDelay = (i * 0.03) + 's'; pool.appendChild(n); }
+      updMoney(); sfx('ok');
+    }, 450);
+  }
+  const labels = ['① 平分 1 元硬幣', '② 換成十分位零錢（1 元 → 10 個 0.1 元）', '③ 平分 0.1 元硬幣', '④ 再換成百分位零錢（0.1 元 → 10 個 0.01 元）', '⑤ 平分 0.01 元硬幣', '🎉 分完了！'];
+  function reset() {
+    step = 0; busy = false; cents = [0, 0, 0, 0]; pool.innerHTML = ''; wallets.forEach(w => w.innerHTML = '');
+    for (let i = 0; i < 5; i++) pool.appendChild(coin('c1'));
+    L = makeLD($('#ld', st), 4, 8, '4'); L.bracket(1, 4); L.cell(1, 0, '5');
+    bGo.textContent = labels[0]; bGo.disabled = false; bGo.classList.add('glow'); updMoney();
+    $('#ro', st).innerHTML = '5 ÷ 4 = ？';
+  }
+  bGo.onclick = () => {
+    if (busy || step > 4) return; busy = true; bGo.disabled = true;
+    let wait = 900;
+    if (step === 0) {
+      wait = share('c1', 1);
+      later(() => { L.cell(0, 0, '1', 'q'); L.cell(2, 0, '4'); L.line(3, 0, 0); L.cell(3, 0, '1', 'hl');
+        $('#ro', st).innerHTML = '每人 1 元，還剩 <b class="c-red">1 元</b>，1 個硬幣不夠 4 人分了！';
+        coach('每人先拿 1 元，還剩 1 元。1 個硬幣不能剪成 4 塊……那就拿去<b>換零錢</b>吧！'); }, wait);
+    } else if (step === 1) {
+      burst('c1', 'c01');
+      later(() => { L.cell(1, 1, '.', 'dot new'); L.cell(1, 2, '0', 'new'); L.cell(0, 1, '.', 'dot'); L.cell(3, 2, '0', 'new');
+        $('#ro', st).innerHTML = '1 元 = <b class="c-yellow">10 個 0.1 元</b>！直式：被除數點小數點、<b class="c-green">補 0</b>，變成「10」個 0.1';
+        coach('1 元換成 10 個 0.1 元！直式上就是在 5 後面「點上小數點、補一個 0」，把 1 變成 10 個十分位。商的小數點也要記得點上！'); }, 700);
+    } else if (step === 2) {
+      wait = share('c01', 2);
+      later(() => { L.cell(0, 2, '2', 'q'); L.cell(4, 2, '8'); L.line(5, 0, 2); L.cell(5, 2, '2', 'hl');
+        $('#ro', st).innerHTML = '每人再拿 2 個 0.1 元（0.2 元），還剩 <b class="c-red">2 個 0.1 元</b>';
+        coach('每人多拿 0.2 元，還剩 2 個 0.1 元，又不夠分了……再換更小的零錢！'); }, wait);
+    } else if (step === 3) {
+      burst('c01', 'c001');
+      later(() => { L.cell(1, 3, '0', 'new'); L.cell(5, 3, '0', 'new');
+        $('#ro', st).innerHTML = '2 個 0.1 元 = <b class="c-yellow">20 個 0.01 元</b>！直式再<b class="c-green">補一個 0</b>，變成「20」';
+        coach('0.1 元再換成 0.01 元，2 個變成 20 個！直式上又補了一個 0。'); }, 700);
+    } else if (step === 4) {
+      wait = share('c001', 5);
+      later(() => { L.cell(0, 3, '5', 'q'); L.cell(6, 2, '2'); L.cell(6, 3, '0'); L.line(7, 1, 3); L.cell(7, 3, '0', 'new');
+        $('#ro', st).innerHTML = `5 ÷ 4 = <b class="c-green big">1.25</b><small>每人 1 元 + 0.2 元 + 0.05 元 = 1.25 元，剛好分完！</small>`;
+        complete(6, 'B', '剛好分完！每人 <b class="c-green">1.25 元</b>。除不盡的時候，在被除數後面「點小數點、補 0」，就是把錢換成更小的零錢繼續分！'); }, wait);
+    }
+    later(() => { step++; busy = false; bGo.textContent = labels[step]; bGo.disabled = step > 4; if (step > 4) bGo.classList.remove('glow'); }, wait + 200);
+  };
+  $('#bR', st).onclick = () => { runCleanup(); m6B(st); coach(INTRO['6B']); };
+  reset();
+}
+
+/* =========================================================
+   各單元終極挑戰設定
+   ========================================================= */
+function heptagonSVG() {
+  const pts = []; for (let i = 0; i < 7; i++) { const a = -Math.PI / 2 + TAU * i / 7; pts.push([100 + 80 * Math.cos(a), 95 + 80 * Math.sin(a)]); }
+  const cols = ['#3ef0ff', '#ff5ad9', '#ffd84a', '#4dff9a', '#a37bff'];
+  let tri = ''; for (let k = 0; k < 5; k++) tri += `<polygon points="${pts[0]} ${pts[k + 1]} ${pts[k + 2]}" fill="${cols[k]}" opacity=".35"/>`;
+  let dg = ''; for (let k = 2; k < 6; k++) dg += `<line x1="${pts[0][0]}" y1="${pts[0][1]}" x2="${pts[k][0]}" y2="${pts[k][1]}" stroke="#ff4d6d" stroke-width="2.5"/>`;
+  return `<svg viewBox="0 0 200 190" width="220">${tri}<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#cfe0ff" stroke-width="3"/>${dg}<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="6" fill="#ff4d6d"/></svg>`;
+}
+function gridSVG() {
+  let g = ''; for (let i = 0; i <= 10; i++) g += `<line x1="${i * 26}" y1="0" x2="${i * 26}" y2="130" stroke="rgba(140,180,255,.25)"/>`;
+  for (let j = 0; j <= 5; j++) g += `<line x1="0" y1="${j * 26}" x2="260" y2="${j * 26}" stroke="rgba(140,180,255,.25)"/>`;
+  return `<svg viewBox="-10 -16 280 160" width="300">${g}<line x1="130" y1="-10" x2="130" y2="140" stroke="#a37bff" stroke-width="5"/>
+    <text x="130" y="-4" fill="#d2c0ff" font-size="11" text-anchor="middle" font-weight="900">對稱軸</text>
+    <circle cx="52" cy="52" r="7" fill="#3ef0ff"/><text x="40" y="40" fill="#8ef6ff" font-size="16" font-weight="900">P</text>
+    <line x1="52" y1="52" x2="130" y2="52" stroke="#3ef0ff" stroke-width="2" stroke-dasharray="4 3"/>
+    <text x="91" y="72" fill="#3ef0ff" font-size="13" text-anchor="middle" font-weight="900">3 格</text>
+    <circle cx="208" cy="52" r="9" fill="none" stroke="#ff5ad9" stroke-width="2" stroke-dasharray="3 3"/><text x="214" y="40" fill="#ff8ae6" font-size="16" font-weight="900">P′?</text></svg>`;
+}
+const SCAF = {
+  1: {
+    problem: '2.35 × 0.6 = ？', visual: `<div class="task-bar">先當整數算：235 × 6 = <b class="c-yellow">1410</b>，再決定小數點位置！</div>`,
+    steps: [
+      { q: `被乘數 2.35 有 ${BL('2')} 位小數？`, opts: ['1 位', '2 位', '3 位'], ans: 1, ok: '2.35 的小數點後面有「3、5」兩個數字，所以是 2 位小數。', hint: '數一數小數點「後面」有幾個數字。' },
+      { q: `乘數 0.6 有 ${BL('1')} 位小數？`, opts: ['0 位', '1 位', '2 位'], ans: 1, ok: '0.6 的小數點後面只有「6」，是 1 位小數。', hint: '小數點後面只有一個數字喔。' },
+      { q: `所以 1410 的小數點總共要往左移 ${BL('3')} 位？`, opts: ['1 位', '2 位', '3 位'], ans: 2, ok: '2 位 + 1 位 = 3 位！青蛙要跳 3 格。', hint: '把被乘數和乘數的小數位數「加起來」。' },
+      { q: `1410 從右往左數 3 位點上小數點，答案是 ${BL('1.41')}？`, opts: ['14.1', '1.41', '0.141'], ans: 1, ok: '1410 → 1.410，最後的 0 可以省略，答案是 1.41！', hint: '從 1410 的最右邊往左跳 3 格：1 . 4 1 0' }
+    ],
+    final: '2.35 × 0.6 = <span class="c-green">1.41</span>　（2 位 + 1 位 = 3 位小數）'
+  },
+  2: {
+    problem: '12 和 18 的公因數與最大公因數', visual: `<div class="factor-lists"><div><b class="c-cyan">12 的因數：</b>${[1, 2, 3, 4, 6, 12].map(x => `<span>${x}</span>`).join('')}</div><div><b class="c-pink">18 的因數：</b>${[1, 2, 3, 6, 9, 18].map(x => `<span>${x}</span>`).join('')}</div></div>`,
+    steps: [
+      { q: '「公因數」是什麼意思？', opts: ['兩個數都有的因數', '只有 12 有的因數', '兩個數相加的結果'], ans: 0, ok: '「公」就是「共同」的意思，兩個數都有的因數叫公因數。', hint: '「公」就是大家共有的意思。' },
+      { q: '從上面兩張清單中，點出<b>所有</b>公因數（可以選很多個），再按確認：', multi: true, opts: ['1', '2', '3', '4', '6', '9', '12', '18'], ans: [0, 1, 2, 4], ok: '1、2、3、6 在兩張清單裡都有，它們就是 12 和 18 的公因數！', hint: '一個一個檢查：這個數有沒有同時出現在兩張清單？' },
+      { q: `公因數 1、2、3、6 裡面最大的是 ${BL('6')}，它叫做「最大公因數」。`, opts: ['3', '6', '12'], ans: 1, ok: '6 是公因數裡最大的，所以 12 和 18 的最大公因數是 6。', hint: '12 不在 18 的因數清單裡喔！' },
+      { q: `12 顆蘋果、18 顆橘子要平分，每人拿到的蘋果一樣多、橘子也一樣多，最多可以分給 ${BL('6')} 人？`, opts: ['3 人', '6 人', '18 人'], ans: 1, ok: '分給 6 人：每人 2 顆蘋果、3 顆橘子。「最多平分給幾人」就是找最大公因數！', hint: '人數要同時能整除 12 和 18，而且要最多。' }
+    ],
+    final: '12 和 18 的公因數：1、2、3、6　最大公因數：<span class="c-green">6</span>'
+  },
+  3: {
+    problem: `${F(1, 4)} + ${F(2, 3)} = ？`,
+    steps: [
+      { q: `分母 4 和 3 的最小公倍數是 ${BL('12')}，它就是新的分母。`, opts: ['7', '12', '24'], ans: 1, ok: '4 的倍數：4、8、12…；3 的倍數：3、6、9、12…，第一次碰面是 12！', hint: '不是相加喔！找 4 和 3 都能「到達」的第一個樓層。' },
+      { q: `${F(1, 4)} = ${F('?', 12)}，分子要填 ${BL('3')}？`, opts: ['1', '3', '4'], ans: 1, ok: '4 × 3 = 12，分子也要 × 3：1 × 3 = 3，所以 1/4 = 3/12。', hint: '分母 4 變成 12 乘了幾？分子也要乘一樣多。' },
+      { q: `${F(2, 3)} = ${F('?', 12)}，分子要填 ${BL('8')}？`, opts: ['2', '6', '8'], ans: 2, ok: '3 × 4 = 12，分子也 × 4：2 × 4 = 8，所以 2/3 = 8/12。', hint: '分母 3 變成 12 乘了 4，分子 2 也要乘 4。' },
+      { q: `${F(3, 12)} + ${F(8, 12)} = ${BL('11/12')}？`, opts: [F(11, 12), F(11, 24), F(10, 12)], ans: 0, ok: '分母一樣了，分母不變、分子相加：3 + 8 = 11，答案 11/12！', hint: '分母相同時，分母要「不變」喔！' }
+    ],
+    final: `${F(1, 4)} + ${F(2, 3)} = ${F(3, 12)} + ${F(8, 12)} = <span class="c-green">${F(11, 12)}</span>`
+  },
+  4: {
+    problem: '三角形與多邊形大考驗', visual: heptagonSVG(),
+    steps: [
+      { q: `三根木棒長 3、4、8 公分，能圍成三角形嗎？${BL('不行')}`, opts: ['可以', '不行'], ans: 1, ok: '兩根短的 3 + 4 = 7，比最長的 8 還短，碰不到，所以圍不起來！', hint: '把兩根短的加起來，和最長的比比看。' },
+      { q: `三角形有兩個角是 50° 和 60°，第三個角是 ${BL('70°')}？`, opts: ['70°', '90°', '110°'], ans: 0, ok: '三角形內角和是 180°，180° − 50° − 60° = 70°。', hint: '三個角加起來是 180°（撕角拼圖拼成一條直線）。' },
+      { q: `從一個頂點畫對角線，七邊形可以切成 ${BL('5')} 個三角形？`, opts: ['5 個', '6 個', '7 個'], ans: 0, ok: '7 − 2 = 5，七邊形可以切成 5 個三角形（看上圖 5 種顏色）！', hint: '數一數上圖有幾種顏色的三角形，或用「邊數 − 2」。' },
+      { q: `七邊形內角和 = 5 × 180° = ${BL('900°')}？`, opts: ['720°', '900°', '1080°'], ans: 1, ok: '5 × 180° = 900°！公式：N 邊形內角和 = (N − 2) × 180°。', hint: '5 × 180 = 5 × 100 + 5 × 80。' }
+    ],
+    final: '三角形：兩短邊和 ＞ 最長邊，內角和 180°<br>七邊形內角和 = (7 − 2) × 180° = <span class="c-green">900°</span>'
+  },
+  5: {
+    problem: '找出點 P 的對稱點 P′', visual: gridSVG(),
+    steps: [
+      { q: `點 P 離對稱軸 3 格，它的對稱點 P′ 離對稱軸 ${BL('3')} 格？`, opts: ['2 格', '3 格', '6 格'], ans: 1, ok: '對稱點離對稱軸一樣遠，所以也是 3 格。', hint: '對稱點像照鏡子的雙胞胎，離鏡子一樣遠。' },
+      { q: `P 和 P′ 的連線，跟對稱軸是 ${BL('垂直')} 的關係？`, opts: ['平行', '垂直', '斜斜交叉'], ans: 1, ok: '對稱點的連線一定和對稱軸「垂直」（成直角）。', hint: '想想探測機器人是怎麼走向對稱軸的？' },
+      { q: `P 到 P′ 一共相距 ${BL('6')} 格？`, opts: ['3 格', '6 格', '9 格'], ans: 1, ok: '左邊 3 格 + 右邊 3 格 = 6 格。', hint: '左邊幾格加右邊幾格。' },
+      { q: `對稱軸會把 PP′ 這條線段 ${BL('平分')}？`, opts: ['平分成一樣長的兩半', '分成 1 : 2', '沒有關係'], ans: 0, ok: '對稱軸把連線平分，兩邊一樣長（等距）。', hint: '兩邊都是 3 格喔！' }
+    ],
+    final: '對稱點：到對稱軸<span class="c-green">等距</span>、連線與對稱軸<span class="c-green">垂直</span>、被對稱軸<span class="c-green">平分</span>'
+  },
+  6: {
+    problem: '7.3 ÷ 3 = 2.4 …… ？', visual: '<div class="ld-box" style="min-width:260px"><div id="ldC"></div></div>',
+    after(st) {
+      const L = makeLD($('#ldC', st), 3, 6, '3'); L.bracket(1, 3);
+      [[0, 0, '2', 'q'], [0, 1, '.', 'dot'], [0, 2, '4', 'q'], [1, 0, '7'], [1, 1, '.', 'dot'], [1, 2, '3'], [2, 0, '6'], [3, 0, '1'], [3, 2, '3'], [4, 0, '1'], [4, 2, '2'], [5, 2, '1', 'hl']].forEach(c => L.cell(...c));
+      L.line(3, 0, 2); L.line(5, 0, 2);
+    },
+    steps: [
+      { q: `直式中，「商」的小數點要對齊 ${BL('被除數的小數點')}？`, opts: ['被除數的小數點', '除數 3', '最右邊的數字'], ans: 0, ok: '商的小數點和被除數的小數點對齊，所以 2.4 的小數點在 7.3 的小數點正上方。', hint: '看直式：商的小數點在誰的正上方？' },
+      { q: `「餘數」的小數點要對齊 ${BL('被除數的小數點')}？`, opts: ['商的最後一位', '被除數的小數點', '不用點小數點'], ans: 1, ok: '餘數的小數點也要「往下」對齊被除數的小數點，就像垂直雷射！', hint: '想想果汁分裝的「垂直雷射」。' },
+      { q: `直式最後剩下「1」，它在十分位，所以真正的餘數是 ${BL('0.1')}？`, opts: ['1', '0.1', '0.01'], ans: 1, ok: '1 在被除數 3 的那一位（十分位），所以餘數是 0.1。', hint: '1 對齊的是 7.3 裡的「3」，那是十分位！' },
+      { q: `驗算：3 × 2.4 + 0.1 = ${BL('7.3')}？`, opts: ['7.3', '7.21', '8.2'], ans: 0, ok: '3 × 2.4 = 7.2，7.2 + 0.1 = 7.3，和被除數一樣，答對了！', hint: '先算 3 × 2.4 = 7.2。' }
+    ],
+    final: '7.3 ÷ 3 = 2.4 …… <span class="c-green">0.1</span>（驗算：3 × 2.4 + 0.1 = 7.3 ✔）'
+  }
+};
+
+const MODES = {};
+[[1, m1A, m1B], [2, m2A, m2B], [3, m3A, m3B], [4, m4A, m4B], [5, m5A, m5B], [6, m6A, m6B]].forEach(([u, a, b]) => {
+  MODES[u] = { A: a, B: b, C: st => scaffold(st, u, SCAF[u]) };
+});
+MODES[4].S = m4S;
+
+/* =========================================================
+   Three.js 星際背景（載入失敗時自動略過）
+   ========================================================= */
+function initStars() {
+  if (!window.THREE) return;
+  try {
+    const cv = $('#stars');
+    const R = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: false });
+    R.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
+    const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(60, 1, 1, 2000); cam.position.z = 600;
+    const N = 1400, pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+    const pal = [[0.24, 0.94, 1], [1, 0.35, 0.85], [1, 0.85, 0.3], [0.8, 0.85, 1]];
+    for (let i = 0; i < N; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 1800; pos[i * 3 + 1] = (Math.random() - 0.5) * 1400; pos[i * 3 + 2] = (Math.random() - 0.5) * 1400;
+      const c = pal[i % 4]; col.set(c, i * 3);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const pts = new THREE.Points(g, new THREE.PointsMaterial({ size: 3, vertexColors: true, transparent: true, opacity: 0.85 }));
+    scene.add(pts);
+    const planet = new THREE.Mesh(new THREE.IcosahedronGeometry(120, 1), new THREE.MeshBasicMaterial({ color: 0x3ef0ff, wireframe: true, transparent: true, opacity: 0.18 }));
+    planet.position.set(520, 260, -300); scene.add(planet);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(200, 2, 8, 80), new THREE.MeshBasicMaterial({ color: 0xff5ad9, transparent: true, opacity: 0.3 }));
+    ring.position.copy(planet.position); ring.rotation.x = 1.2; scene.add(ring);
+    function size() { R.setSize(window.innerWidth, window.innerHeight, false); cam.aspect = window.innerWidth / window.innerHeight; cam.updateProjectionMatrix(); }
+    size(); window.addEventListener('resize', size);
+    (function anim() { pts.rotation.y += 0.0004; pts.rotation.x += 0.0001; planet.rotation.y += 0.003; planet.rotation.x += 0.001; ring.rotation.z += 0.002; R.render(scene, cam); requestAnimationFrame(anim); })();
+  } catch (e) { /* WebGL 不支援時略過 */ }
+}
+(function loadThree() {
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  s.onload = initStars; document.head.appendChild(s);
+})();
+
+/* =========================================================
+   啟動
+   ========================================================= */
+$('#homeBtn').onclick = () => { sfx('click'); goHome(); };
+$('#soundBtn').onclick = () => { soundOn = !soundOn; $('#soundBtn').textContent = soundOn ? '🔊' : '🔇'; };
+$('#resetBtn').onclick = () => { if (confirm('確定要清除所有星星進度嗎？')) { P = {}; try { localStorage.removeItem(KEY); } catch (e) {} loadP(); renderHub(); } };
+renderHub();
+</script>
+</body>
+</html>
