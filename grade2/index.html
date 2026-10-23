@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>二年級數學樂園</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="deco" aria-hidden="true"></div>
+<a class="grade-link" href="../index.html">← 選年級</a>
+<button class="home-btn" id="homeBtn" hidden>🏠 回首頁</button>
+<button class="sound-btn" id="soundBtn" title="聲音開關">🔊</button>
+
+<div id="app">
+  <!-- 首頁 -->
+  <section id="hub">
+    <div class="hero">
+      <h1><span class="rb">二</span><span class="rb">年</span><span class="rb">級</span><span class="rb">數</span><span class="rb">學</span><span class="rb">樂</span><span class="rb">園</span></h1>
+      <p>高雄市鳳山區五福國小・115 學年度・南一版 二上</p>
+      <div class="total">⭐ 我的星星 <b id="totalStars">0</b> / <span id="maxStars">30</span></div>
+      <div><button class="reset-link" id="resetBtn">清除星星重新開始</button></div>
+    </div>
+    <div class="grid" id="unitGrid"></div>
+  </section>
+
+  <!-- 關卡 -->
+  <section id="play" hidden>
+    <div class="lv-title" id="lvTitle"></div>
+    <div class="coach">
+      <div class="coach-face">🦉</div>
+      <div class="coach-bubble" id="bubbleWrap">
+        <span class="who">貓頭鷹老師</span>
+        <span id="bubble"></span>
+        <button class="speak" id="speakBtn" title="再唸一次">🔊</button>
+      </div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </section>
+</div>
+
+<!-- 過關畫面 -->
+<div class="result" id="result" hidden>
+  <div class="result-card">
+    <div class="r-title" id="rTitle">過關了！</div>
+    <div class="r-stars" id="rStars"></div>
+    <div class="r-msg" id="rMsg"></div>
+    <div class="nav-next">
+      <button class="btn ghost" id="againBtn">🔁 再玩一次</button>
+      <button class="btn mint" id="nextBtn">下一關 ➜</button>
+      <button class="btn blue" id="backBtn">🏠 回首頁</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script src="js/core.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/units1-3.js"></script>
+<script src="js/units4-6.js"></script>
+<script src="js/units7-10.js"></script>
+<script src="js/main.js"></script>
+<script src="https://kuog88.github.io/home-button.js" defer></script>
+</body>
+</html>
