@@ -56,7 +56,7 @@ function u1A(st) {
 function u1B(st) {
   quiz(st, [
     () => {
-      const p = pick([23, 29, 31, 37, 41, 43, 47, 53, 59]), cs = shuffle([21, 27, 33, 39, 49, 51, 57, 63, 91]).slice(0, 3);
+      const p = pick([11, 13, 17, 19, 23, 29, 31, 37]), cs = shuffle([15, 21, 25, 27, 33, 35, 39, 45, 51]).slice(0, 3);
       return { q: '哪一個是<b>質數</b>？', sp: '哪一個是質數？', opts: [{ h: N(p), ok: true }, ...cs.map(c => ({ h: N(c), ok: false, hint: `${c} = ${primeFactors(c).join('×')}，它是合數喔！` }))], hint: '質數只有 1 和自己兩個因數。' };
     },
     { q: '1 是質數還是合數？', opts: [{ h: '都不是', ok: true }, { h: '質數', ok: false }, { h: '合數', ok: false }], hint: '1 只有 1 個因數，所以既不是質數，也不是合數。', after: '1 既不是質數，也不是合數' },
@@ -91,7 +91,7 @@ function u1C(st) {
     () => { const [a, b] = pair(); const l = lcm(a, b); return { q: `<b>${a}</b> 和 <b>${b}</b> 的<b>最小公倍數</b>是多少？`, sp: `${a} 和 ${b} 的最小公倍數是多少？`, ans: l, hint: '短除法：左邊的除數和最下面的商全部乘起來！', after: `${a} 和 ${b} 的最小公倍數是 ${l}` }; },
     () => { const [a, b, g] = pair(); return { q: `兩條緞帶長 ${a} 公分和 ${b} 公分，要剪成<b>一樣長</b>的小段，都沒有剩下。每段<b>最長</b>幾公分？`, vis: '<span style="font-size:56px">🎀✂️</span>', ans: g, unit: '公分', hint: '每段長度要同時是兩個數的因數，而且最大！', after: `${a} 和 ${b} 的最大公因數是 ${g}，每段最長 ${g} 公分` }; },
     () => { const [a, b] = pick([[6, 8], [8, 12], [10, 15], [12, 18], [6, 9], [9, 12]]); const l = lcm(a, b); return { q: `紅色公車每 ${a} 分鐘一班，藍色公車每 ${b} 分鐘一班。早上 7 點同時發車，<b>最少再過幾分鐘</b>又會同時發車？`, vis: '<span style="font-size:56px">🚌 🚍</span>', ans: l, unit: '分鐘', hint: '要同時是兩個數的倍數，而且最小！', after: `${a} 和 ${b} 的最小公倍數是 ${l}，再過 ${l} 分鐘` }; },
-    () => { const [a, b] = pick([[4, 6], [6, 8], [6, 9], [8, 12], [10, 15]]); const l = lcm(a, b); return { q: `用長 ${a} 公分、寬 ${b} 公分的長方形卡片，同方向排成一個<b>最小的正方形</b>，正方形邊長是幾公分？`, vis: '<span style="font-size:56px">🟨🟨</span>', ans: l, unit: '公分', hint: '邊長要同時是長和寬的倍數，而且最小！', after: `邊長是 ${a} 和 ${b} 的最小公倍數 ${l} 公分` }; },
+    () => { const [a, b] = pick([[4, 6], [6, 8], [6, 9], [8, 12], [10, 15]]); const l = lcm(a, b); return { q: `用長 ${b} 公分、寬 ${a} 公分的長方形卡片，同方向排成一個<b>最小的正方形</b>，正方形邊長是幾公分？`, vis: '<span style="font-size:56px">🟨🟨</span>', ans: l, unit: '公分', hint: '邊長要同時是長和寬的倍數，而且最小！', after: `邊長是 ${b} 和 ${a} 的最小公倍數 ${l} 公分` }; },
     () => { const [a, b, g] = pair(); return { q: `有 ${a} 顆糖果和 ${b} 塊餅乾，平分給一些小朋友，剛好分完。<b>最多</b>可以分給幾人？`, vis: '<span style="font-size:56px">🍬🍪</span>', ans: g, unit: '人', hint: '人數要同時能整除兩個數，而且最多！', after: `最多分給 ${g} 人` }; }
   ]);
 }
@@ -146,7 +146,7 @@ function u2B(st) {
     () => { const [a, b, c, d] = pick([[3, 4, 2, 5], [2, 3, 5, 7], [5, 6, 3, 4], [4, 9, 2, 3]]); return { q: `${fr(a, b)} ÷ ${fr(c, d)} 可以改成哪一個算式？`, opts: [{ h: `${fr(a, b)} × ${fr(d, c)}`, ok: true }, { h: `${fr(b, a)} × ${fr(c, d)}`, ok: false, hint: '是除數要顛倒，不是被除數！' }, { h: `${fr(a, b)} × ${fr(c, d)}`, ok: false, hint: '除以一個數，要乘以它的倒數喔！' }, { h: `${fr(b, a)} × ${fr(d, c)}`, ok: false, hint: '被除數不用顛倒！' }], hint: '除以一個分數 = 乘以它的倒數。' }; },
     () => { const n = pick([12, 15, 20, 24]), [c, d] = pick([[3, 4], [2, 5], [5, 6], [1, 3]]); return { q: `不用算，${n} ÷ ${fr(c, d)} 的商會比 ${n} 大還是小？`, sp: `不用算，${n} 除以 ${d}分之${c} 的商會比 ${n} 大還是小？`, opts: [{ h: `比 ${n} 大`, ok: true }, { h: `比 ${n} 小`, ok: false }, { h: `和 ${n} 一樣`, ok: false }], keep: true, hint: '除數比 1 小，商就比被除數大！', after: `除數 ${fr(c, d)} 比 1 小，商比 ${n} 大` }; },
     () => { const n = pick([6, 8, 10, 14]), [c, d] = pick([[5, 4], [7, 3], [3, 2], [9, 5]]); return { q: `不用算，${n} ÷ ${fr(c, d)} 的商會比 ${n} 大還是小？`, sp: `不用算，${n} 除以 ${d}分之${c} 的商會比 ${n} 大還是小？`, opts: [{ h: `比 ${n} 大`, ok: false }, { h: `比 ${n} 小`, ok: true }, { h: `和 ${n} 一樣`, ok: false }], keep: true, hint: '除數比 1 大，商就比被除數小！', after: `除數 ${fr(c, d)} 比 1 大，商比 ${n} 小` }; },
-    { q: `有 ${fr(5, 6)} 公升果汁，每杯倒 ${fr(1, 3)} 公升，可以倒滿幾杯、剩下多少公升？`, sp: '有 6分之5 公升果汁，每杯倒 3分之1 公升，可以倒滿幾杯、剩下多少公升？', vis: '<span style="font-size:56px">🧃➜🥤🥤</span>', opts: [{ h: `2 杯，剩 ${fr(1, 6)} 公升`, ok: true }, { h: `2 杯，剩 ${fr(1, 2)} 公升`, ok: false, hint: `${fr(1, 2)} 是剩下半杯，不是半公升！` }, { h: `3 杯，剩 0 公升`, ok: false, hint: `3 杯要 1 公升，果汁不夠！` }], hint: `先通分：${fr(5, 6)} = ${fr(5, 6)}、${fr(1, 3)} = ${fr(2, 6)}`, after: `${fr(5, 6)} ÷ ${fr(1, 3)} = 2 … ${fr(1, 6)}` }
+    { q: `有 ${fr(5, 6)} 公升果汁，每杯倒 ${fr(1, 3)} 公升，可以倒滿幾杯、剩下多少公升？`, sp: '有 6分之5 公升果汁，每杯倒 3分之1 公升，可以倒滿幾杯、剩下多少公升？', vis: '<span style="font-size:56px">🧃➜🥤🥤</span>', opts: [{ h: `2 杯，剩 ${fr(1, 6)} 公升`, ok: true }, { h: `2 杯，剩 ${fr(1, 2)} 公升`, ok: false, hint: `${fr(1, 2)} 是剩下半杯，不是半公升！` }, { h: `3 杯，剩 0 公升`, ok: false, hint: `3 杯要 1 公升，果汁不夠！` }], hint: `先通分：${fr(1, 3)} = ${fr(2, 6)}，${fr(5, 6)} 裡有幾個 ${fr(2, 6)}？`, after: `${fr(5, 6)} ÷ ${fr(1, 3)} = 2 … ${fr(1, 6)}` }
   ]);
 }
 
