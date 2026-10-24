@@ -1,12 +1,12 @@
 'use strict';
-/* 第 1 單元 200 以內的數 ／ 第 2 單元 二位數的加減法 ／ 第 3 單元 認識公分 */
+/* 第 1 單元 數到 300 ／ 第 2 單元 二位數的加減 ／ 第 3 單元 幾公分 */
 
 const split3 = n => [Math.floor(n / 100), Math.floor(n / 10) % 10, n % 10];
 const hto = n => { const [h, t, o] = split3(n); return `${h} 個百、${t} 個十、${o} 個一`; };
 
 /* ===== 1-A 積木排一排：用百格板、十條、小方塊拼出數字 ===== */
 function u1A(st) {
-  const targets = [rand(101, 129), rand(130, 169), rand(170, 199), rand(41, 99)];
+  const targets = [rand(101, 159), rand(160, 209), rand(210, 299), rand(41, 99)];
   let r = 0;
   function round() {
     if (r >= targets.length) return api.finish();
@@ -22,8 +22,9 @@ function u1A(st) {
     const draw = () => { $('#bf', st).innerHTML = blocksHTML(h, t, o) || ''; $('#hto', st).textContent = `${h} 個百、${t} 個十、${o} 個一`; };
     $$('.badd', st).forEach(b => b.onclick = () => {
       const v = +b.dataset.v; sfx('tap');
-      if (v === 100) { if (h >= 2) return toast('這一關最多用 2 個百喔！'); h++; }
-      if (v === 10) { t++; if (t === 10) { if (h >= 2) { t = 9; return toast('這一關最多到 200 喔！'); } t = 0; h++; toast('10 個十換成 1 個百！'); speak('10 個十換成 1 個百'); } }
+      if (h * 100 + t * 10 + o + v > 300) return toast('這一關最多到 300 喔！');
+      if (v === 100) h++;
+      if (v === 10) { t++; if (t === 10) { t = 0; h++; toast('10 個十換成 1 個百！'); speak('10 個十換成 1 個百'); } }
       if (v === 1) { o++; if (o === 10) { o = 0; t++; toast('10 個一換成 1 個十！'); speak('10 個一換成 1 個十'); if (t === 10) { t = 0; h++; } } }
       draw();
     });
@@ -38,28 +39,19 @@ function u1A(st) {
   round();
 }
 
-/* ===== 1-B 幾個百十一與付錢 ===== */
+/* ===== 1-B 認識百位：數積木、幾個百十一、位值換算 ===== */
 function u1B(st) {
   const rounds = [
-    () => { const n = rand(102, 199), [h, t, o] = split3(n); return { q: '積木一共是多少？', vis: blocksHTML(h, t, o), ans: n, hint: '先數百、再數十、最後數一！', after: `${hto(n)}是 ${n}` }; },
+    () => { const n = rand(102, 299), [h, t, o] = split3(n); return { q: '積木一共是多少？', vis: blocksHTML(h, t, o), ans: n, hint: '先數百、再數十、最後數一！', after: `${hto(n)}是 ${n}` }; },
     () => {
-      const n = rand(111, 198), [h, t, o] = split3(n);
+      const n = rand(111, 298), [h, t, o] = split3(n);
       const fmt = (a, b, c) => `${a} 個百、${b} 個十、${c} 個一`;
       const wrong = [fmt(h, o, t), fmt(t, h, o), fmt(h, (t + 1) % 10, o), fmt(h, t, (o + 1) % 10)];
       return { q: `<span class="big">${n}</span> 是幾個百、幾個十、幾個一？`, sp: `${n} 是幾個百、幾個十、幾個一？`, opts: [hto(n), ...wrong].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3).map((h2, i) => ({ h: `<span style="font-size:22px">${h2}</span>`, ok: i === 0 })), hint: '百位、十位、個位，從左邊數過來！' };
     },
-    () => { const list = shuffle([100, 50, 10, 10, 5, 1, 1].slice(0, rand(4, 7))).sort((a, b) => b - a); const s = list.reduce((a, b) => a + b, 0); return { q: '錢包裡一共有多少元？', vis: coinsHTML(list), ans: s, unit: '元', hint: '從大的錢開始，一個一個加起來！', after: `一共是 ${s} 元` }; },
-    { q: '1 張 100 元可以換幾個 10 元？', vis: coinsHTML([100]) + '<span class="eq">＝ ？個</span>' + coinsHTML([10]), ans: 10, unit: '個', hint: '10、20、30……數到 100 要幾個 10 元？', after: '10 個 10 元是 100 元' },
-    () => {
-      const price = pick([6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17]) * 10 + pick([0, 5]);
-      const t = Math.floor((price % 100) / 10), f = price % 10;
-      const right = [100, ...Array(t).fill(10), ...(f ? [5] : [])].slice(price >= 100 ? 0 : 1);
-      return { q: `玩具 <b>${price} 元</b>，要怎麼付剛好？`, sp: `玩具 ${price} 元，要怎麼付剛好？`, vis: `<span style="font-size:60px">🧸</span>`, opts: [
-        { h: coinsHTML(right), ok: true },
-        { h: coinsHTML(price >= 100 ? [100, ...Array(Math.max(0, t - 1)).fill(10), ...(f ? [5] : [])] : [...Array(t + 1).fill(10)]), ok: false },
-        { h: coinsHTML([...(price >= 100 ? [50, 10, 10, 10] : [50]), ...Array(t).fill(10)].slice(0, 7)), ok: false }
-      ], hint: '把錢加起來，看看是不是剛好！' };
-    }
+    { q: '1 個百和幾個十一樣多？', vis: blocksHTML(1, 0, 0) + '<span class="eq">＝ ？個</span>' + blocksHTML(0, 1, 0), ans: 10, unit: '個十', hint: '10、20、30……數到 100 要幾個十？', after: '1 個百 = 10 個十 = 100 個一' },
+    () => { const k = rand(11, 29); return { q: `${k} 個十是多少？`, vis: blocksHTML(0, Math.min(k, 29), 0), ans: k * 10, hint: '10 個十換成 1 個百，再看剩下幾個十！', after: `${k} 個十是 ${Math.floor(k / 10)} 個百、${k % 10} 個十，是 ${k * 10}` }; },
+    () => { const h = rand(1, 2), o = rand(10, 19), n = h * 100 + o; return { q: `${h} 個百和 ${o} 個一，合起來是多少？`, ans: n, hint: `${o} 個一可以換成 1 個十和 ${o - 10} 個一！`, after: `${h} 個百、1 個十、${o - 10} 個一是 ${n}` }; }
   ];
   quiz(st, rounds);
 }
@@ -71,12 +63,13 @@ function u1C(st) {
     opts: [{ h: '＞', ok: a > b }, { h: '＝', ok: a === b }, { h: '＜', ok: a < b }], hint: '開口朝向比較大的數！', after: `${a} ${a > b ? '＞' : a < b ? '＜' : '＝'} ${b}`
   });
   const rounds = [
-    () => { const a = rand(100, 199); let b = a + pick([-10, -1, 1, 10, 9]); if (b > 200) b = a - 1; return cmp(a, b); },
-    () => { const a = rand(30, 99), b = rand(101, 199); return Math.random() < .5 ? cmp(a, b) : cmp(b, a); },
-    () => { const n = rand(102, 189), m = n + pick([-10, 0, 1, 10]); return { q: `甲是 ${n}，乙是 ${hto(m)}，哪一個比較大？`, keep: true, opts: [{ h: '甲', ok: n > m }, { h: '乙', ok: m > n }, { h: '一樣大', ok: n === m }], hint: '先把乙說成數字，再比比看！', after: `乙是 ${m}` }; },
-    () => { const s = rand(100, 155), g = rand(1, 4); return { q: '10 個 10 個數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s + k * 10).join(' , ')}</span>`, ans: s + g * 10, hint: '每次多 10，十位加 1！' }; },
-    () => { const s = rand(120, 200), g = rand(1, 4); return { q: '倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k).join(' , ')}</span>`, ans: s - g, hint: '倒著數，每次少 1！' }; },
-    () => { const ns = shuffle([rand(100, 129), rand(130, 159), rand(160, 199)]); const mx = Math.max(...ns); return { q: '哪一個數<b>最大</b>？', keep: true, opts: ns.map(v => ({ h: N(v), ok: v === mx })), hint: '百位一樣，就比十位！' }; }
+    () => { const a = rand(100, 289); const b = a + pick([-10, -1, 1, 10, 9]); return cmp(a, b); },
+    () => { const a = rand(100, 199), b = a + 100 + pick([-5, -2, 3, 7]); return Math.random() < .5 ? cmp(a, b) : cmp(b, a); },
+    () => { const n = rand(102, 289), m = n + pick([-10, 0, 1, 10]); return { q: `甲是 ${n}，乙是 ${hto(m)}，哪一個比較大？`, keep: true, opts: [{ h: '甲', ok: n > m }, { h: '乙', ok: m > n }, { h: '一樣大', ok: n === m }], hint: '先把乙說成數字，再比比看！', after: `乙是 ${m}` }; },
+    () => { const s = rand(150, 255), g = rand(1, 4); return { q: '10 個 10 個數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s + k * 10).join(' , ')}</span>`, ans: s + g * 10, hint: '每次多 10，十位加 1！' }; },
+    () => { const s = rand(160, 300), g = rand(1, 4); return { q: '10 個 10 個倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k * 10).join(' , ')}</span>`, ans: s - g * 10, hint: '倒著數，每次少 10！' }; },
+    () => { const s = rand(120, 300), g = rand(1, 4); return { q: '倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k).join(' , ')}</span>`, ans: s - g, hint: '倒著數，每次少 1！' }; },
+    () => { const ns = shuffle([rand(100, 159), rand(160, 219), rand(220, 299)]); const mx = Math.max(...ns); return { q: '哪一個數<b>最大</b>？', keep: true, opts: ns.map(v => ({ h: N(v), ok: v === mx })), hint: '先比百位，百位一樣再比十位！' }; }
   ];
   quiz(st, rounds);
 }
@@ -120,7 +113,8 @@ function u2A(st) {
   const p1 = [rand(2, 5) * 10 + rand(1, 4), rand(1, 4) * 10 + rand(1, 5)];
   const p2 = [rand(2, 5) * 10 + rand(5, 9), rand(1, 3) * 10 + rand(5, 9)];
   const at = rand(6, 8), p3 = [at * 10 + rand(0, 4), rand(10 - at, 6) * 10 + rand(0, 5)];
-  vertLevel(st, [p1, p2, p3], '+');
+  const ct = rand(5, 8), p4 = [ct * 10 + rand(5, 9), rand(9 - ct, 8) * 10 + rand(5, 9)]; // 連續進位：個位、十位都進位
+  vertLevel(st, [p1, p2, p3, p4], '+');
 }
 
 /* ===== 2-B 減法直式 ===== */
@@ -131,11 +125,11 @@ function u2B(st) {
   vertLevel(st, [p1, p2, p3], '−');
 }
 
-/* ===== 2-C 加減挑戰：＞＜＝ 與生活問題 ===== */
+/* ===== 2-C 加、減法的應用 ===== */
 function u2C(st) {
   const rounds = [
-    () => { const a = rand(25, 59), b = rand(15, 39), c = a + b + pick([-3, 0, 4]); return { q: `${a} + ${b} ○ ${c}`, vis: `<span class="eq">${a} + ${b} <span class="box">?</span> ${c}</span>`, keep: true, opts: [{ h: '＞', ok: a + b > c }, { h: '＝', ok: a + b === c }, { h: '＜', ok: a + b < c }], hint: `先算 ${a} + ${b} 是多少！`, after: `${a} + ${b} = ${a + b}` }; },
-    () => { const a = rand(61, 95), b = rand(18, 45), c = a - b + pick([-2, 0, 3]); return { q: `${a} − ${b} ○ ${c}`, vis: `<span class="eq">${a} − ${b} <span class="box">?</span> ${c}</span>`, keep: true, opts: [{ h: '＞', ok: a - b > c }, { h: '＝', ok: a - b === c }, { h: '＜', ok: a - b < c }], hint: `先算 ${a} − ${b} 是多少！`, after: `${a} − ${b} = ${a - b}` }; },
+    () => { const a = rand(24, 58), b = rand(19, 45); return { q: `一年級有 ${a} 人，二年級有 ${b} 人，合起來有幾人？`, vis: '<span style="font-size:56px">🧒👧</span>', ans: a + b, unit: '人', hint: '合起來，用加法！', after: `${a} + ${b} = ${a + b}（人）` }; },
+    () => { const a = rand(58, 96), b = rand(17, 39); return { q: `水果店有 ${a} 顆橘子，賣掉 ${b} 顆，還剩幾顆？`, vis: '<span style="font-size:56px">🍊</span>', ans: a - b, unit: '顆', hint: '賣掉會變少，用減法！', after: `${a} − ${b} = ${a - b}（顆）` }; },
     () => { const a = rand(38, 67), b = rand(25, 48); return { q: `二年甲班有 ${a} 本故事書，又買了 ${b} 本，現在有幾本？`, vis: '<span style="font-size:56px">📚</span>', ans: a + b, unit: '本', hint: '又買了，是變多，用加法！', after: `${a} + ${b} = ${a + b}（本）` }; },
     () => { const a = rand(52, 93), b = rand(17, 39); return { q: `小美有 ${a} 張貼紙，送給妹妹 ${b} 張，還剩幾張？`, vis: '<span style="font-size:56px">⭐</span>', ans: a - b, unit: '張', hint: '送出去會變少，用減法！', after: `${a} − ${b} = ${a - b}（張）` }; },
     () => { const a = rand(55, 89), b = rand(26, 49); return { q: `哥哥跳繩 ${a} 下，弟弟跳 ${b} 下，哥哥比弟弟多跳幾下？`, vis: '<span style="font-size:56px">🪢</span>', ans: a - b, unit: '下', hint: '比多少，用大的減小的！', after: `${a} − ${b} = ${a - b}（下）` }; }
@@ -172,6 +166,7 @@ function u3B(st) {
     () => { const a = rand(5, 8), b = a + rand(2, 3); return { q: `用迴紋針量鉛筆是 ${a} 個；用橡皮擦量蠟筆是 ${b} 個。可以直接說蠟筆比較長嗎？`, vis: `<span style="font-size:44px">📎×${a}　🧽×${b}</span>`, keep: true, opts: [{ h: '可以', ok: false }, { h: '不可以', ok: true }], hint: '迴紋針和橡皮擦一樣長嗎？單位不一樣，不能直接比！', after: '要用一樣的單位量，才能比長短' }; },
     () => { const n = rand(3, 10); return { q: '彩帶從 0 開始量，有幾公分？', vis: rulerSVG(11, [{ from: 0, len: n, c: '#3fcf9c' }]), ans: n, unit: '公分', hint: '從 0 開始，看彩帶的尾巴對到幾！', after: `${n} 公分` }; },
     () => { const s = rand(2, 4), n = rand(3, 7); return { q: `這條彩帶<b>沒有</b>從 0 開始，有幾公分？`, sp: '這條彩帶沒有從 0 開始，有幾公分？', vis: rulerSVG(12, [{ from: s, len: n, c: '#ff7eb3' }]), ans: n, unit: '公分', hint: `從 ${s} 數到 ${s + n}，數數看中間有幾個 1 公分！`, after: `${s + n} − ${s} = ${n}（公分）` }; },
+    () => { const b = rand(3, 6), s = rand(1, 2), n = rand(3, 6); return { q: `用一把<b>斷掉的尺</b>量彩帶，彩帶有幾公分？`, sp: '用一把斷掉的尺量彩帶，彩帶有幾公分？', vis: rulerSVG(10, [{ from: s, len: n, c: '#5bb4ff' }], b), ans: n, unit: '公分', hint: `從 ${b + s} 數到 ${b + s + n}，有幾個 1 公分？`, after: `${b + s + n} − ${b + s} = ${n}（公分）` }; },
     { q: '量長度的時候，下面哪一種方法是對的？', vis: '', opts: [{ h: '<span style="font-size:22px">東西的一端對齊 0</span>', ok: true }, { h: '<span style="font-size:22px">東西的一端對齊 1</span>', ok: false }, { h: '<span style="font-size:22px">隨便放都可以</span>', ok: false }], hint: '從 0 開始量最方便喔！' },
     () => { const a = rand(6, 12), b = rand(6, 12); return { q: `紅彩帶 ${a} 公分，藍彩帶 ${b} 公分，哪一條比較長？`, keep: true, opts: [{ h: '🟥 紅彩帶', ok: a > b }, { h: '🟦 藍彩帶', ok: b > a }, { h: '一樣長', ok: a === b }], hint: '公分數越大越長！' }; }
   ];

@@ -1,5 +1,5 @@
 'use strict';
-/* 第 4 單元 加減應用 ／ 第 5 單元 容量 ／ 第 6 單元 加減兩步驟 */
+/* 第 4 單元 加減的關係與應用 ／ 第 5 單元 容量 ／ 第 6 單元 兩步驟的加減 */
 
 /* ===== 4-A 跳跳青蛙：往上數，找出加了多少 ===== */
 function u4A(st) {
@@ -50,7 +50,9 @@ function u4C(st) {
     () => { const a = rand(60, 95), x = rand(15, 45); return { q: `${a} − □ = ${a - x}，□ 是多少？`, vis: `<span class="eq">${a} − <span class="box">?</span> = ${a - x}</span>`, ans: x, hint: `用 ${a} − ${a - x} 算算看！`, after: `${a} − ${a - x} = ${x}` }; },
     () => { const b = rand(16, 34), c = rand(22, 50); return { q: `□ − ${b} = ${c}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> − ${b} = ${c}</span>`, ans: b + c, hint: `用 ${c} + ${b} 算算看！`, after: `${c} + ${b} = ${b + c}` }; },
     () => { const a = rand(52, 94), b = rand(17, 39), d = a - b; return { q: `${a} − ${b} = ${d}，用哪一個算式<b>驗算</b>？`, sp: `${a} − ${b} = ${d}，用哪一個算式驗算？`, opts: [{ h: `${d} + ${b} = ${a}`, ok: true }, { h: `${d} − ${b} = ${d - b}`, ok: false }, { h: `${a} + ${b} = ${a + b}`, ok: false }], hint: '答案加回減掉的數，要等於原來的數！' }; },
-    () => { const a = rand(36, 58), b = rand(25, 39), wrong = a + b - 10; return { q: `小明算 ${a} + ${b} = ${wrong}。用 ${wrong} − ${b} 驗算，結果是 ${wrong - b}，他算對了嗎？`, opts: [{ h: '算對了', ok: false }, { h: '算錯了', ok: true }], keep: true, hint: `${wrong - b} 跟 ${a} 不一樣，所以算錯了！`, after: `正確答案是 ${a + b}` }; }
+    () => { const a = rand(36, 58), b = rand(25, 39), wrong = a + b - 10; return { q: `小明算 ${a} + ${b} = ${wrong}。用 ${wrong} − ${b} 驗算，結果是 ${wrong - b}，他算對了嗎？`, opts: [{ h: '算對了', ok: false }, { h: '算錯了', ok: true }], keep: true, hint: `${wrong - b} 跟 ${a} 不一樣，所以算錯了！`, after: `正確答案是 ${a + b}` }; },
+    () => { const a = rand(25, 59), b = rand(15, 39), c = a + b + pick([-3, 0, 4]); return { q: `${a} + ${b} ○ ${c}，圈圈裡要放什麼？`, vis: `<span class="eq">${a} + ${b} <span class="box">?</span> ${c}</span>`, keep: true, opts: [{ h: '＞', ok: a + b > c }, { h: '＝', ok: a + b === c }, { h: '＜', ok: a + b < c }], hint: `先算 ${a} + ${b} 是多少！`, after: `${a} + ${b} = ${a + b}` }; },
+    () => { const a = rand(61, 95), b = rand(18, 45), c = a - b + pick([-2, 0, 3]); return { q: `${a} − ${b} ○ ${c}，圈圈裡要放什麼？`, vis: `<span class="eq">${a} − ${b} <span class="box">?</span> ${c}</span>`, keep: true, opts: [{ h: '＞', ok: a - b > c }, { h: '＝', ok: a - b === c }, { h: '＜', ok: a - b < c }], hint: `先算 ${a} − ${b} 是多少！`, after: `${a} − ${b} = ${a - b}` }; }
   ];
   quiz(st, rounds);
 }
@@ -142,7 +144,7 @@ function u6B(st) {
   const rounds = [
     () => { const a = rand(20, 35), b = rand(10, 20), c = rand(5, 15); return { q: `小玉有 ${a} 元，媽媽給她 ${b} 元，她買文具花了 ${c} 元。還剩幾元？哪個算式對？`, vis: '<span style="font-size:52px">👛</span>', opts: [{ h: `${a} + ${b} − ${c}`, ok: true }, { h: `${a} − ${b} + ${c}`, ok: false }, { h: `${a} + ${b} + ${c}`, ok: false }], hint: '給她是變多（加），花掉是變少（減）！', after: `${a} + ${b} − ${c} = ${a + b - c}（元）` }; },
     () => { const a = rand(40, 60), b = rand(8, 15), c = rand(8, 15); return { q: `樹上有 ${a} 隻鳥，先飛走 ${b} 隻，又飛走 ${c} 隻。還剩幾隻？哪個算式對？`, vis: '<span style="font-size:52px">🐦🌳</span>', opts: [{ h: `${a} − ${b} − ${c}`, ok: true }, { h: `${a} − ${b} + ${c}`, ok: false }, { h: `${a} + ${b} − ${c}`, ok: false }], hint: '飛走兩次，都要減！', after: `${a} − ${b} − ${c} = ${a - b - c}（隻）` }; },
-    () => { const x = rand(2, 7) * 10 + rand(1, 9), y = 10 - x % 10 + rand(1, 3) * 10; let m = rand(11, 29); while (m === x || m === y) m++; return { q: `${x} + ${m} + ${y}，先算哪兩個數比較好算？`, opts: [{ h: `${x} + ${y}`, ok: true }, { h: `${x} + ${m}`, ok: false }, { h: `${m} + ${y}`, ok: false }], hint: '個位加起來剛好是 10 的，先加起來最好算！', after: `${x} + ${y} = ${x + y}，${x + y} + ${m} = ${x + y + m}` }; },
+    () => { const x = rand(2, 7) * 10 + pick([1, 2, 3, 4, 6, 7, 8, 9]), y = 10 - x % 10 + rand(1, 3) * 10; let m = rand(11, 29); while (m === x || m === y || (m + x) % 10 === 0 || (m + y) % 10 === 0) m++; return { q: `${x} + ${m} + ${y}，先算哪兩個數比較好算？`, opts: [{ h: `${x} + ${y}`, ok: true }, { h: `${x} + ${m}`, ok: false }, { h: `${m} + ${y}`, ok: false }], hint: '個位加起來剛好是 10 的，先加起來最好算！', after: `${x} + ${y} = ${x + y}，${x + y} + ${m} = ${x + y + m}` }; },
     () => { const a = rand(12, 30), b = rand(12, 30), c = rand(12, 30); return { q: `${a} + ${b} + ${c} 和 ${a} + ${c} + ${b}，答案一樣嗎？`, keep: true, opts: [{ h: '一樣', ok: true }, { h: '不一樣', ok: false }], hint: '三個數相加，換順序加，答案不變！', after: `都是 ${a + b + c}` }; }
   ];
   quiz(st, rounds);

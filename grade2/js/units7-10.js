@@ -1,5 +1,5 @@
 'use strict';
-/* 第 7 單元 乘法(一) ／ 第 8 單元 時間 ／ 第 9 單元 乘法(二) ／ 第 10 單元 面的大小比較 */
+/* 第 7 單元 2、5、4、8 的乘法 ／ 第 8 單元 幾時幾分 ／ 第 9 單元 3、6、7、9 的乘法 ／ 第 10 單元 平面圖形 */
 
 const FOODS = { 2: '🍒', 3: '🍡', 4: '🍓', 5: '🍬', 6: '🥚', 7: '🍪', 8: '🐙', 9: '🎈' };
 const plate = (n, e) => `<span class="plate2">${pics(e, n, true)}</span>`;
@@ -64,63 +64,72 @@ function u7C(st) {
   quiz(st, rounds);
 }
 
-/* ===== 8-A 撥時鐘：拖動長針（5 分 5 分走），時針會跟著走 ===== */
+/* ===== 8-A 撥時鐘：拖動長針（1 分 1 分走），時針會跟著走 ===== */
 function u8A(st) {
-  const plans = shuffle([[3, 15], [7, 40], [10, 5], [5, 30], [8, 50], [2, 25]]).slice(0, 3);
+  const plans = [pick([[3, 15], [10, 5], [5, 30], [8, 50]]), ...shuffle([[7, 42], [2, 26], [9, 18], [4, 53], [11, 37], [6, 9]]).slice(0, 2)];
   let r = 0;
   function round() {
     if (r >= plans.length) return api.finish();
     const [th, tm] = plans[r]; let h = 12, m = 0;
-    api.say(`把時鐘撥到 <b class="big">${timeText(th, tm)}</b>。拖動<b>長針</b>，也可以用按鈕調時針。`, `把時鐘撥到 ${timeText(th, tm)}。拖動長針，也可以用按鈕調時針。`);
+    api.say(`把時鐘撥到 <b class="big">${timeText(th, tm)}</b>。拖動<b>長針</b>，也可以用按鈕調。`, `把時鐘撥到 ${timeText(th, tm)}。拖動長針，也可以用按鈕調。`);
     st.innerHTML = `${dots(r, plans.length)}<div class="center">${digital(th, tm)}</div><div class="clockwrap">${clockSVG(h, m)}</div>
-      <div class="opts"><button type="button" class="opt" id="hm">時針 ⟲ 1 小時</button><button type="button" class="opt" id="hp">時針 ⟳ 1 小時</button></div>
+      <div class="opts"><button type="button" class="opt" id="hm">時針 ⟲ 1 小時</button><button type="button" class="opt" id="hp">時針 ⟳ 1 小時</button><button type="button" class="opt" id="mm">長針 ⟲ 1 分</button><button type="button" class="opt" id="mp">長針 ⟳ 1 分</button></div>
       <div class="center"><button class="btn mint" id="okb" type="button">撥好了！</button></div>`;
     const svg = $('svg.clock', st);
     const draw = () => { $('.hand-h', svg).setAttribute('transform', `rotate(${((h % 12) + m / 60) * 30} 100 100)`); $('.hand-m', svg).setAttribute('transform', `rotate(${m * 6} 100 100)`); };
-    const fromEvent = e => {
-      const b = svg.getBoundingClientRect(), x = e.clientX - b.left - b.width / 2, y = e.clientY - b.top - b.height / 2;
-      let nm = Math.round(((Math.atan2(x, -y) * 180 / Math.PI + 360) % 360) / 30) * 5 % 60;
+    const setM = nm => {
+      nm = (nm + 60) % 60;
       if (m >= 45 && nm <= 15) h = h % 12 + 1; else if (m <= 15 && nm >= 45) h = (h + 10) % 12 + 1;
       if (nm !== m) sfx('tap');
       m = nm; draw();
     };
+    const fromEvent = e => {
+      const b = svg.getBoundingClientRect(), x = e.clientX - b.left - b.width / 2, y = e.clientY - b.top - b.height / 2;
+      setM(Math.round(((Math.atan2(x, -y) * 180 / Math.PI + 360) % 360) / 6) % 60);
+    };
     svg.addEventListener('pointerdown', e => { e.preventDefault(); try { svg.setPointerCapture(e.pointerId); } catch (er) {} fromEvent(e); const mv = ev => fromEvent(ev); const up = () => { svg.removeEventListener('pointermove', mv); svg.removeEventListener('pointerup', up); svg.removeEventListener('pointercancel', up); }; svg.addEventListener('pointermove', mv); svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up); });
     $('#hp', st).onclick = () => { h = h % 12 + 1; sfx('tap'); draw(); };
     $('#hm', st).onclick = () => { h = (h + 10) % 12 + 1; sfx('tap'); draw(); };
+    $('#mp', st).onclick = () => setM(m + 1);
+    $('#mm', st).onclick = () => setM(m - 1);
     $('#okb', st).onclick = () => {
       if (h === th && m === tm) { api.ok(`對！這是 ${timeText(th, tm)}`); r++; later(round, 1600); }
-      else if (m !== tm) api.bad(`長針指著的數字 × 5 就是幾分。${tm} 分要指到 ${tm / 5 || 12}！`);
-      else api.bad(`看短針（時針）：${th} 點多，短針要在 ${th} 和 ${th % 12 + 1} 中間。`);
+      else if (m !== tm) api.bad(tm % 5 ? `長針先指到 ${Math.floor(tm / 5) || 12}（${Math.floor(tm / 5) * 5} 分），再往前走 ${tm % 5} 小格！` : `長針一大格是 5 分，${tm} 分要指到 ${tm / 5 || 12}！`);
+      else api.bad(`看短針（時針）：${th} 時多，短針要在 ${th} 和 ${th % 12 + 1} 中間。`);
     };
   }
   round();
 }
 
-/* ===== 8-B 報讀時刻 ===== */
+/* ===== 8-B 報讀幾時幾分（每小格 1 分、每大格 5 分） ===== */
 function u8B(st) {
-  const one = () => { const h = rand(1, 12), m = rand(0, 11) * 5; return [h, m]; };
-  const rounds = [0, 1, 2].map(() => () => {
-    const [h, m] = one(), wrong = [[h % 12 + 1, m], [h, (m + 30) % 60], [m === 0 ? 12 : m / 5, h * 5 % 60]];
-    const list = [[h, m], ...wrong].filter((t, i, a) => a.findIndex(x => x[0] === t[0] && x[1] === t[1]) === i).slice(0, 3);
-    return { q: '時鐘上是幾點幾分？', vis: clockSVG(h, m), opts: list.map((t, i) => ({ h: `<span style="font-size:24px">${timeText(t[0], t[1])}</span>`, ok: i === 0 })), hint: '短針指幾點，長針從 12 開始 5 分 5 分數！' };
-  });
-  rounds.push(() => {
-    const [h, m] = one(), list = [[h, m], [h % 12 + 1, m], [h, (m + 15) % 60]];
-    return { q: `哪一個時鐘和數字鐘 ${h}:${String(m).padStart(2, '0')} 一樣？`, vis: digital(h, m), opts: list.map((t, i) => ({ h: clockSVG(t[0], t[1]), ok: i === 0 })), hint: '冒號前面是幾點，後面是幾分！' };
-  });
-  rounds.push(() => { const k = rand(1, 11); return { q: `長針從 12 走到 ${k}，走了幾分鐘？`, vis: clockSVG(12, k * 5), ans: k * 5, unit: '分', hint: '長針走一個數字是 5 分鐘！', after: `${k} 個 5 分是 ${k * 5} 分` }; });
+  const one = five => [rand(1, 12), five ? rand(1, 11) * 5 : pick([1, 2, 3, 4, 6, 7, 8, 9]) + rand(0, 5) * 10];
+  const uniq = list => list.filter((t, i, a) => a.findIndex(x => x[0] === t[0] && x[1] === t[1]) === i).slice(0, 3);
+  const readRound = five => () => {
+    const [h, m] = one(five), list = uniq([[h, m], [h % 12 + 1, m], [h, (m + (five ? 30 : 5)) % 60], [h, (m + 1) % 60]]);
+    return { q: '時鐘上是幾時幾分？', vis: clockSVG(h, m), opts: list.map((t, i) => ({ h: `<span style="font-size:24px">${timeText(t[0], t[1])}</span>`, ok: i === 0 })), hint: '短針剛走過幾就是幾時；長針一大格 5 分，一小格 1 分！' };
+  };
+  const rounds = [
+    { q: '鐘面上，長針走 1 小格是幾分鐘？', vis: clockSVG(12, 1), ans: 1, unit: '分', hint: '一大格裡有 5 小格，一大格是 5 分鐘！', after: '1 小格是 1 分鐘，1 大格是 5 分鐘' },
+    readRound(true), readRound(false), readRound(false),
+    () => {
+      const [h, m] = one(false), list = [[h, m], [h % 12 + 1, m], [h, (m + 15) % 60]];
+      return { q: `哪一個時鐘和數字鐘 ${h}:${String(m).padStart(2, '0')} 一樣？`, vis: digital(h, m), opts: list.map((t, i) => ({ h: clockSVG(t[0], t[1]), ok: i === 0 })), hint: '冒號前面是幾時，後面是幾分！' };
+    },
+    () => { const k = pick([rand(6, 9), rand(11, 14), rand(16, 19), rand(21, 24), rand(26, 29)]); return { q: '長針從 12 走到這裡，走了幾分鐘？', vis: clockSVG(12, k), ans: k, unit: '分', hint: '先 5 分 5 分數大格，再 1 分 1 分數小格！', after: `${Math.floor(k / 5)} 大格又 ${k % 5} 小格，是 ${k} 分` }; }
+  ];
   quiz(st, rounds);
 }
 
-/* ===== 8-C 經過多久 ===== */
+/* ===== 8-C 點數經過的時間 ===== */
 function u8C(st) {
   const pair = (h1, m1, h2, m2) => `<div class="clocks2"><div>${clockSVG(h1, m1, 'clock sm')}<div class="lbl">開始</div></div><span style="font-size:36px">➜</span><div>${clockSVG(h2, m2, 'clock sm')}<div class="lbl">結束</div></div></div>`;
   const rounds = [
-    () => { const h = rand(1, 8), k = rand(2, 4); return { q: `從 ${h} 點整到 ${h + k} 點整，經過幾小時？`, vis: pair(h, 0, h + k, 0), ans: k, unit: '小時', hint: '短針走一大格是 1 小時！', after: `經過 ${k} 小時` }; },
-    () => { const h = rand(1, 11), a = rand(0, 4) * 5, b = a + rand(2, 7) * 5; return { q: `從 ${timeText(h, a)} 到 ${timeText(h, b)}，經過幾分鐘？`, vis: pair(h, a, h, b), ans: b - a, unit: '分', hint: '數一數長針走了幾個 5 分！', after: `經過 ${b - a} 分鐘` }; },
-    { q: '1 小時是幾分鐘？', vis: '<span style="font-size:56px">⏰</span>', ans: 60, unit: '分', hint: '長針走一整圈是 1 小時，一圈有 12 個 5 分！', after: '1 小時 = 60 分' },
-    () => { const h = rand(7, 9); return { q: `小明 ${h} 點整開始寫功課，寫了 1 小時，寫完是幾點？`, vis: clockSVG(h, 0), opts: [{ h: `${h + 1} 點整`, ok: true }, { h: `${h} 點 1 分`, ok: false }, { h: `${h + 2} 點整`, ok: false }], hint: '過 1 小時，短針走到下一個數字！' }; },
-    () => { const h = rand(2, 5), m = rand(1, 5) * 5; return { q: `電影 ${timeText(h, m)} 開始，看了 30 分鐘，結束是幾點幾分？`, vis: '<span style="font-size:56px">🎬</span>', opts: [{ h: timeText(h, m + 30), ok: true }, { h: timeText(h + 1, m), ok: false }, { h: timeText(h, m + 3), ok: false }].map(o => ({ ...o, h: `<span style="font-size:22px">${o.h}</span>` })), hint: '30 分鐘是長針走半圈！' }; }
+    () => { const h = rand(1, 8), k = rand(2, 4); return { q: `從 ${h} 時到 ${h + k} 時，經過幾小時？`, vis: pair(h, 0, h + k, 0), ans: k, unit: '小時', hint: '短針從一個數字走到下一個數字，是 1 小時！', after: `經過 ${k} 小時` }; },
+    () => { const h = rand(1, 11), a = rand(0, 20), b = a + rand(3, 12); return { q: `從 ${timeText(h, a)} 到 ${timeText(h, b)}，經過幾分鐘？`, vis: pair(h, a, h, b), ans: b - a, unit: '分', hint: '數一數長針走了幾小格，一小格是 1 分鐘！', after: `經過 ${b - a} 分鐘` }; },
+    () => { const h = rand(7, 9); return { q: `小明 ${h} 時開始寫功課，寫完時短針剛好走到 ${h + 1}，長針指著 12。寫了多久？`, vis: pair(h, 0, h + 1, 0), keep: true, opts: [{ h: '1 分鐘', ok: false }, { h: '1 小時', ok: true }, { h: '2 小時', ok: false }], hint: '短針走了一大格，是 1 小時！' }; },
+    () => { const h = rand(8, 10); return { q: `運動會從上午 ${h} 時開始，到中午 12 時結束，經過幾小時？`, vis: pair(h, 0, 12, 0), ans: 12 - h, unit: '小時', hint: `從 ${h} 時一小時一小時數到 12 時！`, after: `經過 ${12 - h} 小時` }; },
+    () => { const h = rand(1, 6), k = rand(2, 5); return { q: `從 ${h} 時到 ${h + k} 時，短針走了幾大格？`, vis: pair(h, 0, h + k, 0), opts: numOpts(k, 1, 6), hint: '短針從一個數字走到下一個數字，是 1 大格！', after: `走了 ${k} 大格，經過 ${k} 小時` }; }
   ];
   quiz(st, rounds);
 }
@@ -180,45 +189,96 @@ function u9C(st) {
   quiz(st, rounds);
 }
 
-/* ===== 10-A 塗方格：塗出指定格數 ===== */
+/* ===== 第 10 單元 平面圖形：畫圖工具 ===== */
+const reg = (n, r = 85, cx = 120, cy = 108) => Array.from({ length: n }, (_, k) => { const a = (k * 360 / n - 90) * Math.PI / 180; return [Math.round(cx + r * Math.cos(a)), Math.round(cy + r * Math.sin(a))]; });
+const SHAPES = {
+  tri: { name: '三角形', pts: [[120, 22], [28, 180], [212, 180]] },
+  quad: { name: '四邊形', pts: [[40, 40], [200, 22], [222, 172], [26, 150]] },
+  pent: { name: '五邊形', pts: reg(5) },
+  hex: { name: '六邊形', pts: reg(6) },
+  eq: { name: '正三角形', pts: [[120, 22], [30, 178], [210, 178]] },
+  sq: { name: '正方形', pts: [[50, 34], [190, 34], [190, 174], [50, 174]] },
+  rect: { name: '長方形', pts: [[34, 54], [206, 54], [206, 154], [34, 154]] }
+};
+/* labels：每條邊旁邊寫的字（第 k 條邊是第 k 點到第 k+1 點）；dot：畫一個紅點；vtx：頂點畫成可以點的圓 */
+function polySVG(pts, o = {}) {
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  let s = `<svg class="poly" viewBox="-50 -22 340 244" style="width:min(340px,86vw)"><polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${o.c || '#ffe08a'}" stroke="#4a3b5c" stroke-width="5" stroke-linejoin="round"/>`;
+  (o.labels || []).forEach((t, k) => {
+    if (t === '' || t === undefined) return;
+    const a = pts[k], b = pts[(k + 1) % pts.length], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+    const dx = mx - cx, dy = my - cy, d = Math.hypot(dx, dy) || 1, off = 16 + 26 * Math.abs(dx) / d, inX = mx + dx / d * off, inY = my + dy / d * off;
+    s += `<text x="${inX}" y="${inY + 6}" text-anchor="middle" font-size="17" font-weight="900" fill="#c2185b" font-family="Arial, sans-serif">${t}</text>`;
+  });
+  if (o.dot) s += `<circle cx="${o.dot[0]}" cy="${o.dot[1]}" r="9" fill="#ff4d6d" stroke="#fff" stroke-width="3"/>`;
+  if (o.vtx) pts.forEach((p, k) => s += `<circle class="vtx" data-k="${k}" cx="${p[0]}" cy="${p[1]}" r="14" fill="#fff" stroke="#5bb4ff" stroke-width="4" style="cursor:pointer"/>`);
+  return s + '</svg>';
+}
+
+/* ===== 10-A 邊、角和頂點：點出每一個頂點，再數邊和角 ===== */
 function u10A(st) {
-  const ns = shuffle([5, 7, 8, 10, 12]).slice(0, 3);
+  const plans = [pick(['tri', 'eq']), pick(['quad', 'rect', 'sq']), pick(['pent', 'hex'])];
   let r = 0;
   function round() {
-    if (r >= ns.length) return api.finish();
-    const n = ns[r], R = 4, C = 6;
-    api.say(`點方格塗顏色，塗出 <b class="big">${n} 格</b>那麼大的面。`, `點方格塗顏色，塗出 ${n} 格那麼大的面。`);
-    st.innerHTML = `${dots(r, ns.length)}<div class="readout" id="rd">塗了 0 格</div><div class="paint" style="grid-template-columns:repeat(${C},1fr)">${'<button type="button" class="cell"></button>'.repeat(R * C)}</div><div class="center"><button class="btn mint" id="okb" type="button">塗好了！</button></div>`;
-    const cnt = () => $$('.cell.on', st).length;
-    $$('.cell', st).forEach(c => c.onclick = () => { c.classList.toggle('on'); sfx('tap'); $('#rd', st).textContent = `塗了 ${cnt()} 格`; });
-    $('#okb', st).onclick = () => {
-      const k = cnt();
-      if (k === n) { api.ok(`對！這個面有 ${n} 格那麼大`); r++; later(round, 1500); }
-      else api.bad(k > n ? '塗太多了！' : '還不夠喔！');
-    };
+    if (r >= plans.length) return api.finish();
+    const sh = SHAPES[plans[r]], n = sh.pts.length; let got = 0;
+    api.say(`這是${sh.name}。兩條邊碰在一起的尖尖地方叫做<b>頂點</b>，把每一個頂點都點一下！`, `這是${sh.name}。兩條邊碰在一起的尖尖地方叫做頂點，把每一個頂點都點一下！`);
+    st.innerHTML = `${dots(r, plans.length)}<div class="readout" id="rd">點了 0 個頂點</div><div class="center">${polySVG(sh.pts, { vtx: true })}</div><div class="qvis" id="qv"></div><div class="kwrap" id="kw"></div>`;
+    $$('.vtx', st).forEach(c => c.addEventListener('click', () => {
+      if (c.dataset.on) return;
+      c.dataset.on = 1; c.setAttribute('fill', '#ffc93c'); sfx('pop'); got++;
+      $('#rd', st).textContent = `點了 ${got} 個頂點`;
+      if (got === n) later(askSide, 700);
+    }));
+    function askSide() {
+      api.say(`${sh.name}有 ${n} 個頂點。那它有幾條<b>邊</b>？`, `${sh.name}有 ${n} 個頂點。那它有幾條邊？`);
+      keypad($('#kw', st), n, () => later(() => {
+        api.say(`對！那${sh.name}有幾個<b>角</b>？`, `對！那${sh.name}有幾個角？`);
+        keypad($('#kw', st), n, () => {
+          $('#qv', st).innerHTML = `<div class="after">${sh.name}有 ${n} 個頂點、${n} 條邊、${n} 個角</div>`; speak($('#qv .after', st).textContent);
+          r++; later(round, 2600);
+        }, '每一個頂點的地方都有一個角！', '個');
+      }, 800), '沿著圖形一條一條數直直的線！', '條');
+    }
   }
   round();
 }
 
-/* ===== 10-B 面的直接比較、間接比較 ===== */
+/* ===== 10-B 認識圖形：正三角形、正方形、長方形，內部、外部和周界 ===== */
 function u10B(st) {
-  const svgPair = (a, b, ca = '#ffc93c', cb = '#5bb4ff') => `<div class="clocks2"><div>${a}<div class="lbl">甲</div></div><div>${b}<div class="lbl">乙</div></div></div>`;
+  const nameRound = () => {
+    const k = pick(['eq', 'sq', 'rect']), a = rand(3, 8), b = a + rand(2, 5);
+    const lab = { eq: [a, a, a], sq: [a, a, a, a], rect: [b, a, b, a] }[k].map(v => `${v} 公分`);
+    return { q: '這是什麼圖形？', vis: polySVG(SHAPES[k].pts, { labels: lab }), keep: true, opts: ['eq', 'sq', 'rect'].map(x => ({ h: SHAPES[x].name, ok: x === k })), hint: '數一數有幾條邊，再看邊是不是都一樣長！', after: { eq: '3 條邊一樣長，是正三角形', sq: '4 條邊一樣長，是正方形', rect: '上下兩條邊一樣長、左右兩條邊一樣長，是長方形' }[k] };
+  };
+  const placeRound = w => () => {
+    const k = pick(['tri', 'sq', 'rect', 'pent']), pts = SHAPES[k].pts;
+    const cx = Math.round(pts.reduce((s, p) => s + p[0], 0) / pts.length), cy = Math.round(pts.reduce((s, p) => s + p[1], 0) / pts.length);
+    const e = rand(0, pts.length - 1), a = pts[e], b = pts[(e + 1) % pts.length];
+    const dot = [[cx, cy + 10], [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], [226, 14]][w];
+    const names = ['內部', '周界上', '外部'];
+    return { q: '紅點在圖形的哪裡？', vis: polySVG(pts, { dot }), keep: true, opts: names.map((h, i) => ({ h, ok: i === w })), hint: '圍成圖形的邊是周界；被圍在裡面的是內部，在外面的是外部！', after: `紅點在${names[w]}` };
+  };
+  const ws = shuffle([0, 1, 2]);
   const rounds = [
-    { q: '把甲疊在乙上面，甲<b>完全蓋住</b>乙，還有多出來。哪一個比較大？', sp: '把甲疊在乙上面，甲完全蓋住乙，還有多出來。哪一個比較大？', vis: `<svg viewBox="0 0 200 140" style="width:min(260px,70vw)"><rect x="10" y="10" width="180" height="120" rx="6" fill="#ffc93c" stroke="#4a3b5c" stroke-width="3"/><rect x="40" y="35" width="110" height="70" rx="6" fill="#5bb4ff" stroke="#4a3b5c" stroke-width="3" stroke-dasharray="6 4" opacity=".75"/><text x="22" y="32" font-size="18" font-weight="900">甲</text><text x="85" y="78" font-size="18" font-weight="900">乙</text></svg>`, keep: true, opts: [{ h: '甲', ok: true }, { h: '乙', ok: false }, { h: '一樣大', ok: false }], hint: '能蓋住別人、還多出來的比較大！' },
-    () => { const a = blob(rand(6, 9)), b = blob(a.length + pick([-2, -1, 1, 2])); const big = a.length > b.length ? '甲' : '乙'; return { q: '數一數方格，哪一個面比較大？', vis: svgPair(gridShape(a, '#ffc93c'), gridShape(b, '#5bb4ff')), keep: true, opts: [{ h: '甲', ok: big === '甲' }, { h: '乙', ok: big === '乙' }, { h: '一樣大', ok: false }], hint: '每一格一樣大，格數越多面越大！', after: `甲 ${a.length} 格，乙 ${b.length} 格` }; },
-    () => { const n = rand(6, 9), a = blob(n), b = blob(n); return { q: '形狀不一樣，哪一個面比較大？', vis: svgPair(gridShape(a, '#3fcf9c'), gridShape(b, '#ff7eb3')), keep: true, opts: [{ h: '甲', ok: false }, { h: '乙', ok: false }, { h: '一樣大', ok: true }], hint: '數數看兩個都是幾格！', after: `都是 ${n} 格，一樣大` }; },
-    { q: '甲、乙兩張紙不能拿起來疊，要怎麼比大小？', opts: [{ h: '<span style="font-size:20px">用一樣大的方格去數</span>', ok: true }, { h: '<span style="font-size:20px">看哪張比較長</span>', ok: false }, { h: '<span style="font-size:20px">看哪張顏色比較深</span>', ok: false }], hint: '用一樣大的單位來量，就能比較！' }
+    nameRound,
+    () => { const a = rand(4, 9); return { q: `正方形的一條邊是 ${a} 公分，另外 3 條邊各是幾公分？`, vis: polySVG(SHAPES.sq.pts, { labels: [`${a} 公分`] }), ans: a, unit: '公分', hint: '正方形 4 條邊都一樣長！', after: `4 條邊都是 ${a} 公分` }; },
+    () => { const a = rand(3, 6), b = a + rand(2, 5); return { q: `長方形上面的邊是 ${b} 公分，<b>下面</b>的邊是幾公分？`, sp: `長方形上面的邊是 ${b} 公分，下面的邊是幾公分？`, vis: polySVG(SHAPES.rect.pts, { labels: [`${b} 公分`, `${a} 公分`, '?'] }), ans: b, unit: '公分', hint: '長方形相對的兩條邊一樣長！', after: `上下兩條邊都是 ${b} 公分，左右兩條邊都是 ${a} 公分` }; },
+    nameRound,
+    placeRound(ws[0]), placeRound(ws[1])
   ];
   quiz(st, rounds);
 }
 
-/* ===== 10-C 面積挑戰：數方格、多幾格、單位不同 ===== */
+/* ===== 10-C 周界和周長 ===== */
 function u10C(st) {
+  const sum = a => a.reduce((s, v) => s + v, 0);
   const rounds = [
-    () => { const a = blob(rand(7, 12), 4, 6); return { q: '這個面有幾格那麼大？', vis: gridShape(a, '#a98bff'), ans: a.length, unit: '格', hint: '一格一格數，數過的可以用手指按住！', after: `${a.length} 格` }; },
-    () => { const a = blob(rand(8, 12), 4, 6), b = blob(rand(4, 7)); return { q: '甲比乙多幾格？', vis: `<div class="clocks2"><div>${gridShape(a, '#ffc93c')}<div class="lbl">甲</div></div><div>${gridShape(b, '#5bb4ff')}<div class="lbl">乙</div></div></div>`, ans: a.length - b.length, unit: '格', hint: '先數兩個各幾格，再用減法！', after: `${a.length} − ${b.length} = ${a.length - b.length}（格）` }; },
-    () => { const a = blob(6), b = blob(8); return { q: '甲用<b>大方格</b>數是 6 格，乙用<b>小方格</b>數是 8 格。乙一定比較大嗎？', sp: '甲用大方格數是 6 格，乙用小方格數是 8 格。乙一定比較大嗎？', vis: `<div class="clocks2"><div>${gridShape(a, '#ffc93c', 46)}<div class="lbl">甲</div></div><div>${gridShape(b, '#5bb4ff', 22)}<div class="lbl">乙</div></div></div>`, keep: true, opts: [{ h: '一定', ok: false }, { h: '不一定', ok: true }], hint: '方格大小不一樣，不能只比格數！', after: '要用一樣大的方格數，才能比較' }; },
-    () => { const k = rand(3, 5), rows = rand(2, 3); const cells = []; for (let i = 0; i < rows; i++) for (let j = 0; j < k; j++) cells.push([i, j]); return { q: `每排 ${k} 格，有 ${rows} 排。一共幾格？`, vis: gridShape(cells, '#3fcf9c'), ans: k * rows, unit: '格', hint: `可以用乘法：${k} × ${rows}`, after: `${k} × ${rows} = ${k * rows}（格）` }; }
+    { q: '沿著圖形的周界走一圈，這一圈的長度叫做什麼？', vis: polySVG(SHAPES.quad.pts, { c: '#c9f2e3' }), keep: true, opts: [{ h: '周長', ok: true }, { h: '頂點', ok: false }, { h: '內部', ok: false }], hint: '周界一圈的長度叫做周長！' },
+    () => { const s = [rand(4, 9), rand(4, 9), rand(4, 9)]; return { q: '這個三角形的周長是幾公分？', vis: polySVG(SHAPES.tri.pts, { labels: s.map(v => `${v} 公分`) }), ans: sum(s), unit: '公分', hint: '把 3 條邊的長度加起來！', after: `${s.join(' + ')} = ${sum(s)}（公分）` }; },
+    () => { const a = rand(3, 6), b = a + rand(2, 5); return { q: '這個長方形的周長是幾公分？', vis: polySVG(SHAPES.rect.pts, { labels: [`${b} 公分`, `${a} 公分`] }), ans: 2 * (a + b), unit: '公分', hint: `長方形對邊一樣長：${b} + ${a} + ${b} + ${a}`, after: `${b} + ${a} + ${b} + ${a} = ${2 * (a + b)}（公分）` }; },
+    () => { const a = rand(3, 9); return { q: `正方形一條邊 ${a} 公分，周長是幾公分？`, vis: polySVG(SHAPES.sq.pts, { labels: [`${a} 公分`] }), ans: 4 * a, unit: '公分', hint: `4 條邊都是 ${a} 公分：${a} + ${a} + ${a} + ${a}，也可以用 ${a} × 4`, after: `${a} × 4 = ${4 * a}（公分）` }; },
+    () => { const w = rand(2, 5), h = rand(1, 3), cells = []; for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push([i, j]); return { q: '每一小格的邊都是 1 公分，這個圖形的周長是幾公分？', vis: gridShape(cells, '#ffd1e3'), ans: 2 * (w + h), unit: '公分', hint: '沿著外面的邊，一段一段數，有幾個 1 公分？', after: `${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}（公分）` }; }
   ];
   quiz(st, rounds);
 }

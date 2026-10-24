@@ -18,7 +18,7 @@ function clockSVG(h, m, cls = 'clock') {
   s += `<circle cx="100" cy="100" r="8" fill="#ffc93c"/></svg>`;
   return s;
 }
-const timeText = (h, m) => m === 0 ? `${h} 點整` : `${h} 點 ${m} 分`;
+const timeText = (h, m) => m === 0 ? `${h} 時` : `${h} 時 ${m} 分`;
 const digital = (h, m) => `<span class="dclock">${h}:${String(m).padStart(2, '0')}</span>`;
 
 /* ---------- 錢幣（100 元是紙鈔） ---------- */
@@ -60,9 +60,9 @@ function vertHTML(a, b, op, ans, opt = {}) {
   return `<div class="vert">${carry ? row(carry) : ''}${row(top)}${row(pad(b), op)}<div class="vline"></div>${row(cells)}</div>`;
 }
 
-/* ---------- 尺（每公分 CM 個 SVG 單位） ---------- */
+/* ---------- 尺（每公分 CM 個 SVG 單位）；start 不是 0 時畫成斷掉的尺 ---------- */
 const CM = 34;
-function rulerSVG(len, items = []) {
+function rulerSVG(len, items = [], start = 0) {
   const W = len * CM + 40;
   let s = `<svg class="ruler" viewBox="0 0 ${W} 150" style="width:min(${W * 1.1}px,94vw)">`;
   items.forEach(it => {
@@ -73,8 +73,9 @@ function rulerSVG(len, items = []) {
   for (let k = 0; k <= len * 10; k++) {
     const x = 20 + k * CM / 10, big = k % 10 === 0, mid = k % 5 === 0;
     s += `<line x1="${x}" y1="70" x2="${x}" y2="${70 + (big ? 30 : mid ? 21 : 13)}" stroke="#4a3b5c" stroke-width="${big ? 2.4 : 1}"/>`;
-    if (big) s += `<text x="${x}" y="128" text-anchor="middle" font-size="22" font-weight="900" fill="#4a3b5c" font-family="Arial">${k / 10}</text>`;
+    if (big) s += `<text x="${x}" y="128" text-anchor="middle" font-size="22" font-weight="900" fill="#4a3b5c" font-family="Arial">${start + k / 10}</text>`;
   }
+  if (start) s += `<path d="M6 70 l8 12 l-8 12 l8 12 l-8 12 l8 12 l-8 14" fill="none" stroke="#b08a1a" stroke-width="3"/>`;
   return s + '</svg>';
 }
 
