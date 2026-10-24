@@ -69,7 +69,7 @@ function u1C(st) {
   function round() {
     if (r >= ns.length) return api.finish();
     const n = ns[r], e = pick(['🍓', '🍎', '🍊', '🥕', '🍪']);
-    api.say(`拿出 <b class="big">${n}</b> 個 ${e} 放進籃子，再按「好了」。<br><small>（拖過去或點一下都可以，點籃子裡的可以拿出來）</small>`, `拿出 ${n} 個，放進籃子，再按好了。`);
+    api.say(`拿出 <b class="big">${n}</b> 個 ${e} 放進籃子，再按「好了」。<br><small>（拖過去或點一下都可以，點籃子裡的可以拿出來）</small>`, `拿出 ${n} 個，放進籃子，再按好了。拖過去或點一下都可以，點籃子裡的可以拿出來。`);
     st.innerHTML = `${dots(r, ns.length)}<div class="supply"></div><div class="basket" data-label="🧺 籃子"></div><div class="center"><button class="btn mint" type="button">好了！</button></div>`;
     const sup = $('.supply', st), bas = $('.basket', st);
     for (let k = 0; k < 10; k++) {
@@ -163,6 +163,16 @@ function u2B(st) {
       hint: '數數看，誰的格子比較多？', after: a === b ? `都是 ${a} 格，一樣長！` : `${Math.max(a, b)} 格比 ${Math.min(a, b)} 格長！`
     });
   });
+  // 直線和曲線：頭尾對齊，彎彎的拉直會比較長
+  rounds.push({
+    q: '兩條繩子的頭和尾都對齊了，哪一條比較長？',
+    vis: `<svg viewBox="0 0 300 150" style="width:min(320px,86vw)"><line x1="30" y1="10" x2="30" y2="140" stroke="#b9a9c9" stroke-width="3" stroke-dasharray="6 5"/><line x1="270" y1="10" x2="270" y2="140" stroke="#b9a9c9" stroke-width="3" stroke-dasharray="6 5"/>
+      <line x1="30" y1="40" x2="270" y2="40" stroke="#ff7eb3" stroke-width="9" stroke-linecap="round"/>
+      <path d="M30,110 C60,70 80,70 110,110 S160,150 190,110 S240,70 270,110" fill="none" stroke="#5bb4ff" stroke-width="9" stroke-linecap="round"/></svg>`,
+    keep: true,
+    opts: [{ h: '🟥 直直的紅繩子', ok: false }, { h: '🟦 彎彎的藍繩子', ok: true }, { h: '🟰 一樣長', ok: false }],
+    hint: '想想看，把彎彎的繩子拉直，會跑到哪裡？', after: '彎彎的繩子拉直以後，會比直直的長！'
+  });
   quiz(st, rounds);
 }
 
@@ -174,7 +184,7 @@ function u2C(st) {
     const n = counts[r], lens = shuffle([30, 45, 60, 75, 92].slice(5 - n)), cols = shuffle(PENCIL_C);
     const order = lens.map((l, i) => i).sort((x, y) => lens[y] - lens[x]);
     let step = 0;
-    api.say('從<b>最長</b>的開始，一條一條點下去，排出 1、2、3…', '從最長的開始，一條一條點下去');
+    api.say('從<b>最長</b>的開始，一條一條點下去，排出 1、2、3…', '從最長的開始，一條一條點下去，排出 1、2、3。');
     st.innerHTML = `${dots(r, counts.length)}<div class="ribbons" style="padding-right:56px"></div>`;
     const box = $('.ribbons', st);
     lens.forEach((l, i) => {
@@ -255,7 +265,7 @@ function u3B(st) {
     return {
       q: `${n} 個 ${e}，藏起來一些，看得到 ${a} 個。<b>藏起來幾個？</b>`,
       vis: `<span class="plate">${pics(e, a, true)}</span><span class="plate" style="font-size:60px">📦</span>${tree(n, a, '?')}`,
-      opts: numOpts(n - a, 0, 10), hint: `從 ${a} 接著往後數到 ${n}，數了幾下？`, after: `${n} 可以分成 ${a} 和 ${n - a}`
+      opts: numOpts(n - a, 1, n), hint: `從 ${a} 接著往後數到 ${n}，數了幾下？`, after: `${n} 可以分成 ${a} 和 ${n - a}`
     };
   });
   quiz(st, rounds);
@@ -264,7 +274,7 @@ function u3B(st) {
 /* ===== 3-C 分合圖挑戰：用數字鍵盤填空 ===== */
 function u3C(st) {
   const rounds = Array.from({ length: 6 }, (_, k) => () => {
-    const n = rand(3, 10), a = rand(0, n);
+    const n = rand(3, 10), a = rand(1, n - 1); // 課本分與合是分成兩份，不出 0
     if (k === 2 || k === 5) return {
       q: `${a} 和 ${n - a} 合起來是幾？`, vis: tree('?', a, n - a),
       opts: numpadOpts(n), pad: true, hint: '兩個數合起來，要變大喔！'

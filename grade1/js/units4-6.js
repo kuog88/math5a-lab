@@ -119,7 +119,7 @@ function sticks(t, o) {
   return `<svg viewBox="0 0 ${x + 6} 100" style="width:min(${(x + 6) * 2}px,92vw);height:auto">${s}</svg>`;
 }
 
-/* ===== 5-B 十位和個位：看吸管說數字 ===== */
+/* ===== 5-B 十和一：看吸管說數字 ===== */
 function u5B(st) {
   const rounds = [0, 1, 2, 3, 4].map(k => () => {
     const t = rand(1, 2), o = rand(0, 9), n = t * 10 + o;
@@ -152,7 +152,7 @@ function u6A(st) {
     if (r >= R) return api.finish();
     const a = rand(1, 6), b = rand(1, Math.min(4, 10 - a)), e = pick(['🍎', '🍊', '🥚', '🐟']);
     let inB = 0, asked = false;
-    api.say(`籃子裡有 ${a} 個 ${e}，再<b>放進 ${b} 個</b>！把下面的 ${e} 拖進籃子（點一下也可以）。`, `籃子裡有 ${a} 個，再放進 ${b} 個！把下面的拖進籃子。`);
+    api.say(`籃子裡有 ${a} 個 ${e}，再<b>放進 ${b} 個</b>！把下面的 ${e} 拖進籃子（點一下也可以）。`, `籃子裡有 ${a} 個，再放進 ${b} 個！把下面的拖進籃子，點一下也可以。`);
     st.innerHTML = `${dots(r, R)}<div class="basket" data-label="🧺 籃子">${Array.from({ length: a }, () => `<div class="item">${e}</div>`).join('')}</div><div class="supply" style="margin-top:12px"></div><div class="qvis"></div><div class="opts"></div>`;
     const bas = $('.basket', st), sup = $('.supply', st);
     for (let i = 0; i < b; i++) {
@@ -179,18 +179,19 @@ function u6A(st) {
 /* ===== 6-B 看圖選算式 ===== */
 function u6B(st) {
   const stories = [
-    (a, b) => [`樹上有 ${a} 隻 🐦，又飛來 ${b} 隻。`, '🐦'],
-    (a, b) => [`池塘有 ${a} 隻 🦆，又游來 ${b} 隻。`, '🦆'],
-    (a, b) => [`左手 ${a} 顆 🍬，右手 ${b} 顆。`, '🍬'],
-    (a, b) => [`紅花 ${a} 朵 🌹，黃花 ${b} 朵 🌼。`, '🌼'],
-    (a, b) => [`公車上有 ${a} 人 🧒，又上車 ${b} 人。`, '🧒']
+    (a, b) => [`樹上有 ${a} 隻 🐦，又飛來 ${b} 隻。`, '🐦', '🐦', '隻'],
+    (a, b) => [`池塘有 ${a} 隻 🦆，又游來 ${b} 隻。`, '🦆', '🦆', '隻'],
+    (a, b) => [`左手 ${a} 顆 🍬，右手 ${b} 顆。`, '🍬', '🍬', '顆'],
+    (a, b) => [`紅花 ${a} 朵 🌹，黃花 ${b} 朵 🌼。`, '🌹', '🌼', '朵'],
+    (a, b) => [`公車上有 ${a} 人 🧒，又上車 ${b} 人。`, '🧒', '🧒', '人']
   ];
   const rounds = shuffle(stories).map(fn => () => {
-    const a = rand(2, 6), b = rand(1, Math.min(4, 10 - a)), [txt, e] = fn(a, b), c = a + b;
-    const wrong = [`${a} + ${b} = ${c + 1}`, `${a + 1} + ${b} = ${c + 1}`]; if (a > b) wrong.push(`${a} − ${b} = ${a - b}`);
+    const a = rand(2, 6), b = rand(1, Math.min(4, 10 - a)), [txt, ea, eb, u] = fn(a, b), c = a + b;
+    // 第 6 單元還沒教減號，錯的選項只用加法
+    const wrong = [`${a} + ${b} = ${c + 1}`, `${a} + ${b} = ${c - 1}`, `${a + 1} + ${b} = ${c + 1}`];
     return {
-      q: `${txt}<br>一共有幾個？選對的算式。`, sp: `${txt}一共有幾個？選對的算式。`,
-      vis: `${pics(e, a, true)}<span class="eq">+</span>${pics(e, b, true)}`,
+      q: `${txt}<br>一共有幾${u}？選對的算式。`, sp: `${txt}一共有幾${u}？選對的算式。`,
+      vis: `${pics(ea, a, true)}<span class="eq">+</span>${pics(eb, b, true)}`,
       opts: [{ h: `<span class="eq" style="font-size:30px">${a} + ${b} = ${c}</span>`, ok: true }, ...shuffle(wrong).slice(0, 2).map(w => ({ h: `<span class="eq" style="font-size:30px">${w}</span>`, ok: false }))],
       hint: '「又來了」、「一共」要用加法，再數數看答案對不對！'
     };
@@ -205,8 +206,8 @@ function u6C(st) {
       const a = rand(1, 6), c = rand(a + 1, 10);
       return { q: '空格裡要填幾？', vis: `<span class="eq">${a} + <span class="box">?</span> = ${c}</span>`, opts: numpadOpts(c - a), pad: true, hint: `從 ${a} 往後數到 ${c}，數了幾下？` };
     }
-    const a = rand(0, k < 2 ? 5 : 9), b = rand(0, 10 - a);
-    return { q: `${a} + ${b} = ？`, vis: `<span class="eq">${a} + ${b} = <span class="box">?</span></span>`, opts: numpadOpts(a + b), pad: true, hint: b === 0 ? '加 0 就是沒有多，還是一樣！' : `從 ${a} 往後數 ${b} 個！` };
+    const a = rand(1, k < 2 ? 5 : 9), b = rand(1, 10 - a); // 課本：1 到 10 之數的加法，和在 10 以內
+    return { q: `${a} + ${b} = ？`, vis: `<span class="eq">${a} + ${b} = <span class="box">?</span></span>`, opts: numpadOpts(a + b), pad: true, hint: `從 ${a} 往後數 ${b} 個！` };
   });
   quiz(st, rounds);
 }

@@ -7,9 +7,9 @@ const UNITS = [
   { id: 'u4', no: 4, name: '順序和多少', icon: '🐰', c: '#ff9a4d', modes: ['幾個和第幾個', '比多少', '順序挑戰'] },
   { id: 'u5', no: 5, name: '數到 30', icon: '⭐', c: '#a98bff', modes: ['十個一數', '十和一', '數字排排站'] },
   { id: 'u6', no: 6, name: '加一加', icon: '➕', c: '#ff7eb3', modes: ['放進籃子', '看圖選算式', '加法快手'] },
-  { id: 'u7', no: 7, name: '認識形狀', icon: '🔺', c: '#3fcf9c', modes: ['形狀分類', '找形狀', '數形狀'] },
+  { id: 'u7', no: 7, name: '認識形狀', icon: '🔺', c: '#3fcf9c', modes: ['立體分類', '面和形狀', '數形狀和規律'] },
   { id: 'u8', no: 8, name: '減一減與加減應用', icon: '🎈', c: '#5bb4ff', modes: ['飛走了', '加還是減', '加減快手'] },
-  { id: 'u9', no: 9, name: '讀鐘錶', icon: '⏰', c: '#ff9a4d', modes: ['撥撥時鐘', '看鐘說時間', '生活時間'] }
+  { id: 'u9', no: 9, name: '讀鐘錶', icon: '⏰', c: '#ff9a4d', modes: ['撥撥時鐘', '看鐘說時間', '生活時間和順序'] }
 ];
 const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰'];
 const keyOf = (ui, mi) => `${UNITS[ui].id}-${mi}`;
