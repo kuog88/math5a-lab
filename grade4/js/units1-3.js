@@ -125,7 +125,8 @@ function mulLevel(st, probs) {
 
 /* ===== 2-A 乘法直式工作台 ===== */
 function u2A(st) {
-  mulLevel(st, [[rand(1203, 2489), rand(3, 4)], [rand(13, 49), rand(21, 68)], [rand(105, 389), rand(23, 47)], [rand(1012, 2345), rand(12, 31)]]);
+  const m2 = (lo, hi) => { let b; do { b = rand(lo, hi); } while (b % 10 === 0); return b; }; // 乘數個位不是 0（乘以幾十在 2-B 練）
+  mulLevel(st, [[rand(1203, 2489), rand(3, 4)], [rand(13, 49), m2(21, 68)], [rand(105, 389), m2(23, 47)], [rand(1012, 2345), m2(12, 31)]]);
 }
 
 /* ===== 2-B 乘法想一想 ===== */
@@ -133,7 +134,7 @@ function u2B(st) {
   const rounds = [
     () => { const a = rand(21, 48), t = rand(2, 4); return { q: `${a} × ${t}5 的直式中，第二列為什麼從<b>十位</b>開始寫？`, vis: mulVertHTML(a, t * 10 + 5, [{ v: a * 5 }, { v: a * t, shift: 1 }], -1), opts: [{ h: `<span class="small-opt">因為是 ${a} × ${t} 個十</span>`, ok: true }, { h: '<span class="small-opt">因為寫錯了</span>', ok: false }, { h: `<span class="small-opt">因為是 ${a} × ${t} 個一</span>`, ok: false }], hint: '乘數的十位是幾個十？' }; },
     () => { const a = pick([198, 297, 302, 401, 499, 603]), b = rand(4, 8), e = Math.round(a / 100) * 100 * b; return { q: `${a} × ${b}，積大約是多少？`, opts: shuffle([e, e + 1000, Math.max(100, e - 1000)]).map(v => ({ h: N(v), ok: v === e })), hint: `${a} 很接近 ${Math.round(a / 100) * 100}！`, after: `${a} 接近 ${Math.round(a / 100) * 100}，${Math.round(a / 100) * 100} × ${b} = ${e}` }; },
-    () => { const a = pick([12, 25, 32, 45, 16]), b = pick([3, 4, 6, 8]); return { q: `${a}0 × ${b}0 = ？`, vis: `<span class="eq sm">${a} × ${b} = ${a * b}</span>`, ans: a * b * 100, hint: `先算 ${a} × ${b}，再在後面補兩個 0！`, after: `${a * b} 後面補 2 個 0：${a * b * 100}` }; },
+    () => { const a = rand(12, 48), b = rand(2, 9); return { q: `${a} × ${b}0 = ？`, vis: `<span class="eq sm">${a} × ${b} = ${a * b}</span>`, ans: a * b * 10, hint: `${b}0 是 ${b} 個十，先算 ${a} × ${b}，再在後面補一個 0！`, after: `${a} × ${b} 個十 = ${a * b} 個十 = ${a * b * 10}` }; },
     () => { const a = rand(23, 89), b = rand(12, 19); return { q: `${a} × ${b} 和下面哪一個一樣？`, opts: [{ h: `<span class="small-opt">${a} × 10 + ${a} × ${b - 10}</span>`, ok: true }, { h: `<span class="small-opt">${a} × 10 + ${b - 10}</span>`, ok: false }, { h: `<span class="small-opt">${a} + 10 × ${b - 10}</span>`, ok: false }], hint: `${b} = 10 + ${b - 10}，兩個部分都要乘 ${a}！` }; },
     () => { const a = rand(1201, 2499), b = rand(3, 4), w = a * b + pick([100, 10, -10]); return { q: `小明算 ${a} × ${b} = ${w}，對不對？`, keep: true, opts: [{ h: '對', ok: w === a * b }, { h: '不對', ok: w !== a * b }], hint: '從個位乘起，檢查每一位的進位！', after: `${a} × ${b} = ${a * b}` }; }
   ];

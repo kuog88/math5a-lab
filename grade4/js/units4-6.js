@@ -56,7 +56,7 @@ function u4B(st) {
   const rounds = [
     () => { const b = rand(12, 35), q = rand(12, 28), rm = rand(1, b - 1); return { q: `一個除法算式，除數 ${b}，商 ${q}，餘數 ${rm}，被除數是多少？`, vis: `<span class="eq sm"><span class="box">?</span> ÷ ${b} = ${q} …… ${rm}</span>`, ans: b * q + rm, hint: '驗算：除數 × 商 ＋ 餘數 ＝ 被除數', after: `${b} × ${q} + ${rm} = ${b * q + rm}` }; },
     () => { const b = rand(6, 15); return { q: `一個數除以 ${b}，餘數<b>可能</b>是多少？`, opts: shuffle([rand(1, b - 1), b, b + rand(1, 5)]).map(v => ({ h: N(v), ok: v < b })), hint: '餘數一定比除數小！' }; },
-    () => { const b = rand(2, 9), q = rand(11, 32); return { q: `${b * q}0 ÷ ${b}0 = ？`, vis: `<span class="eq sm">${b * q}0 ÷ ${b}0 = ${b * q} ÷ ${b}</span>`, ans: q, hint: '被除數和除數同時去掉一個 0，商不變！', after: `${b * q} ÷ ${b} = ${q}` }; },
+    () => { const b = rand(2, 9), q = rand(2, 9); return { q: `${b * q}0 ÷ ${b}0 = ？`, vis: `<span class="eq sm">${b * q} 個十 ÷ ${b} 個十</span>`, ans: q, hint: `${b * q}0 是 ${b * q} 個十，${b}0 是 ${b} 個十，想成 ${b * q} ÷ ${b}！`, after: `${b * q} ÷ ${b} = ${q}` }; },
     () => { const b = pick([21, 31, 41, 32, 42]), q = rand(3, 8), a = b * q + rand(0, 5); const t = Math.floor(b / 10) * 10; return { q: `估商：${a} ÷ ${b}，商大約是多少？`, opts: shuffle([q - 1, q, q + 1]).map(v => ({ h: N(v), ok: v === Math.floor(a / b) })), hint: `把 ${b} 看成 ${t}，${a} 裡面有幾個 ${t}？`, after: `${b} × ${Math.floor(a / b)} = ${b * Math.floor(a / b)}` }; },
     () => { const b = rand(3, 8), q = rand(101, 199), rm = rand(1, b - 1), a = b * q + rm, w = q + pick([-10, 10]); return { q: `小華算 ${a} ÷ ${b} = ${w} …… ${rm}，對不對？`, keep: true, opts: [{ h: '對', ok: false }, { h: '不對', ok: true }], hint: `用驗算檢查：${b} × ${w} + ${rm} 是不是 ${a}？`, after: `正確答案：${q} …… ${rm}` }; }
   ];
@@ -70,7 +70,7 @@ function u4C(st) {
     () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，<b>最多</b>可以裝滿幾袋？`, vis: '<span style="font-size:56px">🍬</span>', ans: q, unit: '袋', hint: `${a} ÷ ${b}，剩下的不夠一袋！`, after: `${a} ÷ ${b} = ${q} …… ${rm}，最多 ${q} 袋` }; },
     () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，裝完後剩下幾顆？`, vis: '<span style="font-size:56px">🍬</span>', ans: rm, unit: '顆', hint: '剩下的就是餘數！', after: `${a} ÷ ${b} = ${q} …… ${rm}` }; },
     () => { const b = rand(35, 45), q = rand(5, 9), rm = rand(1, 20), a = b * q + rm; return { q: `${a} 人去校外教學，每輛車坐 ${b} 人，<b>至少</b>要幾輛車？`, vis: '<span style="font-size:56px">🚌</span>', ans: q + 1, unit: '輛', hint: `${a} ÷ ${b} = ${q} …… ${rm}，剩下的人也要坐車！`, after: `${q} + 1 = ${q + 1}（輛）` }; },
-    () => { const b = rand(12, 24), q = rand(15, 45); return { q: `${b} 個人合買一臺 ${b * q * 10} 元的投影機，每人出幾元？`, vis: '<span style="font-size:56px">📽️</span>', ans: q * 10, unit: '元', hint: `${b * q * 10} ÷ ${b}`, after: `${b * q * 10} ÷ ${b} = ${q * 10}（元）` }; }
+    () => { const b = rand(12, 24), q = rand(11, Math.floor(999 / b)); return { q: `${b} 個人合買一份 ${b * q} 元的禮物，每人出幾元？`, vis: '<span style="font-size:56px">🎁</span>', ans: q, unit: '元', hint: `${b * q} ÷ ${b}`, after: `${b * q} ÷ ${b} = ${q}（元）` }; }
   ];
   quiz(st, rounds);
 }
@@ -195,15 +195,16 @@ function u6B(st) {
 /* ===== 6-C 分數數線挑戰 ===== */
 function u6C(st) {
   const lineQ = () => {
-    const d = pick([3, 4, 5]), hi = rand(2, 3), n = rand(1, hi * d - 1), w = Math.floor(n / d), m = n % d;
+    const d = pick([3, 4, 5]), hi = rand(2, 3); let n; do { n = rand(1, hi * d - 1); } while (n % d === 0);
+    const w = Math.floor(n / d), m = n % d;
     const opts = [{ h: F(n, d), ok: true }, { h: F(n + 1, d), ok: false }, { h: F(n, d + 1), ok: false }];
     return { q: '箭頭指的地方是多少？（每 1 平分成同樣大的格子）', vis: `<div class="nlwrap">${numberLineSVG(0, hi, d, [{ v: n / d, t: '?' }])}</div>`, opts, hint: `0 到 1 分成 ${d} 格，每格是 ${fracText(1, d)}，數數有幾格！`, after: m && w ? `${fracText(n, d)} = ${fracText(m, d, w)}` : '' };
   };
   const rounds = [
     lineQ, lineQ,
-    () => { const d = rand(4, 9), a = rand(d + 1, d * 2), b = a + pick([-2, -1, 1, 2]); return { q: `比一比：${fracText(a, d)} ○ ${fracText(b, d)}`, vis: `<span class="eq">${F(a, d)} <span class="box">?</span> ${F(b, d)}</span>`, keep: true, opts: [{ h: '＞', ok: a > b }, { h: '＝', ok: a === b }, { h: '＜', ok: a < b }], hint: '分母一樣，分子大的比較大！' }; },
-    () => { const d = rand(3, 6), w = 1, m = rand(1, d - 1), n = d + m + pick([-1, 1]); const cmp = n > d + m ? '＞' : '＜'; return { q: `比一比：${fracText(n, d)} ○ ${fracText(m, d, w)}`, vis: `<span class="eq">${F(n, d)} <span class="box">?</span> ${F(m, d, w)}</span>`, keep: true, opts: [{ h: '＞', ok: cmp === '＞' }, { h: '＝', ok: false }, { h: '＜', ok: cmp === '＜' }], hint: `先把 ${fracText(m, d, w)} 換成假分數再比！`, after: `${fracText(m, d, w)} = ${fracText(d + m, d)}` }; },
-    () => { const d = pick([4, 5]), vals = shuffle([[rand(1, d - 1), d, 0], [rand(1, d - 1), d, 1], [d * 2 + rand(1, d - 1), d, 0]]); const v = x => x[2] + x[0] / x[1], mx = Math.max(...vals.map(v)); return { q: '哪一個數<b>最大</b>？', keep: true, opts: vals.map(x => ({ h: F(x[0], x[1], x[2]), ok: v(x) === mx })), hint: '想想看它們在數線上的位置！' }; }
+    () => { const d = pick([3, 4, 5]), k = rand(1, d - 1); return { q: `從 1 往右數 ${k} 格是多少？（用帶分數表示）`, vis: `<div class="nlwrap">${numberLineSVG(0, 2, d, [{ v: 1 + k / d, t: '?' }])}</div>`, opts: [{ h: F(k, d, 1), ok: true }, { h: F(k, d), ok: false }, { h: F(k + 1, d, 1), ok: false }], hint: `每格是 ${fracText(1, d)}，1 再多 ${k} 個 ${fracText(1, d)}！`, after: `1 再多 ${fracText(k, d)} 是 ${fracText(k, d, 1)}，也是 ${fracText(d + k, d)}` }; },
+    () => { const d = pick([3, 4, 5]), s = 2 * d + rand(1, d - 1), k = rand(2, d); return { q: `從 ${fracText(s, d)} 往左數 ${k} 格是${d}分之幾？`, vis: `<div class="nlwrap">${numberLineSVG(0, 3, d, [{ v: s / d, t: '起點' }])}</div><span class="eq">${F(s, d)} 往左 ${k} 格 → ${F('?', d)}</span>`, ans: s - k, hint: `每格是 ${fracText(1, d)}，往左數 ${k} 格就少 ${k} 個 ${fracText(1, d)}！`, after: `${s} − ${k} = ${s - k}，是 ${fracText(s - k, d)}` }; },
+    () => { const d = pick([3, 4, 5]), w = rand(1, 2), m = rand(1, d - 1), n = w * d + m; return { q: `箭頭指的地方是 ${fracText(n, d)}，用帶分數表示是多少？`, vis: `<div class="nlwrap">${numberLineSVG(0, 3, d, [{ v: n / d, t: '' }])}</div><span class="eq">${F(n, d)} ＝ ？</span>`, opts: [{ h: F(m, d, w), ok: true }, { h: F(m, d, w + 1), ok: false }, { h: F(n - d * w, d + 1, w), ok: false }], hint: `${fracText(n, d)} 在 ${w} 和 ${w + 1} 中間，${w} 再多幾格？`, after: `${fracText(n, d)} = ${fracText(m, d, w)}` }; }
   ];
   quiz(st, rounds);
 }

@@ -60,6 +60,10 @@ function u7C(st) {
   const oe = v => v % 2 ? '奇數' : '偶數';
   const rounds = [
     () => { const a = rand(11, 99), b = rand(11, 99); return { q: `${a} + ${b} 的答案是奇數還是偶數？（不用算出來）`, vis: `<span class="eq sm">${oe(a)} + ${oe(b)}</span>`, keep: true, opts: [{ h: '奇數', ok: (a + b) % 2 === 1 }, { h: '偶數', ok: (a + b) % 2 === 0 }], hint: '奇數＋奇數＝偶數，偶數＋偶數＝偶數，奇數＋偶數＝奇數', after: `${a} + ${b} = ${a + b}，是${oe(a + b)}` }; },
+    () => {
+      const mul = Math.random() < .5, a = mul ? rand(11, 49) : rand(50, 99), b = mul ? rand(3, 9) : rand(11, 49), v = mul ? a * b : a - b, op = mul ? '×' : '−';
+      return { q: `${a} ${op} ${b} 的答案是奇數還是偶數？（不用算出來）`, vis: `<span class="eq sm">${oe(a)} ${op} ${oe(b)}</span>`, keep: true, opts: [{ h: '奇數', ok: v % 2 === 1 }, { h: '偶數', ok: v % 2 === 0 }], hint: mul ? '奇數×奇數＝奇數；只要有一個是偶數，積就是偶數！' : '奇數−奇數＝偶數，偶數−偶數＝偶數，奇數和偶數相減＝奇數', after: `${a} ${op} ${b} = ${v}，是${oe(v)}` };
+    },
     () => { const v = rand(101, 999); return { q: `${v} 是奇數還是偶數？`, keep: true, opts: [{ h: '奇數', ok: v % 2 === 1 }, { h: '偶數', ok: v % 2 === 0 }], hint: '看個位：0、2、4、6、8 是偶數！' }; },
     () => { const pat = shuffle(['🔴', '🔺', '🟦', '⭐']).slice(0, rand(3, 4)), n = rand(17, 35), ans = pat[(n - 1) % pat.length]; return { q: `照這個規律排下去，第 ${n} 個是什麼？`, vis: `<span class="eq sm">${Array.from({ length: pat.length * 2 }, (_, k) => pat[k % pat.length]).join(' ')} ……</span>`, keep: true, opts: pat.map(p => ({ h: p, ok: p === ans })), hint: `每 ${pat.length} 個一組，${n} ÷ ${pat.length} 餘多少？`, after: `${n} ÷ ${pat.length} = ${Math.floor(n / pat.length)} …… ${n % pat.length}` }; },
     () => { const n = rand(6, 12); return { q: `用火柴棒排正方形：1 個用 4 根，2 個用 7 根，3 個用 10 根……排 ${n} 個要幾根？`, vis: '<span style="font-size:44px">🟧🟧🟧</span>', ans: 3 * n + 1, unit: '根', hint: '每多 1 個正方形，就多 3 根！', after: `4 + 3 × ${n - 1} = ${3 * n + 1}（根）` }; },
@@ -89,14 +93,15 @@ function genExpr(kind) {
     case 3: { const a = rand(6, 9), b = rand(6, 9), c = rand(2, 5), d = rand(2, 5); return [a, '×', b, '−', c, '×', d]; }
     case 4: return [rand(100, 300), '−', rand(20, 90), '+', rand(10, 60)];
     case 5: { const c = rand(2, 9), m = c + rand(2, 6); return [m * rand(3, 12), '÷', '(', m + c, '−', c, ')']; }
+    case 7: return [k * rand(4, 15), '÷', k, '×', rand(2, 9)];
     default: return [rand(2, 9), '×', '(', rand(30, 60), '−', rand(5, 25), ')', '+', rand(10, 50)];
   }
 }
-const ruleHint = t => t.includes('(') ? '有括號，括號裡面要先算！' : (t.includes('×') || t.includes('÷')) ? '先乘除、後加減！' : '只有加減，由左而右算！';
+const ruleHint = t => t.includes('(') ? '有括號，括號裡面要先算！' : (t.includes('×') || t.includes('÷')) && (t.includes('+') || t.includes('−')) ? '先乘除、後加減！' : t.includes('×') || t.includes('÷') ? '只有乘除，由左而右算！' : '只有加減，由左而右算！';
 
 /* ===== 8-A 先算哪一步：點算式裡要先算的符號 ===== */
 function u8A(st) {
-  const exprs = [genExpr(4), genExpr(0), genExpr(2), genExpr(3), genExpr(6)];
+  const exprs = [genExpr(4), genExpr(7), genExpr(0), genExpr(2), genExpr(3), genExpr(6)];
   let r = 0;
   function round() {
     if (r >= exprs.length) return api.finish();
@@ -129,7 +134,7 @@ function u8B(st) {
   const rounds = [
     () => { const a = rand(3, 6), b = rand(25, 45), c = rand(10, 30); return { q: `買 ${a} 枝 ${b} 元的筆和 1 本 ${c} 元的筆記本，共要多少元？哪一個併式正確？`, opts: [{ h: `<span class="small-opt">${b} × ${a} + ${c}</span>`, ok: true }, { h: `<span class="small-opt">(${b} + ${c}) × ${a}</span>`, ok: false }, { h: `<span class="small-opt">${b} + ${a} × ${c}</span>`, ok: false }], hint: '筆要乘枝數，筆記本只有 1 本！', after: `${b} × ${a} + ${c} = ${b * a + c}（元）` }; },
     () => { const a = rand(30, 60), b = rand(10, 25), c = rand(3, 6); return { q: `一件上衣 ${a} 元，一條褲子 ${b} 元，買 ${c} 套共要多少元？`, opts: [{ h: `<span class="small-opt">(${a} + ${b}) × ${c}</span>`, ok: true }, { h: `<span class="small-opt">${a} + ${b} × ${c}</span>`, ok: false }, { h: `<span class="small-opt">${a} × ${c} + ${b}</span>`, ok: false }], hint: '一套是上衣加褲子，要先算一套多少錢，所以加括號！', after: `(${a} + ${b}) × ${c} = ${(a + b) * c}（元）` }; },
-    () => { const c = rand(3, 8), q = rand(5, 12), a = 500, b = c * q; return { q: `媽媽有 ${a} 元，買了 ${c} 盒一樣的餅乾共 ${b} 元，還剩多少元？`, opts: [{ h: `<span class="small-opt">${a} − ${b}</span>`, ok: true }, { h: `<span class="small-opt">${a} − ${b} ÷ ${c}</span>`, ok: false }, { h: `<span class="small-opt">(${a} − ${b}) ÷ ${c}</span>`, ok: false }], hint: '花掉的是全部的餅乾錢！', after: `${a} − ${b} = ${a - b}（元）` }; },
+    () => { const c = rand(3, 8), q = rand(25, 55), a = 500; return { q: `媽媽有 ${a} 元，買了 ${c} 盒餅乾，每盒 ${q} 元，還剩多少元？`, opts: [{ h: `<span class="small-opt">${a} − ${q} × ${c}</span>`, ok: true }, { h: `<span class="small-opt">(${a} − ${q}) × ${c}</span>`, ok: false }, { h: `<span class="small-opt">${a} − ${q} + ${c}</span>`, ok: false }], hint: '先算餅乾一共多少錢，再從 500 元扣掉；先乘除後加減，不用加括號！', after: `${a} − ${q} × ${c} = ${a} − ${q * c} = ${a - q * c}（元）` }; },
     () => { const a = rand(120, 300), b = rand(20, 60), c = rand(30, 80); return { q: `${a} − ${b} + ${c}，要先算哪一步？`, keep: true, opts: [{ h: `<span class="small-opt">${a} − ${b}</span>`, ok: true }, { h: `<span class="small-opt">${b} + ${c}</span>`, ok: false }], hint: '只有加減，由左而右！', after: `${a} − ${b} + ${c} = ${a - b + c}` }; },
     () => { const a = rand(40, 90), b = rand(2, 9), c = rand(2, 9); return { q: `${a} + ${b} × ${c} 和 (${a} + ${b}) × ${c}，答案一樣嗎？`, keep: true, opts: [{ h: '一樣', ok: false }, { h: '不一樣', ok: true }], hint: '括號會改變計算的順序！', after: `${a + b * c} 和 ${(a + b) * c}` }; }
   ];
@@ -139,7 +144,7 @@ function u8B(st) {
 /* ===== 8-C 四則計算挑戰 ===== */
 function u8C(st) {
   const ex = kind => () => { const t = genExpr(kind); return { q: '算算看，答案是多少？', vis: `<span class="eq sm">${exprText(t)} = <span class="box">?</span></span>`, ans: evalTokens(t), hint: ruleHint(t) }; };
-  quiz(st, [ex(4), ex(1), ex(2), ex(5), ex(3), ex(6)]);
+  quiz(st, [ex(4), ex(7), ex(1), ex(2), ex(5), ex(3), ex(6)]);
 }
 
 /* ===== 9-A 百格板塗一塗 ===== */
@@ -170,7 +175,7 @@ function u9A(st) {
 function u9B(st) {
   const rounds = [
     () => { const n = rand(11, 99); return { q: `${(n / 100).toFixed(2)} 是幾個 0.01？`, vis: grid100(n), ans: n, unit: '個', hint: '百格板一格是 0.01！', after: `${(n / 100).toFixed(2)} = ${n} 個 0.01` }; },
-    () => { const w = rand(1, 9), t = rand(1, 9), h = rand(1, 9), v = `${w}.${t}${h}`; const [k, nm, val] = pick([[t, '十分位', t / 10], [h, '百分位', h / 100]]); return { q: `${v} 的<b>${nm}</b>是 ${k}，代表多少？`, vis: `<table class="pchart"><tr><th>個位</th><th>．</th><th>十分位</th><th>百分位</th></tr><tr><td>${w}</td><td>．</td><td>${t}</td><td>${h}</td></tr></table>`, opts: [{ h: N(dec2(val)), ok: true }, { h: N(dec2(val * 10)), ok: false }, { h: N(dec2(val / 10)), ok: false }], hint: '十分位是幾個 0.1，百分位是幾個 0.01！' }; },
+    () => { const w = rand(1, 9), t = rand(1, 9), h = rand(1, 9), v = `${w}.${t}${h}`; const [k, nm] = pick([[t, '十分位'], [h, '百分位']]), vals = [k, k / 10, k / 100], val = nm === '十分位' ? k / 10 : k / 100; return { q: `${v} 的<b>${nm}</b>是 ${k}，代表多少？`, vis: `<table class="pchart"><tr><th>個位</th><th>．</th><th>十分位</th><th>百分位</th></tr><tr><td>${w}</td><td>．</td><td>${t}</td><td>${h}</td></tr></table>`, opts: vals.map(x => ({ h: N(dec2(x)), ok: x === val })), hint: '十分位是幾個 0.1，百分位是幾個 0.01！' }; },
     () => { const a = rand(2, 8) / 10, b = dec2(a - 0.1 + rand(1, 9) / 100); return Math.random() < .5 ? cmpQ(a, b, a.toFixed(1), b.toFixed(2)) : cmpQ(b, a, b.toFixed(2), a.toFixed(1)); },
     () => { const a = dec2(rand(101, 499) / 100), b = dec2(a + pick([-0.1, 0.01, 0.1, -0.01])); return cmpQ(a, b, a.toFixed(2), b.toFixed(2)); },
     () => { const w = rand(1, 9), h = rand(1, 9), v = `${w}.0${h}`; return { q: `${v} 怎麼讀？`, keep: true, opts: [{ h: `<span class="small-opt">${CN_D[w]}點零${CN_D[h]}</span>`, ok: true }, { h: `<span class="small-opt">${CN_D[w]}點${CN_D[h]}</span>`, ok: false }, { h: `<span class="small-opt">${CN_D[w]}點${CN_D[h]}零</span>`, ok: false }], hint: '小數點後面的數字一個一個讀！' }; },
@@ -181,7 +186,7 @@ function u9B(st) {
 
 /* ===== 9-C 小數加減與數線 ===== */
 function u9C(st) {
-  const f = v => v.toFixed(2).replace(/0$/, '').replace(/\.$/, '');
+  const f = v => String(dec2(v)); // 1.50 → 1.5、2.00 → 2
   const rounds = [
     () => { const a = dec2(rand(105, 480) / 100), b = dec2(rand(12, 390) / 100); return { q: `${f(a)} + ${f(b)} = ？`, vis: `<span class="eq sm">${f(a)} + ${f(b)}</span>`, ans: dec2(a + b), hint: '小數點對齊，再從百分位加起！', after: `${f(a)} + ${f(b)} = ${f(dec2(a + b))}` }; },
     () => { const a = dec2(rand(400, 900) / 100), b = dec2(rand(105, 380) / 100); return { q: `${f(a)} − ${f(b)} = ？`, vis: `<span class="eq sm">${f(a)} − ${f(b)}</span>`, ans: dec2(a - b), hint: '小數點對齊，不夠減就向前一位借！', after: `${f(a)} − ${f(b)} = ${f(dec2(a - b))}` }; },
@@ -202,7 +207,7 @@ function u10A(st) {
     const t = targets[r]; let m = 0;
     api.say(`把跑者拖到 <b class="big">${kmText(t)}</b> 的地方！`, `把跑者拖到 ${kmText(t)} 的地方`);
     let ticks = '';
-    for (let k = 0; k <= 40; k++) { const x = 20 + k * 13, big = k % 20 === 0, mid = k % 2 === 0; ticks += `<line x1="${x}" y1="${big ? 30 : mid ? 40 : 46}" x2="${x}" y2="60" stroke="#4a3b5c" stroke-width="${big ? 3 : mid ? 1.8 : 1}"/>`; if (k % 10 === 0) ticks += `<text x="${x}" y="80" font-size="${big ? 15 : 12}" font-weight="900" text-anchor="middle" fill="${big ? '#4a3b5c' : '#8a7a99'}" font-family="Arial,Microsoft JhengHei">${big ? (k / 20) + '公里' : '500公尺'}</text>`; }
+    for (let k = 0; k <= 40; k++) { const x = 20 + k * 13, big = k % 20 === 0, mid = k % 2 === 0; ticks += `<line x1="${x}" y1="${big ? 30 : mid ? 40 : 46}" x2="${x}" y2="60" stroke="#4a3b5c" stroke-width="${big ? 3 : mid ? 1.8 : 1}"/>`; if (k % 10 === 0) ticks += `<text x="${x}" y="80" font-size="${big ? 15 : 12}" font-weight="900" text-anchor="middle" fill="${big ? '#4a3b5c' : '#8a7a99'}" font-family="Arial,Microsoft JhengHei">${big ? (k / 20) + '公里' : k === 10 ? '500公尺' : '1公里500公尺'}</text>`; }
     st.innerHTML = `${dots(r, targets.length)}<div class="trackw" id="tw"><svg viewBox="0 0 560 90" class="trk"><rect x="20" y="52" width="520" height="8" rx="4" fill="#ffd2a8"/>${ticks}<text id="runner" x="20" y="34" font-size="34" text-anchor="middle">🏃</text></svg></div>
       <div class="center small-note">一小格是 50 公尺，一大格是 100 公尺</div>
       <div class="center"><button type="button" class="btn ghost" id="m1">◀ 50 公尺</button> <button type="button" class="btn ghost" id="p1">50 公尺 ▶</button></div>
@@ -239,13 +244,16 @@ function u10B(st) {
 
 /* ===== 10-C 長度計算挑戰 ===== */
 function u10C(st) {
-  const kmT = v => `${Math.floor(v / 1000)} 公里 ${v % 1000} 公尺`;
+  const kmT = v => `${Math.floor(v / 1000)} 公里${v % 1000 ? ` ${v % 1000} 公尺` : ''}`;
   const rounds = [
     () => { const a = rand(1, 3) * 1000 + rand(3, 9) * 100, b = rand(1, 2) * 1000 + rand(4, 9) * 100; return { q: `${kmT(a)} + ${kmT(b)} 是幾公尺？`, ans: a + b, unit: '公尺', hint: '公里加公里、公尺加公尺，滿 1000 公尺換 1 公里！', after: `= ${kmT(a + b)} = ${a + b} 公尺` }; },
     () => { const a = rand(4, 8) * 1000 + rand(1, 4) * 100, b = rand(1, 3) * 1000 + rand(5, 9) * 100; return { q: `${kmT(a)} − ${kmT(b)} 是幾公尺？`, ans: a - b, unit: '公尺', hint: '公尺不夠減，向公里借 1 公里 = 1000 公尺！', after: `= ${kmT(a - b)} = ${a - b} 公尺` }; },
     () => { const l = pick([200, 250, 400]), n = rand(3, 9); return { q: `操場一圈 ${l} 公尺，跑 ${n} 圈是幾公尺？`, vis: '<span style="font-size:56px">🏟️</span>', ans: l * n, unit: '公尺', hint: `${l} × ${n}`, after: `${l * n} 公尺 = ${l * n >= 1000 ? kmT(l * n) : l * n + ' 公尺'}` }; },
     () => { const a = rand(2, 4) * 1000 + rand(1, 9) * 100, b = rand(1, 9) * 100 + 50; return { q: `從家到學校 ${b} 公尺，從學校到圖書館 ${kmT(a)}，從家經過學校到圖書館一共是幾公尺？`, vis: '<span style="font-size:48px">🏠➡️🏫➡️📚</span>', ans: a + b, unit: '公尺', hint: '先把公里換成公尺再加！', after: `${a} + ${b} = ${a + b}（公尺）` }; },
-    () => { const a = rand(2, 5), b = rand(100, 800); return { q: `比一比：${a} 公里 ○ ${a - 1} 公里 ${b + 100} 公尺`, keep: true, opts: [{ h: '＞', ok: true }, { h: '＝', ok: false }, { h: '＜', ok: false }], hint: '都換成公尺再比！', after: `${a * 1000} 公尺 ＞ ${(a - 1) * 1000 + b + 100} 公尺` }; }
+    () => {
+      const a = rand(2, 5) * 1000 + rand(1, 9) * 100 + pick([0, 50]), b = a + pick([-900, -90, 0, 90, 900]), s = b > a ? '＜' : b < a ? '＞' : '＝';
+      return { q: `比一比：${kmT(a)} ○ ${b} 公尺`, vis: `<span class="eq sm">${kmT(a)} <span class="box">?</span> ${b} 公尺</span>`, keep: true, opts: ['＞', '＝', '＜'].map(x => ({ h: x, ok: x === s })), hint: '都換成公尺再比！', after: `${a} 公尺 ${s} ${b} 公尺` };
+    }
   ];
   quiz(st, rounds);
 }
