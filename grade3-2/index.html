@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>三年級下學期・海底探險隊｜數學</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sea" aria-hidden="true"><div class="rays"></div><div class="floor"></div></div>
+<a class="grade-link" href="../index.html">← 選年級</a>
+<button class="home-btn" id="homeBtn" hidden>⚓ 回基地</button>
+<button class="sound-btn" id="soundBtn" title="聲音開關">🔊</button>
+
+<div id="app">
+  <!-- 首頁 -->
+  <section id="hub">
+    <div class="hero">
+      <div class="sem-badge">📘 下學期</div>
+      <h1>三年級下學期・海底探險隊</h1>
+      <p>高雄市鳳山區五福國小・115 學年度・南一版 <b>三下</b> 數學（共 10 個單元）</p>
+      <div class="total">🐚 我的貝殼 <b id="totalStars">0</b> / <span id="maxStars">90</span></div>
+      <div><button class="reset-link" id="resetBtn">清除貝殼重新開始</button></div>
+    </div>
+    <div class="map" id="unitGrid"></div>
+  </section>
+
+  <!-- 關卡 -->
+  <section id="play" hidden>
+    <div class="lv-title" id="lvTitle"></div>
+    <div class="coach">
+      <div class="coach-face">🐙</div>
+      <div class="coach-bubble" id="bubbleWrap">
+        <span class="who">章魚博士</span>
+        <span id="bubble"></span>
+        <button class="speak" id="speakBtn" title="再唸一次">🔊</button>
+      </div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </section>
+</div>
+
+<!-- 過關畫面 -->
+<div class="result" id="result" hidden>
+  <div class="result-card">
+    <div class="r-title" id="rTitle">過關了！</div>
+    <div class="r-stars" id="rStars"></div>
+    <div class="r-msg" id="rMsg"></div>
+    <div class="nav-next">
+      <button class="btn ghost" id="againBtn">🔁 再玩一次</button>
+      <button class="btn coral" id="nextBtn">下一關 ➜</button>
+      <button class="btn teal" id="backBtn">⚓ 回基地</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script src="js/core.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/units1-5.js"></script>
+<script src="js/units6-10.js"></script>
+<script src="js/main.js"></script>
+<script src="https://kuog88.github.io/home-button.js" defer></script>
+</body>
+</html>
