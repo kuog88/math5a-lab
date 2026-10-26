@@ -49,12 +49,31 @@ h1 span:nth-child(2n){animation-delay:.3s}
 .g1 .go,.g2 .go,.g4 .go,.g6 .go{background:var(--c);color:#fff;box-shadow:0 5px 0 var(--d)}
 .foot{text-align:center;color:var(--muted);font-size:14px;margin-top:40px;font-weight:700}
 </style>
+<style id="sem-style">
+.sem{display:flex;align-items:center;gap:10px;max-width:960px;margin:26px auto 12px;padding:0 4px;font:900 22px "Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;color:#2b2b3a}
+.sem span{font-size:13px;font-weight:700;padding:3px 12px;border-radius:99px;background:#fff;border:2px solid currentColor}
+.sem.up{color:#2f6fd6}.sem.down{color:#e0662a}
+.sem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;max-width:960px;margin:0 auto;width:100%}
+.sem-card{display:block;text-decoration:none;color:#2b2b3a;border-radius:26px;padding:22px 22px 20px;position:relative;
+  background:linear-gradient(160deg,#fff7ec,#ffe8d2);border:5px dashed #ff8a3d;box-shadow:0 9px 0 #d0621f;transition:transform .15s;
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif}
+.sem-card:hover{transform:translateY(-6px) rotate(.6deg)}
+.sem-card .tag{position:absolute;top:-14px;right:18px;background:#ff8a3d;color:#fff;font-weight:900;font-size:15px;padding:4px 14px;border-radius:99px;box-shadow:0 3px 0 #d0621f}
+.sem-card .badge{display:inline-block;font-weight:900;font-size:15px;padding:3px 12px;border-radius:99px;background:#2b2b3a;color:#fff}
+.sem-card .icon{font-size:60px;line-height:1;margin:10px 0 4px}
+.sem-card h2{margin:6px 0 8px;font-size:24px;font-weight:900}
+.sem-card .units{display:flex;flex-wrap:wrap;gap:6px}
+.sem-card .units span{font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:99px;background:#fff}
+.sem-card .go{display:inline-block;margin-top:14px;font-weight:900;font-size:18px;padding:10px 22px;border-radius:16px;background:#ff8a3d;color:#fff;box-shadow:0 5px 0 #d0621f}
+.sem-empty{color:#8a7a99;font-weight:700;text-align:center;padding:10px}
+</style>
 </head>
 <body>
 <div class="deco" id="deco"></div>
 <main>
   <h1><span>🎒</span> 數<span>學</span>遊<span>戲</span>樂園</h1>
   <p class="sub">你是幾年級呢？選一個開始玩吧！</p>
+    <h2 class="sem up">📘 上學期</h2>
   <div class="grid">
     <a class="card g1" href="grade1/">
       <span class="badge">一年級</span>
@@ -105,6 +124,21 @@ h1 span:nth-child(2n){animation-delay:.3s}
       <span class="go">開始玩 ➜</span>
     </a>
   </div>
+  <!-- 下學期 -->
+  <h2 class="sem down">📗 下學期 <span>1 個年級</span></h2>
+  <div class="sem-grid">
+    <a class="sem-card" href="grade3-2/">
+      <span class="tag">下學期</span>
+      <span class="badge">三年級・下學期</span>
+      <div class="icon">🐙</div>
+      <h2>三年級下學期・海底探險隊</h2>
+      <div class="units"><span>除法</span><span>找規律</span><span>時間</span><span>兩步驟的計算</span><span>面積</span><span>公斤和公克</span><span>分數</span><span>乘除的應用</span><span>小數</span><span>報讀表格</span></div>
+      <span class="go">開始下學期 ➜</span>
+    </a>
+  </div>
+<!-- /下學期 -->
+
+  
   <p class="foot">南一版（五福國小 115 學年度） ‧ 學習進度只存在你自己的瀏覽器裡</p>
 </main>
 <script>
