@@ -1,17 +1,17 @@
 'use strict';
 /* 首頁、關卡切換、過關星星 */
 const UNITS = [
-  { id: 'u1', no: 1, name: '數到 10000', icon: '🔢', c: '#ff7eb3', modes: ['位值積木撥一撥', '讀數、寫數與位值', '比大小與數線挑戰'] },
-  { id: 'u2', no: 2, name: '四位數的加減', icon: '➕', c: '#5bb4ff', modes: ['加減直式一格一格算', '估算與驗算', '加減應用挑戰'] },
-  { id: 'u3', no: 3, name: '乘法', icon: '✖️', c: '#3fcf9c', modes: ['乘法直式工作台', '拆一拆與估算', '乘法應用挑戰'] },
-  { id: 'u4', no: 4, name: '幾毫米', icon: '📏', c: '#ff9a4d', modes: ['用尺畫線段', '公分、毫米的換算', '長度計算挑戰'] },
-  { id: 'u5', no: 5, name: '角、正方形和長方形', icon: '📐', c: '#a98bff', modes: ['角的分類箱', '比較角的大小', '正方形和長方形'] },
-  { id: 'u6', no: 6, name: '除法', icon: '➗', c: '#ff7eb3', modes: ['分一分、裝一裝', '餘數、奇數和偶數', '直式除法與應用'] },
-  { id: 'u7', no: 7, name: '公升和毫升', icon: '🥛', c: '#5bb4ff', modes: ['量杯倒水', '公升和毫升的換算與比較', '容量計算挑戰'] },
-  { id: 'u8', no: 8, name: '分數', icon: '🍕', c: '#3fcf9c', modes: ['分數塗一塗', '幾分之幾', '單位分數的累加'] },
-  { id: 'u9', no: 9, name: '圓', icon: '⭕', c: '#ff9a4d', modes: ['圓規畫圓', '圓心、半徑和直徑', '圓的挑戰'] }
+  { id: 'u1', no: 1, name: '數到 10000', icon: '🔢', c: '#ff7eb3', modes: ['位值積木撥一撥', '讀數、寫數與位值', '比大小與數線挑戰', '考卷陷阱題'] },
+  { id: 'u2', no: 2, name: '四位數的加減', icon: '➕', c: '#5bb4ff', modes: ['加減直式一格一格算', '估算與驗算', '加減應用挑戰', '考卷陷阱題'] },
+  { id: 'u3', no: 3, name: '乘法', icon: '✖️', c: '#3fcf9c', modes: ['乘法直式工作台', '拆一拆與估算', '乘法應用挑戰', '考卷陷阱題'] },
+  { id: 'u4', no: 4, name: '幾毫米', icon: '📏', c: '#ff9a4d', modes: ['用尺畫線段', '公分、毫米的換算', '長度計算挑戰', '考卷陷阱題'] },
+  { id: 'u5', no: 5, name: '角、正方形和長方形', icon: '📐', c: '#a98bff', modes: ['角的分類箱', '比較角的大小', '正方形和長方形', '考卷陷阱題'] },
+  { id: 'u6', no: 6, name: '除法', icon: '➗', c: '#ff7eb3', modes: ['分一分、裝一裝', '餘數、奇數和偶數', '直式除法與應用', '考卷陷阱題'] },
+  { id: 'u7', no: 7, name: '公升和毫升', icon: '🥛', c: '#5bb4ff', modes: ['量杯倒水', '公升和毫升的換算與比較', '容量計算挑戰', '考卷陷阱題'] },
+  { id: 'u8', no: 8, name: '分數', icon: '🍕', c: '#3fcf9c', modes: ['分數塗一塗', '幾分之幾', '單位分數的累加', '考卷陷阱題'] },
+  { id: 'u9', no: 9, name: '圓', icon: '⭕', c: '#ff9a4d', modes: ['圓規畫圓', '圓心、半徑和直徑', '圓的挑戰', '考卷陷阱題'] }
 ];
-const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰'];
+const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰', '🎯 進階挑戰'];
 const keyOf = (ui, mi) => `${UNITS[ui].id}-${mi}`;
 const starHTML = n => [0, 1, 2].map(k => `<span class="star${k < n ? ' on' : ''}">★</span>`).join('');
 
@@ -24,7 +24,7 @@ function renderHub() {
       <div class="lv-btns">${u.modes.map((m, mi) => { const s = P[keyOf(ui, mi)] || 0; total += s; return `<button type="button" class="lv-btn" data-u="${ui}" data-m="${mi}"><span>${MODE_TAG[mi]}<br><small>${m}</small></span><span class="st">${starHTML(s)}</span></button>`; }).join('')}</div>
     </div>`).join('');
   $('#totalStars').textContent = total;
-  $('#maxStars').textContent = UNITS.length * 9;
+  $('#maxStars').textContent = UNITS.length * MODE_TAG.length * 3;
   $$('.lv-btn').forEach(b => b.onclick = () => openLevel(+b.dataset.u, +b.dataset.m));
 }
 
@@ -48,14 +48,14 @@ window.onLevelDone = c => {
   $('#rTitle').textContent = stars === 3 ? '太厲害了！' : stars === 2 ? '過關了！' : '完成了！';
   $('#rStars').innerHTML = starHTML(stars);
   $('#rMsg').textContent = stars === 3 ? '全部一次就答對！' : `答錯 ${c.miss} 次，再玩一次可以拿更多星星喔！`;
-  const last = c.ui === UNITS.length - 1 && c.mi === 2;
+  const last = c.ui === UNITS.length - 1 && c.mi === MODE_TAG.length - 1;
   $('#nextBtn').hidden = last;
   $('#result').hidden = false;
   speak($('#rTitle').textContent + `得到 ${stars} 顆星`);
 };
 
 $('#againBtn').onclick = () => cur && openLevel(cur.ui, cur.mi);
-$('#nextBtn').onclick = () => { if (!cur) return; let { ui, mi } = cur; mi++; if (mi > 2) { mi = 0; ui++; } if (ui < UNITS.length) openLevel(ui, mi); else goHome(); };
+$('#nextBtn').onclick = () => { if (!cur) return; let { ui, mi } = cur; mi++; if (mi >= MODE_TAG.length) { mi = 0; ui++; } if (ui < UNITS.length) openLevel(ui, mi); else goHome(); };
 $('#backBtn').onclick = goHome;
 $('#homeBtn').onclick = goHome;
 $('#speakBtn').onclick = () => speak(lastSay);
