@@ -11,7 +11,8 @@ const UNITS = [
   { id: 'u8', no: 8, name: '減一減與加減應用', icon: '🎈', c: '#5bb4ff', modes: ['飛走了', '加還是減', '加減快手'] },
   { id: 'u9', no: 9, name: '讀鐘錶', icon: '⏰', c: '#ff9a4d', modes: ['撥撥時鐘', '看鐘說時間', '生活時間和順序'] }
 ];
-const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰'];
+const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰', '🎯 進階挑戰'];
+UNITS.forEach(u => u.modes.push('考卷挑戰題')); // 2026-10 每單元加一關進階挑戰（5 題）
 const keyOf = (ui, mi) => `${UNITS[ui].id}-${mi}`;
 const starHTML = n => [0, 1, 2].map(k => `<span class="star${k < n ? ' on' : ''}">★</span>`).join('');
 
@@ -24,7 +25,7 @@ function renderHub() {
       <div class="lv-btns">${u.modes.map((m, mi) => { const s = P[keyOf(ui, mi)] || 0; total += s; return `<button type="button" class="lv-btn" data-u="${ui}" data-m="${mi}"><span>${MODE_TAG[mi]}<br><small>${m}</small></span><span class="st">${starHTML(s)}</span></button>`; }).join('')}</div>
     </div>`).join('');
   $('#totalStars').textContent = total;
-  $('#maxStars').textContent = UNITS.length * 9;
+  $('#maxStars').textContent = UNITS.length * MODE_TAG.length * 3;
   $$('.lv-btn').forEach(b => b.onclick = () => openLevel(+b.dataset.u, +b.dataset.m));
 }
 
@@ -48,14 +49,14 @@ window.onLevelDone = c => {
   $('#rTitle').textContent = stars === 3 ? '太厲害了！' : stars === 2 ? '過關了！' : '完成了！';
   $('#rStars').innerHTML = starHTML(stars);
   $('#rMsg').textContent = stars === 3 ? '全部一次就答對！' : `答錯 ${c.miss} 次，再玩一次可以拿更多星星喔！`;
-  const last = c.ui === UNITS.length - 1 && c.mi === 2;
+  const last = c.ui === UNITS.length - 1 && c.mi === MODE_TAG.length - 1;
   $('#nextBtn').hidden = last;
   $('#result').hidden = false;
   speak($('#rTitle').textContent + `得到 ${stars} 顆星`);
 };
 
 $('#againBtn').onclick = () => cur && openLevel(cur.ui, cur.mi);
-$('#nextBtn').onclick = () => { if (!cur) return; let { ui, mi } = cur; mi++; if (mi > 2) { mi = 0; ui++; } if (ui < UNITS.length) openLevel(ui, mi); else goHome(); };
+$('#nextBtn').onclick = () => { if (!cur) return; let { ui, mi } = cur; mi++; if (mi >= MODE_TAG.length) { mi = 0; ui++; } if (ui < UNITS.length) openLevel(ui, mi); else goHome(); };
 $('#backBtn').onclick = goHome;
 $('#homeBtn').onclick = goHome;
 $('#speakBtn').onclick = () => speak(lastSay);

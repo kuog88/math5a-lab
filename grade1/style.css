@@ -169,6 +169,10 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 .confetti i{position:absolute;top:-20px;width:12px;height:16px;border-radius:3px;animation:fall 1.8s linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
 
+/* 進階挑戰：詳解 */
+.xpl{margin-top:16px;padding:14px 16px;border-radius:20px;background:#f3fbff;border:3px solid var(--blue);font-size:22px;line-height:1.6;font-weight:700;animation:pop .4s}
+.xpl-trap{margin-top:8px;padding:8px 12px;border-radius:14px;background:#fff4dc;border:3px dashed var(--orange)}
+
 @media (max-width:600px){
   body{font-size:18px}
   .coach-bubble{font-size:20px}
@@ -178,4 +182,5 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
   .queue .q.sel::before{font-size:54px;line-height:70px}
   .tf{grid-template-columns:repeat(5,28px)}.tf i{width:28px;height:28px;font-size:18px}
   .numpad{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .xpl{font-size:19px}
 }
