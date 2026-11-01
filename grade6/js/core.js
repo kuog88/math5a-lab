@@ -89,8 +89,18 @@ function confetti() {
   }
 }
 let cleanups = [];
-function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); return id; }
-function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
+function later(fn, ms) { const id = setTimeout(() => { okLock = 0; fn(); }, ms); cleanups.push(() => clearTimeout(id)); return id; }
+/* 答對後鎖住舞台：api.ok() 之後到下一個 later() 執行（或 api.say() 出下一題）之前，
+   答對那一刻已經在舞台上的東西點了都不算，避免「好了／確定」連點兩下一次跳兩題（最多鎖 4 秒）。
+   答對後才出現的按鈕（詳解的「下一題」、接著填的小鍵盤）不受影響。 */
+let okLock = 0, okOld = new WeakSet();
+function lockStage() { okLock = Date.now(); okOld = new WeakSet(); const s = document.getElementById('stage'); if (s) s.querySelectorAll('*').forEach(el => okOld.add(el)); }
+['click', 'pointerdown'].forEach(t => document.addEventListener(t, e => {
+  if (!okLock || !okOld.has(e.target)) return;
+  if (Date.now() - okLock > 4000) { okLock = 0; return; }
+  e.stopPropagation(); e.preventDefault();
+}, true));
+function runCleanup() { okLock = 0; cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
 let cur = null, lastSay = '', lastQ = '';
@@ -106,11 +116,12 @@ function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: repTxt(curQ
 const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const api = {
   say(html, sp) {
+    okLock = 0;
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
     lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  ok(msg) { lockStage(); sfx('ok'); if (msg) toast(msg); rep(true); },
   bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
@@ -140,6 +151,9 @@ function optBtn(o, onRight, hint) {
 /* 數字選項 */
 function numOpts(ans, wrongs, unit = '') {
   const s = [...new Set([fmt(ans), ...wrongs.map(fmt)])].slice(0, 4);
+  // 錯的答案和正確答案一樣（或互相重複）時，補附近的數，保證不重複、至少 2 個
+  const want = Math.max(2, Math.min(4, wrongs.length + 1)), step = Number.isInteger(ans) ? 1 : 0.1;
+  for (let d = 1; s.length < want && d < 100; d++) [ans + d * step, ans - d * step].forEach(v => { if (v >= 0 && s.length < want && !s.includes(fmt(v))) s.push(fmt(v)); });
   return s.map(v => ({ h: `${N(v)}${unit ? `<small>${unit}</small>` : ''}`, ok: v === fmt(ans) }));
 }
 
@@ -147,7 +161,7 @@ function numOpts(ans, wrongs, unit = '') {
 function parseIn(s) {
   if (/^\d+:\d+$/.test(s)) return { ratio: s.split(':').map(Number) };
   let m = s.match(/^(\d+)_(\d+)\/(\d+)$/);
-  if (m) { const w = +m[1], a = +m[2], b = +m[3]; return b ? { v: w + a / b, frac: [w * b + a, b], mixed: a < b } : null; }
+  if (m) { const w = +m[1], a = +m[2], b = +m[3]; return b ? { v: w + a / b, frac: [w * b + a, b], mixed: a > 0 && a < b } : null; }
   m = s.match(/^(\d+)\/(\d+)$/);
   if (m) return +m[2] ? { v: +m[1] / +m[2], frac: [+m[1], +m[2]] } : null;
   if (/^\d*\.?\d+$|^\d+\.$/.test(s)) return { v: parseFloat(s) };
@@ -164,6 +178,7 @@ function checkAns(s, ans) {
     return gcd(x, y) === 1 ? true : '比對了，但還可以再化簡成最簡整數比！';
   }
   if (p.ratio) return false;
+  if (p.mixed === false) return '帶分數的分數部分要是真分數喔！';
   const want = typeof ans === 'string' ? (([a, b]) => +a / +b)(ans.split('/')) : ans;
   if (Math.abs(p.v - want) > 1e-9) return false;
   if (p.frac && p.frac[1] !== 1 && gcd(p.frac[0], p.frac[1]) !== 1) return '答案對了，但要約成最簡分數喔！';
@@ -171,8 +186,9 @@ function checkAns(s, ans) {
 }
 /* 顯示鍵盤輸入的樣子（分數畫成直的） */
 function showIn(s) {
-  return s.replace(/(\d+)_(\d*)\/(\d*)/, (m, w, a, b) => `${w}${fr(a || '□', b || '□')}`)
-    .replace(/(\d*)\/(\d*)/, (m, a, b) => fr(a || '□', b || '□')).replace(/_(\d*)$/, (m, a) => ` ${a || '□'}`).replace(/:/, ' : ');
+  // 帶分數和分數用同一個 replace，免得第二次把 fr() 產生的 </span> 當成分數線
+  return s.replace(/(\d+)_(\d*)\/(\d*)|(\d*)\/(\d*)/, (m, w, a, b, c, d) => w !== undefined ? `${w}${fr(a || '□', b || '□')}` : fr(c || '□', d || '□'))
+    .replace(/_(\d*)$/, (m, a) => ` ${a || '□'}`).replace(/:/, ' : ');
 }
 
 /* 輸入答案的小鍵盤。keys 可加 '.'、'/'、':'、'_'（帶分數的整數部分） */
