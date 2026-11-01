@@ -26,7 +26,7 @@ function plateLevel(st, plans) {
     $('#add', st).onclick = () => { if (g >= 9) return toast('盤子太多了！'); g++; sfx('pop'); draw(); };
     $('#sub', st).onclick = () => { if (g) g--; sfx('tap'); draw(); };
     $('#okb', st).onclick = () => {
-      if (g !== k) return api.bad(`「${n} 的 ${k} 倍」要有 ${k} 盤喔！`);
+      if (g !== k) return api.bad(`「${n} 的 ${k} 倍」要有 ${k} 盤喔！`, `做了 ${g} 盤`, `${k} 盤`);
       $('#okb', st).disabled = $('#add', st).disabled = $('#sub', st).disabled = true;
       api.ok(`對！${k} 盤就是 ${n} 的 ${k} 倍`);
       later(() => {
@@ -94,8 +94,8 @@ function u8A(st) {
     $('#mm', st).onclick = () => setM(m - 1);
     $('#okb', st).onclick = () => {
       if (h === th && m === tm) { api.ok(`對！這是 ${timeText(th, tm)}`); r++; later(round, 1600); }
-      else if (m !== tm) api.bad(tm % 5 ? `長針先指到 ${Math.floor(tm / 5) || 12}（${Math.floor(tm / 5) * 5} 分），再往前走 ${tm % 5} 小格！` : `長針一大格是 5 分，${tm} 分要指到 ${tm / 5 || 12}！`);
-      else api.bad(`看短針（時針）：${th} 時多，短針要在 ${th} 和 ${th % 12 + 1} 中間。`);
+      else if (m !== tm) api.bad(tm % 5 ? `長針先指到 ${Math.floor(tm / 5) || 12}（${Math.floor(tm / 5) * 5} 分），再往前走 ${tm % 5} 小格！` : `長針一大格是 5 分，${tm} 分要指到 ${tm / 5 || 12}！`, `撥成 ${timeText(h, m)}`, timeText(th, tm));
+      else api.bad(`看短針（時針）：${th} 時多，短針要在 ${th} 和 ${th % 12 + 1} 中間。`, `撥成 ${timeText(h, m)}`, timeText(th, tm));
     };
   }
   round();
@@ -114,7 +114,7 @@ function u8B(st) {
     readRound(true), readRound(false), readRound(false),
     () => {
       const [h, m] = one(false), list = [[h, m], [h % 12 + 1, m], [h, (m + 15) % 60]];
-      return { q: `哪一個時鐘和數字鐘 ${h}:${String(m).padStart(2, '0')} 一樣？`, vis: digital(h, m), opts: list.map((t, i) => ({ h: clockSVG(t[0], t[1]), ok: i === 0 })), hint: '冒號前面是幾時，後面是幾分！' };
+      return { q: `哪一個時鐘和數字鐘 ${h}:${String(m).padStart(2, '0')} 一樣？`, vis: digital(h, m), opts: list.map((t, i) => ({ h: clockSVG(t[0], t[1]), ok: i === 0, t: timeText(t[0], t[1]) })), hint: '冒號前面是幾時，後面是幾分！' };
     },
     () => { const k = pick([rand(6, 9), rand(11, 14), rand(16, 19), rand(21, 24), rand(26, 29)]); return { q: '長針從 12 走到這裡，走了幾分鐘？', vis: clockSVG(12, k), ans: k, unit: '分', hint: '先 5 分 5 分數大格，再 1 分 1 分數小格！', after: `${Math.floor(k / 5)} 大格又 ${k % 5} 小格，是 ${k} 分` }; }
   ];
@@ -156,7 +156,7 @@ function u9A(st) {
     $('#jump', st).onclick = () => { if (j >= k + 1) return toast('跳太遠了！'); j++; sfx('pop'); draw(); };
     $('#back', st).onclick = () => { if (j) j--; sfx('tap'); draw(); };
     $('#okb', st).onclick = () => {
-      if (j !== k) return api.bad(`要跳 ${k} 次喔，現在是 ${j} 次。`);
+      if (j !== k) return api.bad(`要跳 ${k} 次喔，現在是 ${j} 次。`, `跳了 ${j} 次`, `跳 ${k} 次`);
       $('#jump', st).disabled = $('#back', st).disabled = $('#okb', st).disabled = true;
       api.say(`${n} × ${k}，袋鼠跳到幾？`);
       keypad($('#kw', st), n * k, () => { $('#qv', st).innerHTML = `<div class="after">${n} × ${k} = ${n * k}</div>`; speak(`${n} 乘以 ${k} 等於 ${n * k}`); r++; later(round, 2200); }, `${n}、${n * 2}、${n * 3}……一次跳 ${n} 往後數！`);

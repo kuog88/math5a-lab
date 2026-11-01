@@ -69,15 +69,20 @@ function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clea
 function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
-let cur = null, lastSay = '';
+let cur = null, lastSay = '', lastQ = '';
+/* 家長報表：curQ 是目前的題目和正確答案（quiz、eqBuild 會設定；其他關卡用貓頭鷹說的話當題目） */
+let curQ = null;
+function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: curQ ? curQ.q : lastQ, a, c: c !== undefined ? c : curQ ? curQ.c : '' }); }
+/* 選項的文字（圖形選項用 o.t 說明） */
+const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const api = {
   say(html, sp) {
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
-    lastSay = sp || html; speak(lastSay);
+    lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); },
-  bad(msg) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); },
+  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
 
@@ -88,7 +93,7 @@ const N = v => `<span class="num">${v}</span>`;
 /* 選項按鈕：答對呼叫 onRight，答錯扣分並提示 */
 function optBtn(o, onRight, hint) {
   const b = document.createElement('button');
-  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button';
+  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button'; b._o = o;
   b.onclick = () => {
     if (b.disabled) return;
     if (o.ok) {
@@ -97,7 +102,8 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！');
+      const right = $$('.opt', b.parentNode).map(x => x._o).find(x => x && x.ok);
+      api.bad(o.hint || hint || '再想想看！', optText(o), right ? optText(right) : undefined);
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -124,7 +130,7 @@ function keypad(box, ans, onRight, hint, unit = '') {
       if (v === '') return;
       if (+v === ans) { done = true; show.parentNode.classList.add('right'); api.ok(); onRight(); return; }
       show.parentNode.classList.remove('wrong'); void show.offsetWidth; show.parentNode.classList.add('wrong');
-      api.bad(hint || '再算算看！'); if (hint) speak(hint); v = '';
+      api.bad(hint || '再算算看！', v + (unit ? ' ' + unit : ''), ans + (unit ? ' ' + unit : '')); if (hint) speak(hint); v = '';
     } else if (v.length < 4) v = (v === '0' ? '' : v) + k;
     show.textContent = v;
   });
@@ -139,6 +145,8 @@ function quiz(st, rounds) {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
+    const okOpt = (r.opts || []).find(o => o.ok);
+    curQ = { q: r.q, c: eqm ? eqAns(r) : typed ? r.ans + (r.unit ? ' ' + r.unit : '') : optText(okOpt) };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : r.pad ? 'numpad' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
@@ -172,6 +180,12 @@ function eqPaths(r) {
   const norm = e => Array.isArray(e[0]) ? e : [e];
   return [norm(r.eq)].concat((r.alt || []).map(norm));
 }
+/* 家長報表用的正確算式，例如「25 + 18 = 43，43 − 9 = 34」 */
+function eqAns(r) {
+  const res = [];
+  const val = x => x === 'R' ? res[res.length - 1] : /^R\d$/.test(x) ? res[+x[1] - 1] : x;
+  return eqPaths(r)[0].map(e => { const [a, op, b] = e.map(val); res.push(eqCalc(a, op, b)); return `${a} ${op} ${b} = ${res[res.length - 1]}`; }).join('，') + (r.unit ? ' ' + r.unit : '');
+}
 /* 幾個數連加的所有列法（一個一個加，或兩兩先加再合起來） */
 function sumPaths(list) {
   const out = [], seen = new Set(), add = p => { const k = JSON.stringify(p); if (!seen.has(k)) { seen.add(k); out.push(p); } };
@@ -184,6 +198,7 @@ function sumPaths(list) {
 }
 function eqBuild(box, r, onRight) {
   let paths = eqPaths(r), rows = [], results = [], act = null, finished = false;
+  curQ = { q: r.q, c: eqAns(r) };
   const plain = String(r.q || '').replace(/<[^>]+>/g, '');
   const nums = [...new Set((plain.match(/\d+/g) || []).map(Number).concat(r.nums || []))];
   const used = new Set(paths.flat().map(s => s[1]));
@@ -243,8 +258,9 @@ function eqBuild(box, r, onRight) {
   }
   function bad(text) {
     const w = rows[rows.length - 1];
+    const said = `${w.a || '□'} ${w.op || '○'} ${w.b || '□'}`;
     w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
-    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, ''), said); speak(text);
   }
   $('.eq-go', box).onclick = () => {
     if (finished) return;

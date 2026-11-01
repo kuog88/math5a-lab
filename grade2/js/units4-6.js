@@ -18,7 +18,7 @@ function u4A(st) {
       if (pos === c && b.dataset.d !== 'back') return;
       const d = b.dataset.d; sfx('tap');
       if (d === 'back') { if (hops.length) pos -= hops.pop(); }
-      else { if (pos + +d > c) { api.bad('跳過頭了！試試小一點的跳法。'); return; } pos += +d; hops.push(+d); }
+      else { if (pos + +d > c) { api.bad('跳過頭了！試試小一點的跳法。', `從 ${pos} 再跳 ${d}，跳到 ${pos + +d}`, `剛好跳到 ${c}`); return; } pos += +d; hops.push(+d); }
       draw();
       if (pos === c) { api.ok('到了！'); later(ask, 700); }
     });

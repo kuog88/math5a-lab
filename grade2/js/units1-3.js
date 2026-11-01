@@ -32,7 +32,7 @@ function u1A(st) {
     $('#okb', st).onclick = () => {
       const v = h * 100 + t * 10 + o;
       if (v === n) { api.ok(`對！${n} 是 ${hto(n)}`); speak(`${n} 是 ${hto(n)}`); r++; later(round, 2200); }
-      else api.bad(v > n ? `現在是 ${v}，太多了！` : `現在是 ${v}，還不夠喔！`);
+      else api.bad(v > n ? `現在是 ${v}，太多了！` : `現在是 ${v}，還不夠喔！`, `拼成 ${v}`, `${n}`);
     };
     draw();
   }
@@ -154,7 +154,7 @@ function u3A(st) {
     set(1);
     $('#okb', st).onclick = () => {
       if (cur === want) { api.ok(`對！${want} 公分就是 ${want} 個 1 公分！`); r++; later(round, 1600); }
-      else api.bad(cur > want ? '太長了！看看尺上的數字。' : '太短了！看看尺上的數字。');
+      else api.bad(cur > want ? '太長了！看看尺上的數字。' : '太短了！看看尺上的數字。', `畫了 ${cur} 公分`, `${want} 公分`);
     };
   }
   round();
