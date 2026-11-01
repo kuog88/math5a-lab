@@ -52,10 +52,10 @@ function u1B(st) {
 /* ===== 1-C 餘數應用與估算 ===== */
 function u1C(st) {
   quiz(st, shuffle([
-    () => { const k = rand(4, 8), n = k * rand(3, 9) + rand(1, k - 1); const ans = Math.ceil(n / k); return { q: `${n} 位潛水員要搭小艇，每艘最多坐 ${k} 人，至少要幾艘小艇？`, ans, unit: '艘', hint: '剩下的人也要坐船，商要再加 1！', after: `${n} ÷ ${k} ＝ ${Math.floor(n / k)} … ${n % k}，${Math.floor(n / k)} ＋ 1 ＝ ${ans} 艘` }; },
-    () => { const k = rand(6, 9), n = k * rand(4, 9) + rand(1, k - 1); const ans = Math.floor(n / k); return { q: `一個貝殼吊飾 ${k} 元，小美有 ${n} 元，最多可以買幾個？`, ans, unit: '個', hint: '剩下的錢不夠再買一個，商不用加 1。', after: `${n} ÷ ${k} ＝ ${ans} … ${n % k}，最多買 ${ans} 個` }; },
-    () => { const k = rand(6, 9), q = rand(12, 40), rm = rand(1, k - 1), n = k * q + rm; return { q: `${n} 顆珍珠，每盒裝 ${k} 顆，可以裝滿幾盒？還剩幾顆？`, ans2: [q, rm], labels: ['盒', '顆（剩）'], hint: '用除法算，剩下的就是餘數！', after: `${n} ÷ ${k} ＝ ${q} … ${rm}` }; },
-    () => { const k = rand(3, 5), pages = k * rand(8, 18) + rand(1, k - 1), d = Math.ceil(pages / k); return { q: `一本海洋圖鑑有 ${pages} 頁，每天看 ${k} 頁，至少要幾天才能看完？`, ans: d, unit: '天', hint: '最後剩下的幾頁也要再看一天！', after: `${pages} ÷ ${k} ＝ ${Math.floor(pages / k)} … ${pages % k}，要 ${d} 天` }; },
+    () => { const k = rand(4, 8), n = k * rand(3, 9) + rand(1, k - 1); const ans = Math.ceil(n / k); return { q: `${n} 位潛水員要搭小艇，每艘最多坐 ${k} 人，至少要幾艘小艇？`, eq: [[n, '÷', k], ['R', '+', 1]], extra: [1], ans, unit: '艘', hint: '剩下的人也要坐船，商要再加 1！', after: `${n} ÷ ${k} ＝ ${Math.floor(n / k)} … ${n % k}，${Math.floor(n / k)} ＋ 1 ＝ ${ans} 艘` }; },
+    () => { const k = rand(6, 9), n = k * rand(4, 9) + rand(1, k - 1); const ans = Math.floor(n / k); return { q: `一個貝殼吊飾 ${k} 元，小美有 ${n} 元，最多可以買幾個？`, eq: [n, '÷', k], ans, hint: '剩下的錢不夠再買一個，商不用加 1。', after: `${n} ÷ ${k} ＝ ${ans} … ${n % k}，最多買 ${ans} 個` }; },
+    () => { const k = rand(6, 9), q = rand(12, 40), rm = rand(1, k - 1), n = k * q + rm; return { q: `${n} 顆珍珠，每盒裝 ${k} 顆，可以裝滿幾盒？還剩幾顆？`, eq: [n, '÷', k], ans2: [q, rm], labels: ['盒', '顆（剩）'], hint: '用除法算，剩下的就是餘數！', after: `${n} ÷ ${k} ＝ ${q} … ${rm}` }; },
+    () => { const k = rand(3, 5), pages = k * rand(8, 18) + rand(1, k - 1), d = Math.ceil(pages / k); return { q: `一本海洋圖鑑有 ${pages} 頁，每天看 ${k} 頁，至少要幾天才能看完？`, eq: [[pages, '÷', k], ['R', '+', 1]], extra: [1], ans: d, unit: '天', hint: '最後剩下的幾頁也要再看一天！', after: `${pages} ÷ ${k} ＝ ${Math.floor(pages / k)} … ${pages % k}，要 ${d} 天` }; },
     () => { const b = rand(2, 4), Q = rand(1, Math.floor(9 / b)) * 100; let e; do { e = rand(-6, 6); } while (!e); const a = Q * b + e; return { q: `估一估：${a} ÷ ${b} 的商大約是多少？`, sp: `估一估，${a}除以${b}的商大約是多少`, opts: [{ h: N(Q), ok: true }, { h: N(Q / 10), ok: false }, { h: N(Q + 100), ok: false }], hint: `把 ${a} 看成 ${Q * b} 來算！`, after: `${a} 看成 ${Q * b}，${Q * b} ÷ ${b} ＝ ${Q}，商大約是 ${Q}` }; },
     () => { let b, Q; do { b = rand(3, 9); Q = rand(2, 9) * 10; } while (Q * b < 100 || Q * b > 900); let e; do { e = rand(-3, 3); } while (!e); const a = Q * b + e; return { q: `估一估：${a} ÷ ${b} 的商大約是多少？`, sp: `估一估，${a}除以${b}的商大約是多少`, opts: [{ h: N(Q), ok: true }, { h: N(Q * 10), ok: false }, { h: N(Q + 10), ok: false }], hint: `把 ${a} 看成 ${Q * b} 來算！`, after: `${a} 看成 ${Q * b}，${Q * b} ÷ ${b} ＝ ${Q}，商大約是 ${Q}` }; }
   ]));
@@ -109,16 +109,16 @@ function u2B(st) {
 /* ===== 2-C 數量關係的規律 ===== */
 function u2C(st) {
   const rel = [
-    { t: '🐙 章魚的隻數和腳的數量', a: '章魚（隻）', b: '腳（隻）', f: n => 8 * n, h: '每多 1 隻章魚，就多 8 隻腳。' },
-    { t: '🪵 用小棒排一排正方形', a: '正方形（個）', b: '小棒（根）', f: n => 3 * n + 1, h: '第一個用 4 根，之後每多 1 個正方形只要多 3 根。' },
-    { t: '🔺 用小棒排一排三角形', a: '三角形（個）', b: '小棒（根）', f: n => 2 * n + 1, h: '第一個用 3 根，之後每多 1 個三角形只要多 2 根。' },
-    { t: '🪑 長桌排成一長排，旁邊坐人', a: '桌子（張）', b: '座位（個）', f: n => 2 * n + 2, h: '每多 1 張桌子，就多 2 個座位。' },
-    { t: '🦀 螃蟹的隻數和腳的數量', a: '螃蟹（隻）', b: '腳（隻）', f: n => 10 * n, h: '每多 1 隻螃蟹，就多 10 隻腳。' },
-    { t: '🎫 買海洋館門票，一張 35 元', a: '門票（張）', b: '錢（元）', f: n => 35 * n, h: '每多 1 張，就多 35 元。' }
+    { t: '🐙 章魚的隻數和腳的數量', a: '章魚（隻）', b: '腳（隻）', f: n => 8 * n, eq: n => ({ eq: [8, '×', n], extra: [8] }), h: '每多 1 隻章魚，就多 8 隻腳。' },
+    { t: '🪵 用小棒排一排正方形', a: '正方形（個）', b: '小棒（根）', f: n => 3 * n + 1, eq: n => ({ eq: [[3, '×', n], ['R', '+', 1]], alt: [[[n, '−', 1], ['R', '×', 3], ['R', '+', 4]]], extra: [1, 3, 4] }), h: '第一個用 4 根，之後每多 1 個正方形只要多 3 根。' },
+    { t: '🔺 用小棒排一排三角形', a: '三角形（個）', b: '小棒（根）', f: n => 2 * n + 1, eq: n => ({ eq: [[2, '×', n], ['R', '+', 1]], alt: [[[n, '−', 1], ['R', '×', 2], ['R', '+', 3]]], extra: [1, 2, 3] }), h: '第一個用 3 根，之後每多 1 個三角形只要多 2 根。' },
+    { t: '🪑 長桌排成一長排，旁邊坐人', a: '桌子（張）', b: '座位（個）', f: n => 2 * n + 2, eq: n => ({ eq: [[2, '×', n], ['R', '+', 2]], alt: [[[n, '+', 1], ['R', '×', 2]], [[n, '−', 1], ['R', '×', 2], ['R', '+', 4]]], extra: [1, 2, 4] }), h: '每多 1 張桌子，就多 2 個座位。' },
+    { t: '🦀 螃蟹的隻數和腳的數量', a: '螃蟹（隻）', b: '腳（隻）', f: n => 10 * n, eq: n => ({ eq: [10, '×', n], extra: [10] }), h: '每多 1 隻螃蟹，就多 10 隻腳。' },
+    { t: '🎫 買海洋館門票，一張 35 元', a: '門票（張）', b: '錢（元）', f: n => 35 * n, eq: n => ({ eq: [35, '×', n] }), h: '每多 1 張，就多 35 元。' }
   ];
   quiz(st, shuffle(rel).slice(0, 5).map(R => () => {
     const n = rand(5, 9);
-    return { q: `${R.t}：看表格找規律，${n} 的時候是多少？`, vis: tableHTML([R.a, '1', '2', '3', '4', String(n)], [[R.b, R.f(1), R.f(2), R.f(3), R.f(4), '?']]), ans: R.f(n), hint: R.h, after: `${n} 的時候是 ${R.f(n)}` };
+    return { q: `${R.t}：看表格找規律，${n} 的時候是多少？`, vis: tableHTML([R.a, '1', '2', '3', '4', String(n)], [[R.b, R.f(1), R.f(2), R.f(3), R.f(4), '?']]), ...R.eq(n), ans: R.f(n), hint: R.h, after: `${n} 的時候是 ${R.f(n)}` };
   }));
 }
 
@@ -175,71 +175,54 @@ function u3B(st) {
 
 /* ===== 3-C 時間的計算 ===== */
 function u3C(st) {
+  /* 列式小幫手：時間一整塊當一個數（電腦用「分」或「秒」來算） */
+  const hm = m => `${Math.floor(m / 60)} 時 ${m % 60} 分`, ms = x => `${Math.floor(x / 60)} 分 ${x % 60} 秒`, dhr = h => `${Math.floor(h / 24)} 日 ${h % 24} 時`;
   quiz(st, shuffle([
-    () => { const a = rand(1, 3), b = rand(25, 55), c = rand(1, 2), d = rand(60 - b + 1, 55); const t = a * 60 + b + c * 60 + d; return { q: `潛水艇先開了 ${a} 時 ${b} 分，又開了 ${c} 時 ${d} 分，一共開了幾時幾分？`, ans2: [Math.floor(t / 60), t % 60], labels: ['時', '分'], hint: '分加起來滿 60，要進位成 1 時！', after: `${a} 時 ${b} 分 ＋ ${c} 時 ${d} 分 ＝ ${Math.floor(t / 60)} 時 ${t % 60} 分` }; },
+    () => { const a = rand(1, 3), b = rand(25, 55), c = rand(1, 2), d = rand(60 - b + 1, 55); const t = a * 60 + b + c * 60 + d; return { q: `潛水艇先開了 ${a} 時 ${b} 分，又開了 ${c} 時 ${d} 分，一共開了幾時幾分？`, chips: [[a * 60 + b, `${a} 時 ${b} 分`], [c * 60 + d, `${c} 時 ${d} 分`]], eq: [a * 60 + b, '+', c * 60 + d], fmt: hm, ans2: [Math.floor(t / 60), t % 60], labels: ['時', '分'], hint: '分加起來滿 60，要進位成 1 時！', after: `${a} 時 ${b} 分 ＋ ${c} 時 ${d} 分 ＝ ${Math.floor(t / 60)} 時 ${t % 60} 分` }; },
     () => { const a = rand(3, 6), b = rand(5, 30), c = rand(1, a - 1), d = rand(b + 5, 55); const t = a * 60 + b - (c * 60 + d); return { q: `${a} 時 ${b} 分 − ${c} 時 ${d} 分 ＝ ? 時 ? 分`, ans2: [Math.floor(t / 60), t % 60], labels: ['時', '分'], hint: '分不夠減，跟時借 1 時（60 分）！', after: `答案是 ${Math.floor(t / 60)} 時 ${t % 60} 分` }; },
-    () => { const h1 = rand(8, 14), m1 = 5 * rand(6, 11), dur = rand(70, 170); const e = h1 * 60 + m1 + dur; const h2 = Math.floor(e / 60), m2 = e % 60; return { q: `海洋館表演從 ${t24(h1, m1)} 開始，到 ${t24(h2, m2)} 結束，一共經過幾時幾分？`, ans2: [Math.floor(dur / 60), dur % 60], labels: ['時', '分'], hint: '先算到整點，再算剩下的！', after: `經過 ${Math.floor(dur / 60)} 時 ${dur % 60} 分` }; },
-    () => { const h1 = rand(13, 17), m1 = 5 * rand(4, 11), dh = rand(1, 3), dm = 5 * rand(3, 9); const e = h1 * 60 + m1 + dh * 60 + dm; return { q: `船在 ${t24(h1, m1)} 出發，開了 ${dh} 時 ${dm} 分到達小島，到達時是幾時幾分？（24 時制）`, ans2: [Math.floor(e / 60), e % 60], labels: ['時', '分'], hint: '時加時、分加分，分滿 60 進位！', after: `到達時是 ${t24(Math.floor(e / 60), e % 60)}` }; },
-    () => { const a = rand(1, 2), b = rand(30, 55), c = rand(1, 2), d = rand(60 - b, 55); const t = a * 60 + b + c * 60 + d; return { q: `小海龜游了 ${a} 分 ${b} 秒，又游了 ${c} 分 ${d} 秒，一共游了幾分幾秒？`, ans2: [Math.floor(t / 60), t % 60], labels: ['分', '秒'], hint: '秒加起來滿 60，要進位成 1 分！', after: `一共 ${Math.floor(t / 60)} 分 ${t % 60} 秒` }; },
-    () => { const a = rand(10, 20), b = rand(26 - a > 5 ? 26 - a : 6, 20); const t = a + b; return { q: `探險隊先在海底待了 1 日 ${a} 時，又待了 ${b} 時，一共待了幾日幾時？`, ans2: [1 + Math.floor(t / 24), t % 24], labels: ['日', '時'], hint: '時加起來滿 24，要進位成 1 日！', after: `一共 ${1 + Math.floor(t / 24)} 日 ${t % 24} 時` }; }
+    () => { const h1 = rand(8, 14), m1 = 5 * rand(6, 11), dur = rand(70, 170); const e = h1 * 60 + m1 + dur; const h2 = Math.floor(e / 60), m2 = e % 60; return { q: `海洋館表演從 ${t24(h1, m1)} 開始，到 ${t24(h2, m2)} 結束，一共經過幾時幾分？`, chips: [[h1 * 60 + m1, t24(h1, m1)], [e, t24(h2, m2)]], eq: [e, '−', h1 * 60 + m1], fmt: hm, ans2: [Math.floor(dur / 60), dur % 60], labels: ['時', '分'], hint: '先算到整點，再算剩下的！', after: `經過 ${Math.floor(dur / 60)} 時 ${dur % 60} 分` }; },
+    () => { const h1 = rand(13, 17), m1 = 5 * rand(4, 11), dh = rand(1, 3), dm = 5 * rand(3, 9); const e = h1 * 60 + m1 + dh * 60 + dm; return { q: `船在 ${t24(h1, m1)} 出發，開了 ${dh} 時 ${dm} 分到達小島，到達時是幾時幾分？（24 時制）`, chips: [[h1 * 60 + m1, t24(h1, m1)], [dh * 60 + dm, `${dh} 時 ${dm} 分`]], eq: [h1 * 60 + m1, '+', dh * 60 + dm], fmt: v => t24(Math.floor(v / 60), v % 60), ans2: [Math.floor(e / 60), e % 60], labels: ['時', '分'], hint: '時加時、分加分，分滿 60 進位！', after: `到達時是 ${t24(Math.floor(e / 60), e % 60)}` }; },
+    () => { const a = rand(1, 2), b = rand(30, 55), c = rand(1, 2), d = rand(60 - b, 55); const t = a * 60 + b + c * 60 + d; return { q: `小海龜游了 ${a} 分 ${b} 秒，又游了 ${c} 分 ${d} 秒，一共游了幾分幾秒？`, chips: [[a * 60 + b, `${a} 分 ${b} 秒`], [c * 60 + d, `${c} 分 ${d} 秒`]], eq: [a * 60 + b, '+', c * 60 + d], fmt: ms, ans2: [Math.floor(t / 60), t % 60], labels: ['分', '秒'], hint: '秒加起來滿 60，要進位成 1 分！', after: `一共 ${Math.floor(t / 60)} 分 ${t % 60} 秒` }; },
+    () => { const a = rand(10, 20), b = rand(26 - a > 5 ? 26 - a : 6, 20); const t = a + b; return { q: `探險隊先在海底待了 1 日 ${a} 時，又待了 ${b} 時，一共待了幾日幾時？`, chips: [[24 + a, `1 日 ${a} 時`], [b, `${b} 時`]], eq: [24 + a, '+', b], fmt: dhr, ans2: [1 + Math.floor(t / 24), t % 24], labels: ['日', '時'], hint: '時加起來滿 24，要進位成 1 日！', after: `一共 ${1 + Math.floor(t / 24)} 日 ${t % 24} 時` }; }
   ]));
 }
 
-/* ===== 4-A 兩步驟的乘法（一步一步算） ===== */
+/* ===== 4-A 兩步驟的乘法（列式小幫手：一步一步列算式） ===== */
 function u4A(st) {
   const items = [['珍珠', '顆', '盒', '箱'], ['海星貼紙', '張', '包', '袋'], ['魚飼料', '包', '盒', '箱'], ['貝殼', '個', '串', '籃']];
-  const tasks = shuffle(items).slice(0, 3);
-  let r = 0;
-  function round() {
-    if (r >= tasks.length) return api.finish();
-    const [it, u1, u2, u3] = tasks[r];
+  quiz(st, shuffle(items).slice(0, 3).map(([it, u1, u2, u3]) => () => {
     let a, b, c; do { a = rand(3, 9); b = rand(2, 8); c = rand(2, 6); } while (a * b * c > 400);
-    const q = `一${u2}有 ${a} ${u1}${it}，一${u3}裝 ${b} ${u2}，${c} ${u3}共有幾${u1}${it}？`;
-    api.say(`${q}<br>第 1 步：先算什麼？`, `${q}第一步先算什麼`);
-    st.innerHTML = `${dots(r, tasks.length)}<div class="qvis">${Array.from({ length: Math.min(c, 4) }, () => `<span style="display:inline-block;border:3px solid #b07a3c;border-radius:12px;padding:4px;margin:4px">${'📦'.repeat(b)}</span>`).join('')}${c > 4 ? '……' : ''}</div><div class="opts"></div>`;
-    const ops = $('.opts', st);
-    const step2 = (first, v) => {
-      const sec = first === 'ab' ? `${v} × ${c}` : `${a} × ${v}`;
-      api.say(`第 1 步：${first === 'ab' ? `${a} × ${b} ＝ ${v}（一${u3}有幾${u1}）` : `${b} × ${c} ＝ ${v}（共有幾${u2}）`}<br>第 2 步：${sec} ＝ ?`, `第二步，${sec}等於多少`);
-      ops.className = 'kwrap'; ops.innerHTML = '';
-      keypad(ops, a * b * c, () => { toast(`共有 ${a * b * c} ${u1}`); r++; later(round, 1600); }, '用第 1 步的答案再乘一次！', u1);
+    return {
+      q: `一${u2}有 ${a} ${u1}${it}，一${u3}裝 ${b} ${u2}，${c} ${u3}共有幾${u1}${it}？`,
+      vis: `${Array.from({ length: Math.min(c, 4) }, () => `<span style="display:inline-block;border:3px solid #b07a3c;border-radius:12px;padding:4px;margin:4px">${'📦'.repeat(b)}</span>`).join('')}${c > 4 ? '……' : ''}`,
+      eq: [[a, '×', b], ['R', '×', c]], alt: [[[b, '×', c], [a, '×', 'R']]], unit: u1,
+      hint: `可以先算一${u3}有幾${u1}，也可以先算共有幾${u2}。一份一份一樣多，要用乘法！`,
+      after: `${a} × ${b} ＝ ${a * b}，${a * b} × ${c} ＝ ${a * b * c}（或 ${b} × ${c} ＝ ${b * c}，${a} × ${b * c} ＝ ${a * b * c}）`
     };
-    const step1 = first => {
-      const v = first === 'ab' ? a * b : b * c;
-      api.say(`${first === 'ab' ? `${a} × ${b}` : `${b} × ${c}`} ＝ ?`);
-      ops.className = 'kwrap'; ops.innerHTML = '';
-      keypad(ops, v, () => later(() => step2(first, v), 700), '用九九乘法想一想！');
-    };
-    shuffle([
-      { h: `${a} × ${b}<br><small>先算一${u3}有幾${u1}</small>`, ok: true, k: 'ab' },
-      { h: `${b} × ${c}<br><small>先算共有幾${u2}</small>`, ok: true, k: 'bc' },
-      { h: `${a} ＋ ${b}`, ok: false }
-    ]).forEach(o => ops.appendChild(optBtn(o, () => later(() => step1(o.k), 500), '一盒一盒一樣多，要用乘法！')));
-  }
-  round();
+  }));
 }
 
 /* ===== 4-B 倍的計算 ===== */
 function u4B(st) {
   quiz(st, shuffle([
-    () => { const a = rand(12, 48), b = rand(3, 9); return { q: `小丑魚有 ${a} 條，神仙魚的條數是小丑魚的 ${b} 倍，神仙魚有幾條？`, ans: a * b, unit: '條', hint: `${a} 的 ${b} 倍就是 ${a} × ${b}。`, after: `${a} × ${b} ＝ ${a * b}` }; },
-    () => { const a = rand(3, 9), b = rand(2, 5), c = rand(2, 4); return { q: `海星有 ${a} 顆，海膽是海星的 ${b} 倍，貝殼又是海膽的 ${c} 倍，貝殼有幾個？`, ans: a * b * c, unit: '個', hint: `先算海膽 ${a} × ${b}，再乘 ${c}。`, after: `${a} × ${b} ＝ ${a * b}，${a * b} × ${c} ＝ ${a * b * c}` }; },
-    () => { const b = rand(3, 9), x = rand(4, 12); return { q: `珊瑚有 ${x * b} 株，是海葵的 ${b} 倍，海葵有幾株？`, ans: x, unit: '株', hint: `海葵的 ${b} 倍是 ${x * b}，用除法算。`, after: `${x * b} ÷ ${b} ＝ ${x}` }; },
-    () => { const a = rand(6, 25), b = rand(2, 5); return { q: `弟弟撿了 ${a} 個貝殼，哥哥撿的是弟弟的 ${b} 倍，兩人一共撿了幾個？`, ans: a + a * b, unit: '個', hint: '先算哥哥撿幾個，再加起來！', after: `${a} × ${b} ＝ ${a * b}，${a} ＋ ${a * b} ＝ ${a + a * b}` }; },
-    () => { const a = rand(15, 60), b = rand(2, 6); return { q: `一隻海豚重 ${a} 公斤，一隻小鯨魚的重量是海豚的 ${b} 倍，小鯨魚比海豚重多少公斤？`, ans: a * b - a, unit: '公斤', hint: '先算小鯨魚多重，再減海豚的重量。', after: `${a} × ${b} ＝ ${a * b}，${a * b} − ${a} ＝ ${a * b - a}` }; },
-    () => { const a = rand(5, 9), b = rand(2, 4); return { q: `紅色魚缸有 ${a} 條魚，藍色魚缸是紅色的 ${b} 倍，綠色魚缸又是藍色的 2 倍。綠色魚缸是紅色魚缸的幾倍？`, ans: b * 2, unit: '倍', hint: `${b} 倍的 2 倍，就是 ${b} × 2 倍。`, after: `${b} × 2 ＝ ${b * 2}，是 ${b * 2} 倍` }; }
+    () => { const a = rand(12, 48), b = rand(3, 9); return { q: `小丑魚有 ${a} 條，神仙魚的條數是小丑魚的 ${b} 倍，神仙魚有幾條？`, eq: [a, '×', b], ans: a * b, unit: '條', hint: `${a} 的 ${b} 倍就是 ${a} × ${b}。`, after: `${a} × ${b} ＝ ${a * b}` }; },
+    () => { const a = rand(3, 9), b = rand(2, 5), c = rand(2, 4); return { q: `海星有 ${a} 顆，海膽是海星的 ${b} 倍，貝殼又是海膽的 ${c} 倍，貝殼有幾個？`, eq: [[a, '×', b], ['R', '×', c]], alt: [[[b, '×', c], [a, '×', 'R']]], ans: a * b * c, unit: '個', hint: `先算海膽 ${a} × ${b}，再乘 ${c}。`, after: `${a} × ${b} ＝ ${a * b}，${a * b} × ${c} ＝ ${a * b * c}` }; },
+    () => { const b = rand(3, 9), x = rand(4, 12); return { q: `珊瑚有 ${x * b} 株，是海葵的 ${b} 倍，海葵有幾株？`, eq: [x * b, '÷', b], ans: x, unit: '株', hint: `海葵的 ${b} 倍是 ${x * b}，用除法算。`, after: `${x * b} ÷ ${b} ＝ ${x}` }; },
+    () => { const a = rand(6, 25), b = rand(2, 5); return { q: `弟弟撿了 ${a} 個貝殼，哥哥撿的是弟弟的 ${b} 倍，兩人一共撿了幾個？`, eq: [[a, '×', b], [a, '+', 'R']], alt: [[[b, '+', 1], [a, '×', 'R']]], extra: [1], ans: a + a * b, unit: '個', hint: '先算哥哥撿幾個，再加起來！', after: `${a} × ${b} ＝ ${a * b}，${a} ＋ ${a * b} ＝ ${a + a * b}` }; },
+    () => { const a = rand(15, 60), b = rand(2, 6); return { q: `一隻海豚重 ${a} 公斤，一隻小鯨魚的重量是海豚的 ${b} 倍，小鯨魚比海豚重多少公斤？`, eq: [[a, '×', b], ['R', '−', a]], alt: [[[b, '−', 1], [a, '×', 'R']]], extra: [1], ans: a * b - a, unit: '公斤', hint: '先算小鯨魚多重，再減海豚的重量。', after: `${a} × ${b} ＝ ${a * b}，${a * b} − ${a} ＝ ${a * b - a}` }; },
+    () => { const a = rand(5, 9), b = rand(2, 4); return { q: `紅色魚缸有 ${a} 條魚，藍色魚缸是紅色的 ${b} 倍，綠色魚缸又是藍色的 2 倍。綠色魚缸是紅色魚缸的幾倍？`, eq: [b, '×', 2], ans: b * 2, unit: '倍', hint: `${b} 倍的 2 倍，就是 ${b} × 2 倍。`, after: `${b} × 2 ＝ ${b * 2}，是 ${b * 2} 倍` }; }
   ]).slice(0, 5));
 }
 
 /* ===== 4-C 加除、減除問題 ===== */
 function u4C(st) {
   quiz(st, shuffle([
-    () => { const k = rand(3, 6), t = k * rand(8, 20), x = rand(Math.floor(t / 3), Math.floor(t * 2 / 3)), y = t - x; return { q: `哥哥有 ${x} 元，妹妹有 ${y} 元，把錢合起來平分給 ${k} 人，每人分到幾元？`, ans: t / k, unit: '元', hint: `先加：${x} ＋ ${y}，再除以 ${k}。`, after: `${x} ＋ ${y} ＝ ${t}，${t} ÷ ${k} ＝ ${t / k}` }; },
-    () => { const k = rand(4, 8), left = k * rand(5, 12), e = rand(5, 30), n = left + e; return { q: `船上有 ${n} 條魚，賣掉 ${e} 條，剩下的每 ${k} 條裝一袋，可以裝幾袋？`, ans: left / k, unit: '袋', hint: `先減：${n} − ${e}，再除以 ${k}。`, after: `${n} − ${e} ＝ ${left}，${left} ÷ ${k} ＝ ${left / k}` }; },
-    () => { const k = rand(3, 8), n = k * rand(6, 15), e = rand(3, 12); return { q: `${n} 顆糖果平分給 ${k} 位潛水員，老師又多給每人 ${e} 顆，每人一共有幾顆？`, ans: n / k + e, unit: '顆', hint: '先平分，再加上多給的！', after: `${n} ÷ ${k} ＝ ${n / k}，${n / k} ＋ ${e} ＝ ${n / k + e}` }; },
-    () => { const k = rand(3, 7), n = k * rand(8, 16), e = rand(2, 6); return { q: `${n} 公尺的繩子平分成 ${k} 段，每段再剪掉 ${e} 公尺，每段剩下幾公尺？`, ans: n / k - e, unit: '公尺', hint: '先平分，再減掉剪掉的。', after: `${n} ÷ ${k} ＝ ${n / k}，${n / k} − ${e} ＝ ${n / k - e}` }; },
+    () => { const k = rand(3, 6), t = k * rand(8, 20), x = rand(Math.floor(t / 3), Math.floor(t * 2 / 3)), y = t - x; return { q: `哥哥有 ${x} 元，妹妹有 ${y} 元，把錢合起來平分給 ${k} 人，每人分到幾元？`, eq: [[x, '+', y], ['R', '÷', k]], ans: t / k, unit: '元', hint: `先加：${x} ＋ ${y}，再除以 ${k}。`, after: `${x} ＋ ${y} ＝ ${t}，${t} ÷ ${k} ＝ ${t / k}` }; },
+    () => { const k = rand(4, 8), left = k * rand(5, 12), e = rand(5, 30), n = left + e; return { q: `船上有 ${n} 條魚，賣掉 ${e} 條，剩下的每 ${k} 條裝一袋，可以裝幾袋？`, eq: [[n, '−', e], ['R', '÷', k]], ans: left / k, unit: '袋', hint: `先減：${n} − ${e}，再除以 ${k}。`, after: `${n} − ${e} ＝ ${left}，${left} ÷ ${k} ＝ ${left / k}` }; },
+    () => { const k = rand(3, 8), n = k * rand(6, 15), e = rand(3, 12); return { q: `${n} 顆糖果平分給 ${k} 位潛水員，老師又多給每人 ${e} 顆，每人一共有幾顆？`, eq: [[n, '÷', k], ['R', '+', e]], ans: n / k + e, unit: '顆', hint: '先平分，再加上多給的！', after: `${n} ÷ ${k} ＝ ${n / k}，${n / k} ＋ ${e} ＝ ${n / k + e}` }; },
+    () => { const k = rand(3, 7), n = k * rand(8, 16), e = rand(2, 6); return { q: `${n} 公尺的繩子平分成 ${k} 段，每段再剪掉 ${e} 公尺，每段剩下幾公尺？`, eq: [[n, '÷', k], ['R', '−', e]], ans: n / k - e, unit: '公尺', hint: '先平分，再減掉剪掉的。', after: `${n} ÷ ${k} ＝ ${n / k}，${n / k} − ${e} ＝ ${n / k - e}` }; },
     () => { const k = rand(3, 6), t = k * rand(6, 15), x = rand(10, t - 10), y = t - x; return { q: `上午撿 ${x} 個貝殼，下午撿 ${y} 個，全部平分裝成 ${k} 籃，要先算什麼？`, opts: [{ h: `先算 ${x} ＋ ${y}`, ok: true }, { h: `先算 ${y} ÷ ${k}`, ok: false }, { h: `先算 ${x} × ${k}`, ok: false }], hint: '要先知道全部有幾個，才能平分！', after: `${x} ＋ ${y} ＝ ${t}，${t} ÷ ${k} ＝ ${t / k}` }; },
-    () => { const k = rand(4, 9), left = k * rand(4, 10), e = rand(8, 25), n = left + e; return { q: `${n} 張海洋卡，送給朋友 ${e} 張，剩下的平分給 ${k} 個人，每人幾張？`, ans: left / k, unit: '張', hint: '先算剩下幾張，再平分。', after: `${n} − ${e} ＝ ${left}，${left} ÷ ${k} ＝ ${left / k}` }; }
+    () => { const k = rand(4, 9), left = k * rand(4, 10), e = rand(8, 25), n = left + e; return { q: `${n} 張海洋卡，送給朋友 ${e} 張，剩下的平分給 ${k} 個人，每人幾張？`, eq: [[n, '−', e], ['R', '÷', k]], ans: left / k, unit: '張', hint: '先算剩下幾張，再平分。', after: `${n} − ${e} ＝ ${left}，${left} ÷ ${k} ＝ ${left / k}` }; }
   ]).slice(0, 5));
 }
 
@@ -334,7 +317,7 @@ function u5C(st) {
       { q: '一張悠遊卡的面積大約是多少？', opts: [{ h: '約 46 平方公分', ok: true }, { h: '約 5 平方公分', ok: false }, { h: '約 460 平方公分', ok: false }], hint: '悠遊卡大約長 8 公分、寬 5 公分多。' }
     ]),
     () => { const a = rand(3, 5), b = rand(3, 4), s = a * b + pick([-1, 1]); return { q: `長方形魚缸底板長 ${a} 公分、寬 ${b} 公分；另一塊不規則的石板估算大約 ${s} 平方公分。哪一個比較大？`, opts: [{ h: '長方形底板', ok: a * b > s }, { h: '石板', ok: s > a * b }], keep: true, hint: `長方形是 ${a} × ${b} 平方公分。`, after: `長方形 ${a * b} 平方公分，石板約 ${s} 平方公分` }; },
-    () => { const s = rand(4, 9); return { q: `一個正方形，每邊 ${s} 公分，面積是幾平方公分？`, ans: s * s, unit: '平方公分', hint: `一排 ${s} 格，有 ${s} 排。`, after: `${s} × ${s} ＝ ${s * s} 平方公分` }; }
+    () => { const s = rand(4, 9); return { q: `一個正方形，每邊 ${s} 公分，面積是幾平方公分？`, eq: [s, '×', s], ans: s * s, unit: '平方公分', hint: `一排 ${s} 格，有 ${s} 排。`, after: `${s} × ${s} ＝ ${s * s} 平方公分` }; }
   ]);
 }
 

@@ -55,11 +55,11 @@ function u6B(st) {
 function u6C(st) {
   const kg2 = v => [Math.floor(v / 1000), v % 1000];
   quiz(st, shuffle([
-    () => { const a = rand(1, 3) * 1000 + rand(4, 8) * 100 + rand(0, 9) * 10, b = rand(1, 2) * 1000 + rand(3, 7) * 100 + rand(0, 9) * 10, s = a + b; return { q: `一箱海草重 ${kgg(a)}，一箱貝殼重 ${kgg(b)}，兩箱一共重幾公斤幾公克？`, ans2: kg2(s), labels: ['公斤', '公克'], hint: '公克加起來滿 1000，進位成 1 公斤！', after: `一共 ${kgg(s)}` }; },
+    () => { const a = rand(1, 3) * 1000 + rand(4, 8) * 100 + rand(0, 9) * 10, b = rand(1, 2) * 1000 + rand(3, 7) * 100 + rand(0, 9) * 10, s = a + b; return { q: `一箱海草重 ${kgg(a)}，一箱貝殼重 ${kgg(b)}，兩箱一共重幾公斤幾公克？`, chips: [[a, kgg(a)], [b, kgg(b)]], eq: [a, '+', b], fmt: kgg, ans2: kg2(s), labels: ['公斤', '公克'], hint: '公克加起來滿 1000，進位成 1 公斤！', after: `一共 ${kgg(s)}` }; },
     () => { const a = rand(3, 5) * 1000 + rand(1, 3) * 100 + rand(0, 9) * 10, b = rand(1, 2) * 1000 + rand(5, 9) * 100 + rand(0, 9) * 10, s = a - b; return { q: `${kgg(a)} − ${kgg(b)} ＝ ? 公斤 ? 公克`, ans2: kg2(s), labels: ['公斤', '公克'], hint: '公克不夠減，向公斤借 1（1000 公克）！', after: `答案是 ${kgg(s)}` }; },
-    () => { const w = pick([250, 150, 350, 450, 200]), n = rand(3, 6), s = w * n; return { q: `一包魚飼料重 ${w} 公克，${n} 包共重幾公斤幾公克？`, ans2: kg2(s), labels: ['公斤', '公克'], hint: `先算 ${w} × ${n} 公克，再換成公斤和公克。`, after: `${w} × ${n} ＝ ${s} 公克 ＝ ${s % 1000 ? kgg(s) : kgg(s) + ' 0 公克'}` }; },
-    () => { const tot = rand(2, 4) * 1000 + rand(1, 9) * 100; return { q: `潛水員背上氧氣瓶後量體重是 ${kgg(tot + 30000)}，沒背時是 30 公斤，氧氣瓶重幾公斤幾公克？`, ans2: kg2(tot), labels: ['公斤', '公克'], hint: '背了以後的重量 − 本來的重量。', after: `氧氣瓶重 ${kgg(tot)}` }; },
-    () => { const a = rand(1, 2) * 1000 + rand(1, 9) * 100, b = 3000 - a; return { q: `一個桶子可以裝 3 公斤，已經裝了 ${kgg(a)} 的沙，還可以再裝幾公克？`, ans: b, unit: '公克', hint: '3 公斤 ＝ 3000 公克，再減掉已經裝的。', after: `3000 − ${a} ＝ ${b} 公克` }; }
+    () => { const w = pick([250, 150, 350, 450, 200]), n = rand(3, 6), s = w * n; return { q: `一包魚飼料重 ${w} 公克，${n} 包共重幾公斤幾公克？`, eq: [w, '×', n], fmt: v => `${v} 公克（${kgg(v)}）`, ans2: kg2(s), labels: ['公斤', '公克'], hint: `先算 ${w} × ${n} 公克，再換成公斤和公克。`, after: `${w} × ${n} ＝ ${s} 公克 ＝ ${s % 1000 ? kgg(s) : kgg(s) + ' 0 公克'}` }; },
+    () => { const tot = rand(2, 4) * 1000 + rand(1, 9) * 100; return { q: `潛水員背上氧氣瓶後量體重是 ${kgg(tot + 30000)}，沒背時是 30 公斤，氧氣瓶重幾公斤幾公克？`, chips: [[tot + 30000, kgg(tot + 30000)], [30000, '30 公斤']], eq: [tot + 30000, '−', 30000], fmt: kgg, ans2: kg2(tot), labels: ['公斤', '公克'], hint: '背了以後的重量 − 本來的重量。', after: `氧氣瓶重 ${kgg(tot)}` }; },
+    () => { const a = rand(1, 2) * 1000 + rand(1, 9) * 100, b = 3000 - a; return { q: `一個桶子可以裝 3 公斤，已經裝了 ${kgg(a)} 的沙，還可以再裝幾公克？`, chips: [[3000, '3 公斤'], [a, kgg(a)]], eq: [3000, '−', a], fmt: String, ans: b, unit: '公克', hint: '3 公斤 ＝ 3000 公克，再減掉已經裝的。', after: `3000 − ${a} ＝ ${b} 公克` }; }
   ]));
 }
 
@@ -102,13 +102,13 @@ function u7B(st) {
 
 /* ===== 7-C 分數的加減 ===== */
 function u7C(st) {
-  const ask = (eq, n, ans, hint, after, q) => ({ q: q || `${eq} ＝ ?`, vis: `<div class="eq">${eq} ＝ ${F('?', n)}</div>`, ans, unit: `（分子，分母是 ${n}）`, hint, after });
+  const ask = (eq, n, ans, hint, after, q, x) => ({ q: q || `${eq} ＝ ?`, vis: x ? '' : `<div class="eq">${eq} ＝ ${F('?', n)}</div>`, ans, unit: `（分子，分母是 ${n}）`, hint, after, ...x });
   quiz(st, shuffle([
     () => { const n = rand(5, 12), a = rand(1, n - 2), b = rand(1, n - a - 1); return ask(`${F(a, n)} ＋ ${F(b, n)}`, n, a + b, '分母不變，分子相加！', `${F(a, n)} ＋ ${F(b, n)} ＝ ${F(a + b, n)}`); },
     () => { const n = rand(5, 12), a = rand(3, n - 1), b = rand(1, a - 1); return ask(`${F(a, n)} − ${F(b, n)}`, n, a - b, '分母不變，分子相減！', `${F(a, n)} − ${F(b, n)} ＝ ${F(a - b, n)}`); },
     () => { const n = rand(4, 10), b = rand(1, n - 1); return ask(`1 − ${F(b, n)}`, n, n - b, `1 可以看成 ${F(n, n)}！`, `1 − ${F(b, n)} ＝ ${F(n, n)} − ${F(b, n)} ＝ ${F(n - b, n)}`); },
-    () => { const n = 8, a = rand(1, 4), b = rand(1, 3); return ask(`${F(a, n)} ＋ ${F(b, n)}`, n, a + b, '分子相加，分母不變。', `一共吃了 ${F(a + b, n)} 個`, `海龜餐廳的披薩切成 8 片，海龜吃了 ${F(a, n)} 個，小魚吃了 ${F(b, n)} 個，一共吃了幾分之幾個？`); },
-    () => { const n = rand(5, 9), u = rand(2, n - 1); return ask(`1 − ${F(u, n)}`, n, n - u, `1 公尺 ＝ ${F(n, n)} 公尺。`, `還剩 ${F(n - u, n)} 公尺`, `一條 1 公尺的海帶，用掉 ${F(u, n)} 公尺，還剩下幾分之幾公尺？`); },
+    () => { const n = 8, a = rand(1, 4), b = rand(1, 3); return ask(`${F(a, n)} ＋ ${F(b, n)}`, n, a + b, '分子相加，分母不變。', `一共吃了 ${F(a + b, n)} 個`, `海龜餐廳的披薩切成 8 片，海龜吃了 ${F(a, n)} 個，小魚吃了 ${F(b, n)} 個，一共吃了幾分之幾個？`, { eq: [`${a}/${n}`, '+', `${b}/${n}`], unit: '個' }); },
+    () => { const n = rand(5, 9), u = rand(2, n - 1); return ask(`1 − ${F(u, n)}`, n, n - u, `1 公尺 ＝ ${F(n, n)} 公尺。`, `還剩 ${F(n - u, n)} 公尺`, `一條 1 公尺的海帶，用掉 ${F(u, n)} 公尺，還剩下幾分之幾公尺？`, { eq: [1, '−', `${u}/${n}`], alt: [[`${n}/${n}`, '−', `${u}/${n}`]], extra: [`${n}/${n}`], unit: '公尺' }); },
     () => { const n = pick([4, 6, 8, 10]), h = n / 2; return { q: `${F(h, n)} ＋ ${F(h, n)} ＝ ?`, opts: [{ h: N(1), ok: true }, { h: F(n, n * 2), ok: false }, { h: F(h, n), ok: false }], hint: '分子加起來等於分母，就是 1！', after: `${F(h, n)} ＋ ${F(h, n)} ＝ ${F(n, n)} ＝ 1` }; }
   ]));
 }
@@ -163,7 +163,7 @@ function u8B(st) {
     () => { const b = rand(3, 9), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} ÷ ${b} ＝ ${q} … ${rm}，要怎麼驗算？`, opts: [{ h: `${b} × ${q} ＋ ${rm}`, ok: true }, { h: `${b} × ${q} − ${rm}`, ok: false }, { h: `${a} × ${b} ＋ ${rm}`, ok: false }], hint: '除數 × 商 ＋ 餘數 ＝ 被除數', after: `${b} × ${q} ＋ ${rm} ＝ ${a}，算對了！` }; },
     () => { const a = rand(12, 99), b = rand(3, 9); return { q: `${a} × ${b} ＝ ${a * b}，可以用哪個算式驗算？`, opts: [{ h: `${a * b} ÷ ${b}`, ok: true }, { h: `${a * b} × ${b}`, ok: false }, { h: `${a * b} − ${b}`, ok: false }], hint: '乘法和除法是相反的！', after: `${a * b} ÷ ${b} ＝ ${a}` }; },
     () => { const b = rand(5, 9), q = rand(12, 40), rm = rand(0, b - 3), a = b * q + rm, good = Math.random() < 0.5, srm = good ? rm : rm + rand(1, 2); return { q: `小章魚算 ${a} ÷ ${b} ＝ ${q} … ${srm}，用驗算檢查，對嗎？`, opts: [{ h: '對', ok: good }, { h: '不對', ok: !good }], keep: true, hint: `驗算：${b} × ${q} ＋ ${srm}，要等於 ${a} 才對。`, after: `${b} × ${q} ＋ ${srm} ＝ ${b * q + srm}，${good ? '算對了！' : `不等於 ${a}，正確是 ${q} … ${rm}`}` }; },
-    () => { const b = rand(4, 9), q = rand(6, 9), rm = rand(1, b - 1); return { q: `□ ÷ ${b} ＝ ${q} … ${rm}，□ 是多少？`, vis: `<div class="eq"><span class="box">?</span> ÷ ${b} ＝ ${q} … ${rm}</div>`, ans: b * q + rm, hint: `用驗算：${b} × ${q} ＋ ${rm}`, after: `${b} × ${q} ＋ ${rm} ＝ ${b * q + rm}` }; },
+    () => { const b = rand(4, 9), q = rand(6, 9), rm = rand(1, b - 1); return { q: `□ ÷ ${b} ＝ ${q} … ${rm}，□ 是多少？`, eq: [[b, '×', q], ['R', '+', rm]], vis: `<div class="eq"><span class="box">?</span> ÷ ${b} ＝ ${q} … ${rm}</div>`, ans: b * q + rm, hint: `用驗算：${b} × ${q} ＋ ${rm}`, after: `${b} × ${q} ＋ ${rm} ＝ ${b * q + rm}` }; },
     () => { const b = rand(5, 9), q = rand(20, 60), a = b * q; return { q: `${a} ÷ ${b} ＝ ?，算完用 ${b} × 商 驗算看看！`, vis: longDivHTML(a, b, '?'), ans: q, hint: '先分十位，再分個位。', after: `${a} ÷ ${b} ＝ ${q}，驗算 ${b} × ${q} ＝ ${a}` }; }
   ]);
 }
@@ -172,12 +172,12 @@ function u8B(st) {
 function u8C(st) {
   const box = '<span class="box">?</span>';
   quiz(st, shuffle([
-    () => { const a = rand(3, 9), b = rand(3, 9); return { q: `□ × ${b} ＝ ${a * b}，□ 是多少？`, vis: `<div class="eq">${box} × ${b} ＝ ${a * b}</div>`, ans: a, hint: `被乘數未知，用 ${a * b} ÷ ${b}。`, after: `${a * b} ÷ ${b} ＝ ${a}` }; },
-    () => { const a = rand(12, 30), b = rand(3, 4); return { q: `${a * b} ＝ ${b} × □，□ 是多少？`, vis: `<div class="eq">${b} × ${box} ＝ ${a * b}</div>`, ans: a, hint: `用 ${a * b} ÷ ${b}。`, after: `${a * b} ÷ ${b} ＝ ${a}` }; },
-    () => { const b = rand(3, 9), q = rand(4, 12); return { q: `□ ÷ ${b} ＝ ${q}，□ 是多少？`, vis: `<div class="eq">${box} ÷ ${b} ＝ ${q}</div>`, ans: b * q, hint: `被除數未知，用 ${b} × ${q}。`, after: `${b} × ${q} ＝ ${b * q}` }; },
-    () => { const b = rand(3, 9), q = rand(3, 9); return { q: `${b * q} ÷ □ ＝ ${q}，□ 是多少？`, vis: `<div class="eq">${b * q} ÷ ${box} ＝ ${q}</div>`, ans: b, hint: `除數未知，用 ${b * q} ÷ ${q}。`, after: `${b * q} ÷ ${q} ＝ ${b}` }; },
-    () => { const per = rand(6, 9), n = rand(4, 9); return { q: `鯨魚港口有幾盒魚罐頭不知道，每盒 ${per} 罐，一共 ${per * n} 罐，有幾盒？`, ans: n, unit: '盒', hint: `□ × ${per} ＝ ${per * n}`, after: `${per * n} ÷ ${per} ＝ ${n} 盒` }; },
-    () => { const k = rand(5, 8), each = rand(6, 9), rm = rand(1, k - 1); return { q: `一袋小魚乾平分給 ${k} 隻海獅，每隻分到 ${each} 條，還剩 ${rm} 條。原來有幾條？`, ans: k * each + rm, unit: '條', hint: `${k} × ${each} ＋ ${rm}`, after: `${k} × ${each} ＋ ${rm} ＝ ${k * each + rm} 條` }; }
+    () => { const a = rand(3, 9), b = rand(3, 9); return { q: `□ × ${b} ＝ ${a * b}，□ 是多少？`, eq: [a * b, '÷', b], vis: `<div class="eq">${box} × ${b} ＝ ${a * b}</div>`, ans: a, hint: `被乘數未知，用 ${a * b} ÷ ${b}。`, after: `${a * b} ÷ ${b} ＝ ${a}` }; },
+    () => { const a = rand(12, 30), b = rand(3, 4); return { q: `${a * b} ＝ ${b} × □，□ 是多少？`, eq: [a * b, '÷', b], vis: `<div class="eq">${b} × ${box} ＝ ${a * b}</div>`, ans: a, hint: `用 ${a * b} ÷ ${b}。`, after: `${a * b} ÷ ${b} ＝ ${a}` }; },
+    () => { const b = rand(3, 9), q = rand(4, 12); return { q: `□ ÷ ${b} ＝ ${q}，□ 是多少？`, eq: [b, '×', q], vis: `<div class="eq">${box} ÷ ${b} ＝ ${q}</div>`, ans: b * q, hint: `被除數未知，用 ${b} × ${q}。`, after: `${b} × ${q} ＝ ${b * q}` }; },
+    () => { const b = rand(3, 9), q = rand(3, 9); return { q: `${b * q} ÷ □ ＝ ${q}，□ 是多少？`, eq: [b * q, '÷', q], vis: `<div class="eq">${b * q} ÷ ${box} ＝ ${q}</div>`, ans: b, hint: `除數未知，用 ${b * q} ÷ ${q}。`, after: `${b * q} ÷ ${q} ＝ ${b}` }; },
+    () => { const per = rand(6, 9), n = rand(4, 9); return { q: `鯨魚港口有幾盒魚罐頭不知道，每盒 ${per} 罐，一共 ${per * n} 罐，有幾盒？`, eq: [per * n, '÷', per], ans: n, unit: '盒', hint: `□ × ${per} ＝ ${per * n}`, after: `${per * n} ÷ ${per} ＝ ${n} 盒` }; },
+    () => { const k = rand(5, 8), each = rand(6, 9), rm = rand(1, k - 1); return { q: `一袋小魚乾平分給 ${k} 隻海獅，每隻分到 ${each} 條，還剩 ${rm} 條。原來有幾條？`, eq: [[k, '×', each], ['R', '+', rm]], ans: k * each + rm, unit: '條', hint: `${k} × ${each} ＋ ${rm}`, after: `${k} × ${each} ＋ ${rm} ＝ ${k * each + rm} 條` }; }
   ]));
 }
 
@@ -229,8 +229,8 @@ function u9C(st) {
     () => { const a = rand(12, 48), b = rand(5, 30); return { q: `${D(a)} ＋ ${D(b)} ＝ ?（小數點要對齊）`, vis: `<div class="eq">${D(a)} ＋ ${D(b)} ＝ <span class="box">?</span></div>`, ans: D(a + b), hint: '小數點對齊，從十分位開始加。', after: `${D(a)} ＋ ${D(b)} ＝ ${D(a + b)}` }; },
     () => { let a, b; do { a = rand(21, 58); b = rand(5, a - 3); } while (b % 10 <= a % 10); return { q: `${D(a)} − ${D(b)} ＝ ?`, vis: `<div class="eq">${D(a)} − ${D(b)} ＝ <span class="box">?</span></div>`, ans: D(a - b), hint: '十分位不夠減，向個位借 1（10 個 0.1）！', after: `${D(a)} − ${D(b)} ＝ ${D(a - b)}` }; },
     () => { const b = rand(1, 9); return { q: `1 − ${D(b)} ＝ ?`, ans: D(10 - b), hint: '1 是 10 個 0.1！', after: `1 − ${D(b)} ＝ ${D(10 - b)}` }; },
-    () => { const a = rand(12, 25), b = rand(5, 18); return { q: `泡泡實驗室有 ${D(a)} 公升的海水，又倒進 ${D(b)} 公升，現在有幾公升？`, ans: D(a + b), unit: '公升', hint: '小數點對齊再加。', after: `${D(a)} ＋ ${D(b)} ＝ ${D(a + b)} 公升` }; },
-    () => { const a = rand(30, 60), b = rand(8, 25); return { q: `一條緞帶長 ${D(a)} 公尺，剪下 ${D(b)} 公尺做海星，還剩幾公尺？`, ans: D(a - b), unit: '公尺', hint: '小數點對齊再減。', after: `${D(a)} − ${D(b)} ＝ ${D(a - b)} 公尺` }; }
+    () => { const a = rand(12, 25), b = rand(5, 18); return { q: `泡泡實驗室有 ${D(a)} 公升的海水，又倒進 ${D(b)} 公升，現在有幾公升？`, eq: [D(a), '+', D(b)], ans: D(a + b), unit: '公升', hint: '小數點對齊再加。', after: `${D(a)} ＋ ${D(b)} ＝ ${D(a + b)} 公升` }; },
+    () => { const a = rand(30, 60), b = rand(8, 25); return { q: `一條緞帶長 ${D(a)} 公尺，剪下 ${D(b)} 公尺做海星，還剩幾公尺？`, eq: [D(a), '−', D(b)], ans: D(a - b), unit: '公尺', hint: '小數點對齊再減。', after: `${D(a)} − ${D(b)} ＝ ${D(a - b)} 公尺` }; }
   ]));
 }
 
