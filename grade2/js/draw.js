@@ -48,16 +48,18 @@ function blocksHTML(h, t, o) {
 
 /* ---------- 直式 ----------
    ans：答案列每一格的內容（由左到右，長度 = 位數），'' 空白、'?' 正在填的格子、'_' 還沒填的格子
-   opt.carry：十位上面寫小小的進位 1；opt.borrow：十位劃掉減 1、個位前面加 1 */
+   opt.carry：十位上面寫小小的進位 1；opt.borrow：十位劃掉，上面寫減 1 後的數；個位上面寫加 10 後的數 */
 function vertHTML(a, b, op, ans, opt = {}) {
   const w = Math.max(String(a).length, String(b).length, ans ? ans.length : 0);
   const pad = n => String(n).padStart(w, ' ').split('').map(c => c === ' ' ? '' : c);
   let top = pad(a);
-  if (opt.borrow) top = top.map((c, k) => k === w - 2 ? `<s>${c}</s><sup class="bw">${+c - 1}</sup>` : k === w - 1 ? `<sup class="bw">1</sup>${c}` : c);
+  // 借位：十位劃掉、正上方寫減 1 後的數；個位正上方寫借來後的數（例如 0 → 10）
+  const borrow = opt.borrow ? top.map((c, k) => k === w - 2 ? `<em class="bw">${+c - 1}</em>` : k === w - 1 ? `<em class="bw">${10 + +c}</em>` : '') : null;
+  if (opt.borrow) top = top.map((c, k) => k === w - 2 ? `<s>${c}</s>` : c);
   const cells = (ans || Array(w).fill('')).map(c => c === '?' ? '<i class="vbox now"></i>' : c === '_' ? '<i class="vbox"></i>' : c);
   const row = (list, pre = '') => `<div class="vrow"><b class="vop">${pre}</b>${list.map(c => `<span>${c}</span>`).join('')}</div>`;
   const carry = opt.carry ? Array.from({ length: w }, (_, k) => k === w - 2 ? '<em class="cy">1</em>' : '') : null;
-  return `<div class="vert">${carry ? row(carry) : ''}${row(top)}${row(pad(b), op)}<div class="vline"></div>${row(cells)}</div>`;
+  return `<div class="vert">${carry ? row(carry) : ''}${borrow ? row(borrow) : ''}${row(top)}${row(pad(b), op)}<div class="vline"></div>${row(cells)}</div>`;
 }
 
 /* ---------- 尺（每公分 CM 個 SVG 單位）；start 不是 0 時畫成斷掉的尺 ---------- */

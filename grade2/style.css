@@ -222,9 +222,7 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 .vbox.now{border-color:var(--pink);background:#fff0f7;animation:pop 1s infinite}
 .cy{font-style:normal;font-size:28px;color:var(--orange)}
 .vrow s{text-decoration-color:var(--red);text-decoration-thickness:4px}
-.bw{font-size:24px;color:var(--red);position:absolute;top:-6px}
-.vrow span:last-child .bw{left:-8px}
-.vrow s + .bw{right:-14px}
+.bw{font-style:normal;font-size:26px;color:var(--red);white-space:nowrap}
 
 /* 尺 */
 .rwrap{display:flex;justify-content:center;overflow:hidden}
