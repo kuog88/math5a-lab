@@ -18,10 +18,11 @@ function u4A(st) {
     $('.btn', st).onclick = () => {
       const sel = $$('.q', st).filter(b => b.classList.contains('sel')).map(b => +b.dataset.i).sort((a, b) => a - b);
       const want = nth ? [k - 1] : Array.from({ length: k }, (_, i) => i);
+      const said = sel.length ? `圈了第 ${sel.map(i => i + 1).join('、')} 隻` : '沒有圈', right = nth ? `只圈第 ${k} 隻` : `圈前面 ${k} 隻`;
       if (sel.join() === want.join()) { api.ok(nth ? `對！第 ${k} 個只有一隻！` : `對！${k} 個是前面 ${k} 隻！`); r++; later(round, 1300); }
-      else if (nth && sel.length === k) api.bad(`這是「${k} 個」。「第 ${k} 個」只要圈一隻喔！`);
-      else if (!nth && sel.length === 1 && sel[0] === k - 1) api.bad(`這是「第 ${k} 個」。「${k} 個」要圈 ${k} 隻喔！`);
-      else api.bad('從最前面開始，一個一個數數看！');
+      else if (nth && sel.length === k) api.bad(`這是「${k} 個」。「第 ${k} 個」只要圈一隻喔！`, said, right);
+      else if (!nth && sel.length === 1 && sel[0] === k - 1) api.bad(`這是「第 ${k} 個」。「${k} 個」要圈 ${k} 隻喔！`, said, right);
+      else api.bad('從最前面開始，一個一個數數看！', said, right);
     };
   }
   round();

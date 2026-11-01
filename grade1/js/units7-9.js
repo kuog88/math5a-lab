@@ -43,7 +43,7 @@ function u7A(st) {
     if (bin.dataset.t === el.dataset.t) {
       bin.insertAdjacentHTML('beforeend', el.innerHTML); el.remove(); sel = null; sfx('ok'); left--;
       if (!left) { api.ok('全部分好了！'); later(() => api.finish(), 900); }
-    } else { const m = `這個不是${SOLID_NAME[bin.dataset.t]}喔！${SOLID_HINT[el.dataset.t]}`; api.bad(m); speak(m); }
+    } else { const m = `這個不是${SOLID_NAME[bin.dataset.t]}喔！${SOLID_HINT[el.dataset.t]}`; api.bad(m, `把${SOLID_NAME[el.dataset.t]}放到「${SOLID_NAME[bin.dataset.t]}」`, `放到「${SOLID_NAME[el.dataset.t]}」`); speak(m); }
   }
   items.forEach(it => {
     const b = document.createElement('div'); b.className = 'shape'; b.dataset.t = it.t; b.innerHTML = it.h;
@@ -59,8 +59,8 @@ function u7A(st) {
 /* ===== 7-B 面和形狀：平平的面、彎彎的面，描下來是什麼形狀 ===== */
 function u7B(st) {
   const c = () => pick(SHAPE_C);
-  const o = (t, ok, opt = {}) => ({ h: shapeSVG(t, c(), opt), ok });
-  const so = (t, ok, opt = {}) => ({ h: solidSVG(t, c(), opt), ok });
+  const o = (t, ok, opt = {}) => ({ h: shapeSVG(t, c(), opt), ok, t: { ellipse: '橢圓形', openTri: '邊沒有連起來的形狀' }[t] || SHAPE_NAME[t] });
+  const so = (t, ok, opt = {}) => ({ h: solidSVG(t, c(), opt), ok, t: SOLID_NAME[t] });
   const trace = (t, opt, ans, q) => () => ({
     q, vis: solidSVG(t, c(), opt).replace('<svg ', '<svg style="width:150px;height:150px" '),
     opts: [o('circle', ans === 'circle', { scale: 0.8 }), o('square', ans === 'square', { scale: 0.8 }), o('rect', ans === 'rect', { scale: 0.8 }), o('tri', false, { scale: 0.8 })],
@@ -124,7 +124,7 @@ function u7C(st) {
     return {
       q: '形狀排隊有規律，接下來是哪一個？',
       vis: `<div>${seq.map(mini).join('')}<span class="box" style="vertical-align:top">?</span></div>`,
-      opts: ['circle', 'tri', 'square'].map(t => ({ h: mini(t), ok: t === ans })),
+      opts: ['circle', 'tri', 'square'].map(t => ({ h: mini(t), ok: t === ans, t: SHAPE_NAME[t] })),
       hint: '從頭再看一次，哪幾個形狀一直重複？', after: '找到規律了！'
     };
   };
@@ -234,8 +234,8 @@ function u9A(st) {
     svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
     $('.btn', st).onclick = () => {
       if (h === th && m === tm) { api.ok(`對了！是 ${timeText(th, tm)}！`); speak(`對了！是${timeText(th, tm)}`); r++; later(round, 1500); }
-      else if (m !== tm) api.bad(tm === 0 ? '整點的時候，長針要指著 12 喔！' : '半點的時候，長針要指著 6 喔！');
-      else api.bad(tm === 0 ? `短針要指著 ${th} 喔！` : `${th} 點半，短針在 ${th} 和 ${th % 12 + 1} 的中間！`);
+      else if (m !== tm) api.bad(tm === 0 ? '整點的時候，長針要指著 12 喔！' : '半點的時候，長針要指著 6 喔！', `撥成 ${timeText(h, m)}`, timeText(th, tm));
+      else api.bad(tm === 0 ? `短針要指著 ${th} 喔！` : `${th} 點半，短針在 ${th} 和 ${th % 12 + 1} 的中間！`, `撥成 ${timeText(h, m)}`, timeText(th, tm));
     };
   }
   round();
@@ -259,7 +259,7 @@ function u9B(st) {
 
 /* ===== 9-C 生活時間挑戰 ===== */
 function u9C(st) {
-  const clockOpt = (h, m, ok) => ({ h: clockSVG(h, m), ok });
+  const clockOpt = (h, m, ok) => ({ h: clockSVG(h, m), ok, t: timeText(h, m) });
   const rounds = [
     () => ({ q: '早上 <b>7 點</b>起床，哪一個時鐘是 7 點？', sp: '早上7點起床，哪一個時鐘是7點？', opts: [clockOpt(7, 0, true), clockOpt(7, 30, false), clockOpt(12, 0, false)], hint: '7 點：短針指 7，長針指 12！' }),
     () => ({ q: '中午 <b>12 點</b>吃午餐，哪一個時鐘是 12 點？', sp: '中午12點吃午餐，哪一個時鐘是12點？', opts: [clockOpt(12, 0, true), clockOpt(12, 30, false), clockOpt(6, 0, false)], hint: '12 點：長針和短針都指著 12！' }),

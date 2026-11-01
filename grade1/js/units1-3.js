@@ -85,7 +85,7 @@ function u1C(st) {
     $('.btn', st).onclick = () => {
       const c = $$('.item', bas).length;
       if (c === n) { api.ok(n === 0 ? '0 個就是一個都不拿！' : `答對了！${n} 個！`); r++; later(round, 1100); }
-      else api.bad(c > n ? `太多了，籃子裡有 ${c} 個喔！` : `還不夠，籃子裡只有 ${c} 個喔！`);
+      else api.bad(c > n ? `太多了，籃子裡有 ${c} 個喔！` : `還不夠，籃子裡只有 ${c} 個喔！`, `籃子裡放了 ${c} 個`, `${n} 個`);
     };
   }
   round();
@@ -142,7 +142,7 @@ function u2A(st) {
       if (k === ans) {
         pens[k].classList.add('pick'); phase = 'done';
         api.ok(`對！${PENCIL_N[cols[k]]}色鉛筆比較${askLong ? '長' : '短'}！`); r++; later(round, 1300);
-      } else api.bad('看看哪一枝的尾巴跑得比較遠？');
+      } else api.bad('看看哪一枝的尾巴跑得比較遠？', `${PENCIL_N[cols[k]]}色鉛筆`, `${PENCIL_N[cols[ans]]}色鉛筆`);
     }
   }
   round();
@@ -195,7 +195,7 @@ function u2C(st) {
         if (i === order[step]) {
           step++; b.dataset.done = 1; b.insertAdjacentHTML('beforeend', `<span class="tag">${step}</span>`); sfx('tap'); speak('第' + step);
           if (step === n) { api.ok('排好了，好厲害！'); r++; later(round, 1300); }
-        } else api.bad('還有更長的喔！左邊都對齊了，看右邊的尾巴。');
+        } else api.bad('還有更長的喔！左邊都對齊了，看右邊的尾巴。', `第 ${step + 1} 條點了${PENCIL_N[cols[i]]}色緞帶`, `第 ${step + 1} 條是${PENCIL_N[cols[order[step]]]}色緞帶`);
       };
       box.appendChild(b);
     });
@@ -227,7 +227,7 @@ function u3A(st) {
     $('.btn', st).onclick = () => {
       if (asked) return;
       const c = $$('.item', L).length;
-      if (c !== k) { api.bad(`左邊現在有 ${c} 個，要剩下 ${k} 個喔！`); return; }
+      if (c !== k) { api.bad(`左邊現在有 ${c} 個，要剩下 ${k} 個喔！`, `左邊留了 ${c} 個`, `左邊留 ${k} 個`); return; }
       asked = true; $('.btn', st).hidden = true;
       api.say(`${n} 可以分成 ${k} 和幾？`);
       $('.qvis', st).innerHTML = `<span class="eq">${n} 可以分成 ${k} 和 <span class="box">?</span></span>`;

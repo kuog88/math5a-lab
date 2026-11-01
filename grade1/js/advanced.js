@@ -7,6 +7,7 @@ function xquiz(st, rounds) {
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
+    setQ(r);
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${r.eq ? 'eqwrap' : r.pad ? 'numpad' : 'opts'}"></div><div class="xpl" hidden></div>`;
     api.say(r.q, r.eq ? eqSay(r) : r.sp);
     const done = () => {
@@ -56,7 +57,7 @@ function dieSVG(n, size = 90) {
 function clockAng(ha, ma) {
   return clockSVG(12, 0).replace(/(class="hand-h" transform="rotate\()0/, `$1${ha}`).replace(/(class="hand-m" transform="rotate\()0/, `$1${ma}`);
 }
-const clk = (h, m, ok) => ({ h: clockSVG(h, m), ok });
+const clk = (h, m, ok) => ({ h: clockSVG(h, m), ok, t: timeText(h, m) });
 
 /* 方格上的鉛筆：from、len 用格子算 */
 function gridPencils(cols, list) {
@@ -180,7 +181,7 @@ const X3 = [
   () => ({
     q: '哪一個骰子和左邊的骰子<b>合起來是 9 個點</b>？', sp: '哪一個骰子和左邊的骰子合起來是9個點？',
     vis: `${dieSVG(4, 100)}<span class="eq">和</span><span class="box" style="font-size:40px">?</span>`, keep: true,
-    opts: [{ h: dieSVG(5), ok: true }, { h: dieSVG(6), ok: false }, { h: dieSVG(4), ok: false }],
+    opts: [{ h: dieSVG(5), ok: true, t: '5 點的骰子' }, { h: dieSVG(6), ok: false, t: '6 點的骰子' }, { h: dieSVG(4), ok: false, t: '4 點的骰子' }],
     hint: '左邊有 4 個點，9 可以分成 4 和幾？',
     ex: '左邊骰子有 4 個點。9 可以分成 4 和 5，所以要找 5 個點的骰子。', trap: '6 個點和 4 個點合起來是 10，不是 9；先數清楚左邊有幾個點。'
   }),
@@ -297,7 +298,7 @@ const X6 = [
 const X7 = [
   () => ({
     q: '哪一個<b>會滾</b>，<b>也可以</b>穩穩的疊起來？', sp: '哪一個會滾，也可以穩穩的疊起來？',
-    opts: [{ h: solidSVG('cyl', XC.mint), ok: true }, { h: solidSVG('ball', XC.pink), ok: false }, { h: solidSVG('cube', XC.blue), ok: false }],
+    opts: [{ h: solidSVG('cyl', XC.mint), ok: true, t: '圓柱' }, { h: solidSVG('ball', XC.pink), ok: false, t: '球' }, { h: solidSVG('cube', XC.blue), ok: false, t: '正方體' }],
     hint: '要有彎彎的面，也要有平平的面！',
     ex: '圓柱有彎彎的面可以滾，上下有平平的面可以疊。球只能滾，正方體只能疊。', trap: '兩個條件都要做到。球會滾，但不能穩穩的疊。'
   }),
@@ -320,7 +321,7 @@ const X7 = [
     const fan = `<svg viewBox="0 0 100 100"><path d="M50,14 L86,82 Q50,98 14,82 Z" fill="${XC.yellow}" stroke="${XC.ink}" stroke-width="3" stroke-linejoin="round"/></svg>`;
     return {
       q: '哪一個<b>不是</b>三角形？', sp: '哪一個不是三角形？',
-      opts: [{ h: shapeSVG('tri', XC.pink, { v: 0, rot: 180 }), ok: false }, { h: shapeSVG('tri', XC.blue, { v: 1 }), ok: false }, { h: fan, ok: true }],
+      opts: [{ h: shapeSVG('tri', XC.pink, { v: 0, rot: 180 }), ok: false, t: '倒過來的三角形' }, { h: shapeSVG('tri', XC.blue, { v: 1 }), ok: false, t: '斜斜的三角形' }, { h: fan, ok: true, t: '有一條彎彎的邊的形狀' }],
       hint: '三角形的 3 條邊都是直直的！',
       ex: '倒過來的和斜斜的，都有 3 條直直的邊，是三角形。黃色那個下面的邊是彎彎的，不是三角形。', trap: '三角形倒過來、轉個方向，還是三角形；有彎彎的邊就不是三角形。'
     };
@@ -333,7 +334,7 @@ const X7 = [
     return {
       q: '形狀照規律一直排下去，<b>第 9 個</b>是什麼形狀？', sp: '形狀照規律一直排下去，第9個是什麼形狀？',
       vis: `<div>${seq.map(mini).join('')}${q3}${q3}${q3}</div>`, keep: true,
-      opts: [{ h: mini('circle'), ok: false }, { h: mini('tri'), ok: true }], hint: '找出一直重複的是哪幾個，再接著排到第 9 個！',
+      opts: [{ h: mini('circle'), ok: false, t: '圓形' }, { h: mini('tri'), ok: true, t: '三角形' }], hint: '找出一直重複的是哪幾個，再接著排到第 9 個！',
       ex: '規律是「圓、圓、三角形」一直重複。第 7 個是圓、第 8 個是圓、第 9 個是三角形。', trap: '問的是第 9 個，不是下一個（第 7 個）。要一個一個接著排到第 9 個。'
     };
   },
@@ -386,7 +387,7 @@ const X8 = [
 const X9 = [
   () => ({
     q: '哪一個時鐘是 <b>3 點</b>？', sp: '哪一個時鐘是3點？',
-    opts: [clk(3, 0, true), { h: clockAng(0, 90), ok: false }, clk(3, 30, false)], hint: '短針指幾就是幾點，整點的時候長針指著 12！',
+    opts: [clk(3, 0, true), { h: clockAng(0, 90), ok: false, t: '長針指 3、短針指 12 的時鐘' }, clk(3, 30, false)], hint: '短針指幾就是幾點，整點的時候長針指著 12！',
     ex: '3 點的時候，粉紅短針指著 3，黑色長針指著 12。', trap: '有一個時鐘是長針指 3、短針指 12，長短針看反了！還有一個長針指 6，是 3 點半。'
   }),
   () => ({
