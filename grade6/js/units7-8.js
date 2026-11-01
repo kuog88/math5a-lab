@@ -18,7 +18,7 @@ function u7A(st) {
     st.innerHTML = `${dots(r, rounds.length)}<div class="lanes">${list.map(([e, n, t, v], i) => `<button type="button" class="lane" data-i="${i}"><span class="track2"><span class="runner">${e}</span><span class="flag">🏁</span></span><span class="linfo"><b>${n}</b>　${t}</span></button>`).join('')}</div>`;
     $$('.lane', st).forEach(b => b.onclick = () => {
       const [e, n, t, v] = list[+b.dataset.i];
-      if (v !== best) { b.classList.add('wrong'); return api.bad(R.tip); }
+      if (v !== best) { b.classList.add('wrong'); return api.bad(R.tip, `${n}（${t}）`, list.filter(x => x[3] === best).map(x => `${x[1]}（${x[2]}）`).join('')); }
       $$('.lane', st).forEach(x => x.disabled = true); b.classList.add('right'); api.ok();
       $$('.runner', st).forEach((x, i) => { x.style.transitionDuration = '2.2s'; x.style.left = `calc(${list[i][3] / best * 100}% - ${list[i][3] / best * 44}px)`; });
       $$('.linfo', st).forEach((x, i) => x.insertAdjacentHTML('beforeend', `<em>＝秒速 ${fmt(list[i][3])} 公尺</em>`));

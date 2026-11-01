@@ -25,13 +25,15 @@ function u1A(st) {
         <div class="center"><button type="button" class="btn mint" id="stopB">除完了！</button></div>`;
       $$('.pbtn', st).forEach(b => b.onclick = () => {
         const p = +b.dataset.p;
-        if (now.some(n => n % p)) return api.bad(two ? `${now.join(' 和 ')} 不是都能被 ${p} 整除喔！` : `${now[0]} 不能被 ${p} 整除喔！`);
-        if (!two && isPrime(now[0])) return api.bad(`${now[0]} 已經是質數了，可以停了！`);
+        const said = `用 ${p} 去除 ${now.join(' 和 ')}`, can = [2, 3, 5, 7].filter(x => now.every(n => n % x === 0));
+        const want = (two ? gcd(now[0], now[1]) === 1 : isPrime(now[0])) ? '已經除完了，按「除完了」' : `用 ${can.join(' 或 ')} 去除`;
+        if (now.some(n => n % p)) return api.bad(two ? `${now.join(' 和 ')} 不是都能被 ${p} 整除喔！` : `${now[0]} 不能被 ${p} 整除喔！`, said, want);
+        if (!two && isPrime(now[0])) return api.bad(`${now[0]} 已經是質數了，可以停了！`, said, want);
         sfx('pop'); rows.push([p, now.slice()]); now = now.map(n => n / p); draw();
       });
       $('#stopB', st).onclick = () => {
         const doneOK = two ? gcd(now[0], now[1]) === 1 : isPrime(now[0]);
-        if (!doneOK) return api.bad(two ? `${now.join(' 和 ')} 還有公因數，繼續除！` : `${now[0]} 還不是質數，還可以再除！`);
+        if (!doneOK) return api.bad(two ? `${now.join(' 和 ')} 還有公因數，繼續除！` : `${now[0]} 還不是質數，還可以再除！`, `${now.join(' 和 ')} 就按「除完了」`, `還要用 ${[2, 3, 5, 7].filter(x => now.every(n => n % x === 0)).join(' 或 ')} 去除`);
         const ps = rows.map(x => x[0]);
         let msg, sp;
         if (two) {
@@ -115,13 +117,13 @@ function u2A(st) {
       <div class="center"><button type="button" class="btn" id="pourB">🥤 倒一杯</button> <button type="button" class="btn blue" id="stopB">倒不下了</button></div>`;
     const color = ['#ff9a4d', '#5bb4ff', '#3fcf9c', '#a98bff', '#ff7eb3', '#ffc93c'];
     $('#pourB', st).onclick = () => {
-      if (left < m) return api.bad(`剩下 ${fr(left, D)} 公升，不夠倒滿一杯了！`);
+      if (left < m) return api.bad(`剩下 ${fr(left, D)} 公升，不夠倒滿一杯了！`, `剩 ${left ? fr(left, D) : 0} 公升還按「倒一杯」`, '按「倒不下了」');
       for (let k = 0; k < m; k++) { const i = T - left + k, s = $(`.bar i[data-i="${i}"]`, st); s.className = 'p'; s.style.background = color[cups % color.length]; }
       left -= m; cups++; sfx('pop');
       $('#cups', st).insertAdjacentHTML('beforeend', `<span class="cup" style="--c:${color[(cups - 1) % color.length]}">🥤<b>${cups}</b></span>`);
     };
     $('#stopB', st).onclick = () => {
-      if (left >= m) return api.bad('還可以再倒一杯喔！');
+      if (left >= m) return api.bad('還可以再倒一杯喔！', `剩 ${fr(left, D)} 公升就按「倒不下了」`, `還可以再倒（每杯 ${each} 公升）`);
       $$('button', st).forEach(b => b.disabled = true); api.ok();
       const ans = rem ? `${q} 杯，剩下 ${fr(rem, D)} 公升` : `剛好 ${q} 杯`;
       const ansSp = rem ? `${q} 杯，剩下 ${frSp(rem, D)} 公升` : `剛好 ${q} 杯`;

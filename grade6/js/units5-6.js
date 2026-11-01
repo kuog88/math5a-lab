@@ -24,7 +24,7 @@ function u5A(st) {
           $$('button', st).forEach(x => x.disabled = true);
           api.ok(`${j} : ${w} = ${a} : ${b}，比值都是 ${fr(...red(a, b))}`);
           speak(`${j} 比 ${w} 和 ${a} 比 ${b} 相等，前項和後項都乘以 ${k}`); r++; later(round, 2600);
-        } else api.bad(`${j} : ${w} 和 ${a} : ${b} 不相等。${fix === 'w' ? `果汁 ${a} 杯變成 ${j} 杯是乘以幾？水也要乘一樣多！` : `水 ${b} 杯變成 ${w} 杯是乘以幾？果汁也要乘一樣多！`}`);
+        } else api.bad(`${j} : ${w} 和 ${a} : ${b} 不相等。${fix === 'w' ? `果汁 ${a} 杯變成 ${j} 杯是乘以幾？水也要乘一樣多！` : `水 ${b} 杯變成 ${w} 杯是乘以幾？果汁也要乘一樣多！`}`, `果汁 : 水 = ${j} : ${w}`, `果汁 : 水 = ${a * k} : ${b * k}`);
       };
     };
     draw();
@@ -95,7 +95,7 @@ function u6A(st) {
     $('#pB', st).onclick = () => { cur = Math.min(360, cur + 15); sfx('tap'); draw(); };
     $('#okB', st).onclick = () => {
       if (cur === deg) { $$('button', st).forEach(b => b.disabled = true); const [p, q] = red(deg, 360); api.ok(`${name}：圓心角 ${deg}° 是 ${fr(p, q)} 個圓`); speak(`圓心角 ${deg} 度，是 ${q}分之${p} 個圓`); r++; later(round, 2400); }
-      else api.bad(`現在是 ${cur}°。一整圈是 360°，${name} 要幾度？`);
+      else api.bad(`現在是 ${cur}°。一整圈是 360°，${name} 要幾度？`, `${cur}°`, `${deg}°`);
     };
     draw();
   }

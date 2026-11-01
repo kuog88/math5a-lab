@@ -17,12 +17,12 @@ function u3A(st) {
         <div class="center"><button type="button" class="btn mint" id="go">除數是整數了，開始算！</button></div>
         <div class="kwrap"></div>`;
       $('#both', st).onclick = () => {
-        if (Number.isInteger(rnd(y, 6))) return api.bad('除數已經是整數了，不用再移了！');
+        if (Number.isInteger(rnd(y, 6))) return api.bad('除數已經是整數了，不用再移了！', `除數 ${fmt(y)} 還按 ×10`, '按「開始算」');
         x = rnd(x * 10, 6); y = rnd(y * 10, 6); k++; sfx('pop'); draw();
       };
-      $('#only', st).onclick = () => api.bad('只移除數，商會變喔！被除數也要一起 ×10。');
+      $('#only', st).onclick = () => api.bad('只移除數，商會變喔！被除數也要一起 ×10。', '只有除數 ×10', '被除數和除數都 ×10');
       $('#go', st).onclick = () => {
-        if (!Number.isInteger(rnd(y, 6))) return api.bad(`除數 ${fmt(y)} 還不是整數喔！`);
+        if (!Number.isInteger(rnd(y, 6))) return api.bad(`除數 ${fmt(y)} 還不是整數喔！`, `除數 ${fmt(y)} 就開始算`, '被除數和除數都 ×10，直到除數是整數');
         $$('.btn', st).forEach(b => b.disabled = true);
         api.say(`${fmt(a)} ÷ ${fmt(b)} 和 ${fmt(x)} ÷ ${fmt(y)} 的商一樣。商是多少？`);
         keypad($('.kwrap', st), q, () => { toast(`${fmt(a)} ÷ ${fmt(b)} = ${fmt(q)}`); speak(`${fmt(a)} ÷ ${fmt(b)} = ${fmt(q)}`); r++; later(round, 2200); }, '用直式慢慢除，小數點要對齊商！', '', ['.']);
