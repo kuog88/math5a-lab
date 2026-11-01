@@ -51,9 +51,9 @@ function u3C(st) {
     () => { const [a, b, q] = pick([[8.64, 0.24, 36], [5.25, 0.15, 35], [9.36, 0.18, 52], [4.68, 0.36, 13]]); return { q: `${fmt(a)} ÷ ${fmt(b)} = ？`, ans: q, keys: K, hint: '兩個數的小數點都往右移 2 位再算！', after: `${fmt(a * 100)} ÷ ${fmt(b * 100)} = ${q}` }; },
     () => { const [a, b, q] = pick([[18, 0.4, 45], [27, 0.6, 45], [21, 0.35, 60], [12, 0.8, 15]]); return { q: `${a} ÷ ${fmt(b)} = ？`, ans: q, keys: K, hint: '被除數是整數也要跟著 ×10、×100 喔！', after: `${a} ÷ ${fmt(b)} = ${q}` }; },
     () => { const [a, b, q] = pick([[3.36, 1.2, 2.8], [6.25, 2.5, 2.5], [4.32, 0.9, 4.8], [7.56, 1.8, 4.2]]); return { q: `${fmt(a)} ÷ ${fmt(b)} = ？`, ans: q, keys: K, hint: '除數變成整數後，商的小數點要對齊被除數的小數點。', after: `${fmt(a)} ÷ ${fmt(b)} = ${fmt(q)}` }; },
-    () => { const [a, b, q] = pick([[3.6, 0.45, 8], [4.8, 0.32, 15], [5.4, 0.36, 15], [7.5, 0.25, 30]]); return { q: `一條 ${fmt(a)} 公尺的繩子，每 ${fmt(b)} 公尺剪一段，可以剪成幾段？`, vis: '<span style="font-size:56px">🪢✂️</span>', ans: q, unit: '段', keys: K, hint: '繩子長 ÷ 每段長', after: `${fmt(a)} ÷ ${fmt(b)} = ${q}（段）` }; },
-    () => { const [a, b] = pick([[12.5, 0.6], [9.2, 0.7], [15.4, 0.8], [10.3, 0.4]]); const q = Math.floor(a / b); return { q: `有 ${fmt(a)} 公升果汁，每瓶裝 ${fmt(b)} 公升，<b>最多可以裝滿幾瓶</b>？`, vis: '<span style="font-size:56px">🧃🍶</span>', ans: q, unit: '瓶', keys: K, hint: '商只要算到整數，剩下的裝不滿一瓶！', after: `${fmt(a)} ÷ ${fmt(b)} = ${q} … ${fmt(rnd(a - q * b, 2))}，最多裝滿 ${q} 瓶` }; },
-    () => { const [a, b] = pick([[5, 3], [7, 6], [2, 3], [11, 7]]); const q = Math.round(a / b * 10) / 10; return { q: `${a} ÷ ${b} 的商用<b>四捨五入法</b>取到小數第一位是多少？`, ans: q, keys: K, hint: '算到小數第二位，再看要不要進位！', after: `${a} ÷ ${b} = ${fmt(Math.floor(a / b * 100) / 100)}… ≈ ${fmt(q)}` }; }
+    () => { const [a, b, q] = pick([[3.6, 0.45, 8], [4.8, 0.32, 15], [5.4, 0.36, 15], [7.5, 0.25, 30]]); return { q: `一條 ${fmt(a)} 公尺的繩子，每 ${fmt(b)} 公尺剪一段，可以剪成幾段？`, vis: '<span style="font-size:56px">🪢✂️</span>', eq: `${fmt(a)} ÷ ${fmt(b)}`, unit: '段', hint: '繩子長 ÷ 每段長', after: `${fmt(a)} ÷ ${fmt(b)} = ${q}（段）` }; },
+    () => { const [a, b] = pick([[12.5, 0.6], [9.2, 0.7], [15.4, 0.8], [10.3, 0.4]]); const q = Math.floor(a / b); return { q: `有 ${fmt(a)} 公升果汁，每瓶裝 ${fmt(b)} 公升，<b>最多可以裝滿幾瓶</b>？`, vis: '<span style="font-size:56px">🧃🍶</span>', eq: `${fmt(a)} ÷ ${fmt(b)}`, rem: fmt(b), unit: '瓶', hint: '果汁 ÷ 每瓶裝的量，商只要算到整數，剩下的裝不滿一瓶！', after: `${fmt(a)} ÷ ${fmt(b)} = ${q} … ${fmt(rnd(a - q * b, 2))}，最多裝滿 ${q} 瓶` }; },
+    () => { const [a, b] = pick([[5, 3], [7, 6], [2, 3], [11, 7]]); const q = Math.round(a / b * 10) / 10; return { q: `${a} ÷ ${b} 的商用<b>四捨五入法</b>取到小數第一位是多少？`, eq: `${a} ÷ ${b}`, eqRound: true, roundQ: '電腦算出商了，再用<b>四捨五入法</b>取到小數第一位：', ans: q, keys: K, hint: '看小數第二位，再決定要不要進位！', after: `${a} ÷ ${b} = ${fmt(Math.floor(a / b * 100) / 100)}… ≈ ${fmt(q)}` }; }
   ]);
 }
 
@@ -152,12 +152,12 @@ function u4B(st) {
 function u4C(st) {
   const K = ['.'];
   quiz(st, [
-    () => { const d = pick([6, 8, 12, 15, 20]); return { q: `直徑 ${d} 公分的圓，<b>圓周長</b>是多少公分？（圓周率用 3.14）`, vis: circleSVG(d / 2, `${d} 公分`, 'd'), ans: rnd(d * 3.14), unit: '公分', keys: K, hint: '圓周長 = 直徑 × 3.14', after: `${d} × 3.14 = ${fmt(rnd(d * 3.14))}` }; },
-    () => { const r = pick([3, 4, 5, 7, 9]); return { q: `半徑 ${r} 公分的圓，<b>圓周長</b>是多少公分？`, vis: circleSVG(r, `${r} 公分`), ans: rnd(r * 2 * 3.14), unit: '公分', keys: K, hint: '圓周長 = 半徑 × 2 × 3.14', after: `${r} × 2 × 3.14 = ${fmt(rnd(r * 2 * 3.14))}` }; },
-    () => { const r = pick([2, 3, 4, 5, 6, 10]); return { q: `半徑 ${r} 公分的圓，<b>圓面積</b>是多少平方公分？`, vis: circleSVG(r, `${r} 公分`), ans: rnd(r * r * 3.14), unit: '平方公分', keys: K, hint: '圓面積 = 半徑 × 半徑 × 3.14', after: `${r} × ${r} × 3.14 = ${fmt(rnd(r * r * 3.14))}` }; },
-    () => { const d = pick([5, 10, 20, 30]); return { q: `一個圓的圓周長是 ${fmt(rnd(d * 3.14))} 公分，它的<b>直徑</b>是幾公分？`, ans: d, unit: '公分', keys: K, hint: '直徑 = 圓周長 ÷ 3.14', after: `${fmt(rnd(d * 3.14))} ÷ 3.14 = ${d}` }; },
-    () => { const r = pick([4, 5, 6, 10]); const p = rnd(r * 3.14 + 2 * r); return { q: `半徑 ${r} 公分的<b>半圓形</b>，周長是多少公分？`, vis: halfSVG(`${r} 公分`), ans: p, unit: '公分', keys: K, hint: '半圓周長 = 圓周長 ÷ 2 + 直徑', after: `${r * 2} × 3.14 ÷ 2 + ${r * 2} = ${fmt(p)}` }; },
-    () => { const d = pick([60, 50, 40]); const L = rnd(d * 3.14 * 10 / 100); return { q: `腳踏車輪子直徑 ${d} 公分，滾了 10 圈，前進了幾公尺？`, vis: '<span style="font-size:56px">🚲</span>', ans: L, unit: '公尺', keys: K, hint: '先算一圈多長，再乘 10 圈，最後換成公尺（÷100）！', after: `${d} × 3.14 × 10 = ${fmt(rnd(d * 31.4))} 公分 = ${fmt(L)} 公尺` }; }
+    () => { const d = pick([6, 8, 12, 15, 20]); return { q: `直徑 ${d} 公分的圓，<b>圓周長</b>是多少公分？（圓周率用 3.14）`, vis: circleSVG(d / 2, `${d} 公分`, 'd'), eq: `${d} × 3.14`, unit: '公分', hint: '圓周長 = 直徑 × 3.14', after: `${d} × 3.14 = ${fmt(rnd(d * 3.14))}` }; },
+    () => { const r = pick([3, 4, 5, 7, 9]); return { q: `半徑 ${r} 公分的圓，<b>圓周長</b>是多少公分？`, vis: circleSVG(r, `${r} 公分`), eq: `${r} × 2 × 3.14`, alt: [`(${r} + ${r}) × 3.14`, `${r * 2} × 3.14`], extra: [3.14, 2], unit: '公分', hint: '圓周長 = 半徑 × 2 × 3.14', after: `${r} × 2 × 3.14 = ${fmt(rnd(r * 2 * 3.14))}` }; },
+    () => { const r = pick([2, 3, 4, 5, 6, 10]); return { q: `半徑 ${r} 公分的圓，<b>圓面積</b>是多少平方公分？`, vis: circleSVG(r, `${r} 公分`), eq: `${r} × ${r} × 3.14`, extra: [3.14], unit: '平方公分', hint: '圓面積 = 半徑 × 半徑 × 3.14', after: `${r} × ${r} × 3.14 = ${fmt(rnd(r * r * 3.14))}` }; },
+    () => { const d = pick([5, 10, 20, 30]); return { q: `一個圓的圓周長是 ${fmt(rnd(d * 3.14))} 公分，它的<b>直徑</b>是幾公分？`, eq: `${fmt(rnd(d * 3.14))} ÷ 3.14`, extra: [3.14], unit: '公分', hint: '直徑 = 圓周長 ÷ 3.14', after: `${fmt(rnd(d * 3.14))} ÷ 3.14 = ${d}` }; },
+    () => { const r = pick([4, 5, 6, 10]); const p = rnd(r * 3.14 + 2 * r); return { q: `半徑 ${r} 公分的<b>半圓形</b>，周長是多少公分？`, vis: halfSVG(`${r} 公分`), eq: `${r} × 2 × 3.14 ÷ 2 + ${r} × 2`, alt: [`${r * 2} × 3.14 ÷ 2 + ${r * 2}`, `${r} × 3.14 + ${r} × 2`, `${r} × 3.14 + ${r * 2}`], extra: [3.14, 2], unit: '公分', hint: '半圓周長 = 圓周長 ÷ 2 + 直徑', after: `${r * 2} × 3.14 ÷ 2 + ${r * 2} = ${fmt(p)}` }; },
+    () => { const d = pick([60, 50, 40]); const L = rnd(d * 3.14 * 10 / 100); return { q: `腳踏車輪子直徑 ${d} 公分，滾了 10 圈，前進了幾公尺？`, vis: '<span style="font-size:56px">🚲</span>', eq: `${d} × 3.14 × 10 ÷ 100`, extra: [3.14, 100], unit: '公尺', hint: '先算一圈多長，再乘 10 圈，最後換成公尺（÷100）！', after: `${d} × 3.14 × 10 = ${fmt(rnd(d * 31.4))} 公分 = ${fmt(L)} 公尺` }; }
   ]);
 }
 
