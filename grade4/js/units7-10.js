@@ -109,15 +109,19 @@ function u8A(st) {
     const ans = evalTokens(t);
     st.innerHTML = `${dots(r, exprs.length)}<div class="expr" id="ex"></div><div class="llog" id="lg"></div>`;
     const lg = $('#lg', st);
+    let busy = false; // 點對之後鎖住，等下一步畫好才解鎖（避免連點一次算掉兩步）
     function step() {
       const i = firstOp(t);
       if (i < 0) { api.ok(`${exprText(exprs[r])} = ${ans}`); speak(`答案是 ${ans}`); r++; return later(round, 2200); }
       $('#ex', st).innerHTML = t.map((x, k) => '+−×÷'.includes(x) && typeof x === 'string' && x.length === 1 ? `<button type="button" class="opk" data-k="${k}">${x}</button>` : `<span>${x}</span>`).join('');
       api.say('點一下<b>要先算</b>的符號！', '點一下要先算的符號');
       curQ = { q: `${t.join(' ')}　要先算哪一步？`, c: `先算 ${t[i - 1]} ${t[i]} ${t[i + 1]}` };
+      busy = false;
       $$('.opk', st).forEach(b => b.onclick = () => {
+        if (busy) return;
         const k = +b.dataset.k;
         if (k !== i) { b.classList.add('wrong'); return api.bad(ruleHint(t), `先算 ${t[k - 1]} ${t[k]} ${t[k + 1]}`); }
+        busy = true; $$('.opk', st).forEach(x => x.disabled = true);
         const v = OPS[t[k]](t[k - 1], t[k + 1]);
         lg.insertAdjacentHTML('beforeend', `<div>${t[k - 1]} ${t[k]} ${t[k + 1]} = ${v}</div>`);
         sfx('ok'); t.splice(k - 1, 3, v);
