@@ -193,7 +193,7 @@ function u6B(st) {
     () => { const d = rand(4, 7); const ok = rand(1, d - 1); return { q: `一個數除以 ${d}，餘數<b>可能</b>是多少？`, sp: `一個數除以 ${d}，餘數可能是多少？`, opts: [{ h: N(ok), ok: true }, { h: N(d), ok: false }, { h: N(d + 2), ok: false }], hint: `餘數一定要比除數 ${d} 小，不然還可以再分！` }; },
     () => { const d = rand(3, 9), q = rand(3, 9), m = rand(1, d - 1), n = d * q + m; return { q: `${n} ÷ ${d} 的商是多少？`, sp: `${n} 除以 ${d} 的商是多少？`, pad: true, opts: numpadOpts(q, 0, 9), hint: `${d} 的幾倍最接近 ${n} 又不超過？`, after: `${n} ÷ ${d} = ${q} … ${m}` }; },
     () => { const n = rand(11, 49), even = n % 2 === 0; return { q: `${n} 是奇數還是偶數？`, vis: `<span class="eq">${n}</span>`, keep: true, opts: [{ h: '奇數', ok: !even }, { h: '偶數', ok: even }], hint: '看個位：0、2、4、6、8 是偶數；1、3、5、7、9 是奇數。', after: `${n} ÷ 2 ${even ? '沒有餘數，是偶數' : '餘 1，是奇數'}` }; },
-    () => { const ns = shuffle([rand(5, 49) * 2, rand(5, 49) * 2 + 1, rand(5, 49) * 2 + 1]); const ev = ns.find(v => v % 2 === 0); return { q: '哪一個數是<b>偶數</b>？', sp: '哪一個數是偶數？', opts: ns.map(v => ({ h: N(v), ok: v === ev })), hint: '兩個兩個分剛好分完的是偶數，個位是 0、2、4、6、8。' }; },
+    () => { const o1 = rand(5, 49) * 2 + 1; let o2 = rand(5, 49) * 2 + 1; if (o2 === o1) o2 = o1 > 51 ? o1 - 2 : o1 + 2; const ns = shuffle([rand(5, 49) * 2, o1, o2]); const ev = ns.find(v => v % 2 === 0); return { q: '哪一個數是<b>偶數</b>？', sp: '哪一個數是偶數？', opts: ns.map(v => ({ h: N(v), ok: v === ev })), hint: '兩個兩個分剛好分完的是偶數，個位是 0、2、4、6、8。' }; },
     () => pick([
       () => { const d = rand(2, 9); return { q: `0 ÷ ${d} = ？`, pad: true, opts: numpadOpts(0, 0, 9), hint: `0 個平分給 ${d} 人，每人分到 0 個。`, after: `0 ÷ ${d} = 0` }; },
       () => { const n = rand(2, 9); return { q: `${n} ÷ 1 = ？`, pad: true, opts: numpadOpts(n, 0, 9), hint: `${n} 個全部給 1 個人。`, after: `${n} ÷ 1 = ${n}` }; },
