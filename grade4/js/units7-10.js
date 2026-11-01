@@ -66,8 +66,8 @@ function u7C(st) {
     },
     () => { const v = rand(101, 999); return { q: `${v} 是奇數還是偶數？`, keep: true, opts: [{ h: '奇數', ok: v % 2 === 1 }, { h: '偶數', ok: v % 2 === 0 }], hint: '看個位：0、2、4、6、8 是偶數！' }; },
     () => { const pat = shuffle(['🔴', '🔺', '🟦', '⭐']).slice(0, rand(3, 4)), n = rand(17, 35), ans = pat[(n - 1) % pat.length]; return { q: `照這個規律排下去，第 ${n} 個是什麼？`, vis: `<span class="eq sm">${Array.from({ length: pat.length * 2 }, (_, k) => pat[k % pat.length]).join(' ')} ……</span>`, keep: true, opts: pat.map(p => ({ h: p, ok: p === ans })), hint: `每 ${pat.length} 個一組，${n} ÷ ${pat.length} 餘多少？`, after: `${n} ÷ ${pat.length} = ${Math.floor(n / pat.length)} …… ${n % pat.length}` }; },
-    () => { const n = rand(6, 12); return { q: `用火柴棒排正方形：1 個用 4 根，2 個用 7 根，3 個用 10 根……排 ${n} 個要幾根？`, vis: '<span style="font-size:44px">🟧🟧🟧</span>', ans: 3 * n + 1, unit: '根', hint: '每多 1 個正方形，就多 3 根！', after: `4 + 3 × ${n - 1} = ${3 * n + 1}（根）` }; },
-    () => { const n = rand(5, 9); return { q: `1、3、5、7…… 這樣連續的奇數，前 ${n} 個加起來是多少？`, vis: '<span class="eq sm">1 = 1，1 + 3 = 4，1 + 3 + 5 = 9</span>', ans: n * n, hint: '1、4、9……是 1×1、2×2、3×3！', after: `${n} × ${n} = ${n * n}` }; }
+    () => { const n = rand(6, 12); return { q: `用火柴棒排正方形：1 個用 4 根，2 個用 7 根，3 個用 10 根……排 ${n} 個要幾根？`, vis: '<span style="font-size:44px">🟧🟧🟧</span>', ans: 3 * n + 1, eq: `4 + 3 × (${n} − 1)`, alt: [`4 + 3 × ${n - 1}`, `3 × ${n} + 1`, `1 + 3 × ${n}`], known: [n - 1], unit: '根', hint: '每多 1 個正方形，就多 3 根！', after: `4 + 3 × ${n - 1} = ${3 * n + 1}（根）` }; },
+    () => { const n = rand(5, 9); return { q: `1、3、5、7…… 這樣連續的奇數，前 ${n} 個加起來是多少？`, vis: '<span class="eq sm">1 = 1，1 + 3 = 4，1 + 3 + 5 = 9</span>', ans: n * n, eq: `${n} × ${n}`, alt: [Array.from({ length: n }, (_, k) => 2 * k + 1).join(' + ')], hint: '1、4、9……是 1×1、2×2、3×3！', after: `${n} × ${n} = ${n * n}` }; }
   ];
   quiz(st, rounds);
 }
@@ -190,7 +190,7 @@ function u9C(st) {
   const rounds = [
     () => { const a = dec2(rand(105, 480) / 100), b = dec2(rand(12, 390) / 100); return { q: `${f(a)} + ${f(b)} = ？`, vis: `<span class="eq sm">${f(a)} + ${f(b)}</span>`, ans: dec2(a + b), hint: '小數點對齊，再從百分位加起！', after: `${f(a)} + ${f(b)} = ${f(dec2(a + b))}` }; },
     () => { const a = dec2(rand(400, 900) / 100), b = dec2(rand(105, 380) / 100); return { q: `${f(a)} − ${f(b)} = ？`, vis: `<span class="eq sm">${f(a)} − ${f(b)}</span>`, ans: dec2(a - b), hint: '小數點對齊，不夠減就向前一位借！', after: `${f(a)} − ${f(b)} = ${f(dec2(a - b))}` }; },
-    () => { const a = dec2(rand(12, 35) / 10), b = dec2(rand(15, 45) / 100); return { q: `一瓶果汁 ${f(a)} 公升，喝掉 ${f(b)} 公升，還剩幾公升？`, vis: '<span style="font-size:56px">🧃</span>', ans: dec2(a - b), unit: '公升', hint: `${f(a)} 可以想成 ${a.toFixed(2)}！`, after: `${a.toFixed(2)} − ${f(b)} = ${f(dec2(a - b))}（公升）` }; },
+    () => { const a = dec2(rand(12, 35) / 10), b = dec2(rand(15, 45) / 100); return { q: `一瓶果汁 ${f(a)} 公升，喝掉 ${f(b)} 公升，還剩幾公升？`, vis: '<span style="font-size:56px">🧃</span>', ans: dec2(a - b), eq: `${f(a)} − ${f(b)}`, unit: '公升', hint: `${f(a)} 可以想成 ${a.toFixed(2)}！`, after: `${a.toFixed(2)} − ${f(b)} = ${f(dec2(a - b))}（公升）` }; },
     () => { const k = rand(1, 9), lo = rand(0, 2); return { q: '箭頭指的地方是多少？', vis: `<div class="nlwrap">${numberLineSVG(lo, lo + 1, 10, [{ v: lo + k / 10, t: '?' }])}</div>`, opts: shuffle([lo + k / 10, lo + k / 100, lo + 1 + k / 10]).map(v => ({ h: N(f(dec2(v))), ok: Math.abs(v - (lo + k / 10)) < 1e-9 })), hint: '1 平分成 10 格，每格是 0.1！' }; },
     () => { const k = rand(1, 9), b = rand(1, 8) / 10; return { q: '箭頭指的地方是多少？', vis: `<div class="nlwrap">${numberLineSVG(0, 1, 10, [{ v: k / 10, t: '?' }], { label: v => (b + v / 10).toFixed(1) })}</div>`, opts: shuffle([b + k / 100, b + k / 10, b + 0.1 + k / 100]).map(v => ({ h: N(dec2(v).toFixed(2)), ok: Math.abs(v - (b + k / 100)) < 1e-9 })), hint: '0.1 再平分成 10 格，每格是 0.01！' }; }
   ];
@@ -246,10 +246,10 @@ function u10B(st) {
 function u10C(st) {
   const kmT = v => `${Math.floor(v / 1000)} 公里${v % 1000 ? ` ${v % 1000} 公尺` : ''}`;
   const rounds = [
-    () => { const a = rand(1, 3) * 1000 + rand(3, 9) * 100, b = rand(1, 2) * 1000 + rand(4, 9) * 100; return { q: `${kmT(a)} + ${kmT(b)} 是幾公尺？`, ans: a + b, unit: '公尺', hint: '公里加公里、公尺加公尺，滿 1000 公尺換 1 公里！', after: `= ${kmT(a + b)} = ${a + b} 公尺` }; },
-    () => { const a = rand(4, 8) * 1000 + rand(1, 4) * 100, b = rand(1, 3) * 1000 + rand(5, 9) * 100; return { q: `${kmT(a)} − ${kmT(b)} 是幾公尺？`, ans: a - b, unit: '公尺', hint: '公尺不夠減，向公里借 1 公里 = 1000 公尺！', after: `= ${kmT(a - b)} = ${a - b} 公尺` }; },
-    () => { const l = pick([200, 250, 400]), n = rand(3, 9); return { q: `操場一圈 ${l} 公尺，跑 ${n} 圈是幾公尺？`, vis: '<span style="font-size:56px">🏟️</span>', ans: l * n, unit: '公尺', hint: `${l} × ${n}`, after: `${l * n} 公尺 = ${l * n >= 1000 ? kmT(l * n) : l * n + ' 公尺'}` }; },
-    () => { const a = rand(2, 4) * 1000 + rand(1, 9) * 100, b = rand(1, 9) * 100 + 50; return { q: `從家到學校 ${b} 公尺，從學校到圖書館 ${kmT(a)}，從家經過學校到圖書館一共是幾公尺？`, vis: '<span style="font-size:48px">🏠➡️🏫➡️📚</span>', ans: a + b, unit: '公尺', hint: '先把公里換成公尺再加！', after: `${a} + ${b} = ${a + b}（公尺）` }; },
+    () => { const a = rand(1, 3) * 1000 + rand(3, 9) * 100, b = rand(1, 2) * 1000 + rand(4, 9) * 100; return { q: `${kmT(a)} + ${kmT(b)} 是幾公尺？`, ans: a + b, eq: `${a} + ${b}`, known: [1000, a, b, Math.floor(a / 1000) * 1000, Math.floor(b / 1000) * 1000], unit: '公尺', hint: '公里加公里、公尺加公尺，1 公里 = 1000 公尺！', after: `= ${kmT(a + b)} = ${a + b} 公尺` }; },
+    () => { const a = rand(4, 8) * 1000 + rand(1, 4) * 100, b = rand(1, 3) * 1000 + rand(5, 9) * 100; return { q: `${kmT(a)} − ${kmT(b)} 是幾公尺？`, ans: a - b, eq: `${a} − ${b}`, known: [1000, a, b, Math.floor(a / 1000) * 1000, Math.floor(b / 1000) * 1000], unit: '公尺', hint: '先把公里換成公尺，1 公里 = 1000 公尺！', after: `= ${kmT(a - b)} = ${a - b} 公尺` }; },
+    () => { const l = pick([200, 250, 400]), n = rand(3, 9); return { q: `操場一圈 ${l} 公尺，跑 ${n} 圈是幾公尺？`, vis: '<span style="font-size:56px">🏟️</span>', ans: l * n, eq: `${l} × ${n}`, unit: '公尺', hint: '每圈一樣長，跑好幾圈', after: `${l * n} 公尺 = ${l * n >= 1000 ? kmT(l * n) : l * n + ' 公尺'}` }; },
+    () => { const a = rand(2, 4) * 1000 + rand(1, 9) * 100, b = rand(1, 9) * 100 + 50; return { q: `從家到學校 ${b} 公尺，從學校到圖書館 ${kmT(a)}，從家經過學校到圖書館一共是幾公尺？`, vis: '<span style="font-size:48px">🏠➡️🏫➡️📚</span>', ans: a + b, eq: `${b} + ${a}`, known: [1000, a, Math.floor(a / 1000) * 1000], unit: '公尺', hint: '先把公里換成公尺再加，1 公里 = 1000 公尺！', after: `${a} + ${b} = ${a + b}（公尺）` }; },
     () => {
       const a = rand(2, 5) * 1000 + rand(1, 9) * 100 + pick([0, 50]), b = a + pick([-900, -90, 0, 90, 900]), s = b > a ? '＜' : b < a ? '＞' : '＝';
       return { q: `比一比：${kmT(a)} ○ ${b} 公尺`, vis: `<span class="eq sm">${kmT(a)} <span class="box">?</span> ${b} 公尺</span>`, keep: true, opts: ['＞', '＝', '＜'].map(x => ({ h: x, ok: x === s })), hint: '都換成公尺再比！', after: `${a} 公尺 ${s} ${b} 公尺` };

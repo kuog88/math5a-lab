@@ -54,7 +54,7 @@ function u4A(st) {
 /* ===== 4-B 除法想一想 ===== */
 function u4B(st) {
   const rounds = [
-    () => { const b = rand(12, 35), q = rand(12, 28), rm = rand(1, b - 1); return { q: `一個除法算式，除數 ${b}，商 ${q}，餘數 ${rm}，被除數是多少？`, vis: `<span class="eq sm"><span class="box">?</span> ÷ ${b} = ${q} …… ${rm}</span>`, ans: b * q + rm, hint: '驗算：除數 × 商 ＋ 餘數 ＝ 被除數', after: `${b} × ${q} + ${rm} = ${b * q + rm}` }; },
+    () => { const b = rand(12, 35), q = rand(12, 28), rm = rand(1, b - 1); return { q: `一個除法算式，除數 ${b}，商 ${q}，餘數 ${rm}，被除數是多少？`, vis: `<span class="eq sm"><span class="box">?</span> ÷ ${b} = ${q} …… ${rm}</span>`, ans: b * q + rm, eq: `${b} × ${q} + ${rm}`, hint: '驗算：除數 × 商 ＋ 餘數 ＝ 被除數', after: `${b} × ${q} + ${rm} = ${b * q + rm}` }; },
     () => { const b = rand(6, 15); return { q: `一個數除以 ${b}，餘數<b>可能</b>是多少？`, opts: shuffle([rand(1, b - 1), b, b + rand(1, 5)]).map(v => ({ h: N(v), ok: v < b })), hint: '餘數一定比除數小！' }; },
     () => { const b = rand(2, 9), q = rand(2, 9); return { q: `${b * q}0 ÷ ${b}0 = ？`, vis: `<span class="eq sm">${b * q} 個十 ÷ ${b} 個十</span>`, ans: q, hint: `${b * q}0 是 ${b * q} 個十，${b}0 是 ${b} 個十，想成 ${b * q} ÷ ${b}！`, after: `${b * q} ÷ ${b} = ${q}` }; },
     () => { const b = pick([21, 31, 41, 32, 42]), q = rand(3, 8), a = b * q + rand(0, 5); const t = Math.floor(b / 10) * 10; return { q: `估商：${a} ÷ ${b}，商大約是多少？`, opts: shuffle([q - 1, q, q + 1]).map(v => ({ h: N(v), ok: v === Math.floor(a / b) })), hint: `把 ${b} 看成 ${t}，${a} 裡面有幾個 ${t}？`, after: `${b} × ${Math.floor(a / b)} = ${b * Math.floor(a / b)}` }; },
@@ -66,11 +66,11 @@ function u4B(st) {
 /* ===== 4-C 除法應用挑戰 ===== */
 function u4C(st) {
   const rounds = [
-    () => { const b = rand(4, 8), q = rand(120, 480); return { q: `${b * q} 張色紙平分給 ${b} 個班，每班分到幾張？`, vis: '<span style="font-size:56px">📄</span>', ans: q, unit: '張', hint: `${b * q} ÷ ${b}`, after: `${b * q} ÷ ${b} = ${q}（張）` }; },
-    () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，<b>最多</b>可以裝滿幾袋？`, vis: '<span style="font-size:56px">🍬</span>', ans: q, unit: '袋', hint: `${a} ÷ ${b}，剩下的不夠一袋！`, after: `${a} ÷ ${b} = ${q} …… ${rm}，最多 ${q} 袋` }; },
-    () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，裝完後剩下幾顆？`, vis: '<span style="font-size:56px">🍬</span>', ans: rm, unit: '顆', hint: '剩下的就是餘數！', after: `${a} ÷ ${b} = ${q} …… ${rm}` }; },
-    () => { const b = rand(35, 45), q = rand(5, 9), rm = rand(1, 20), a = b * q + rm; return { q: `${a} 人去校外教學，每輛車坐 ${b} 人，<b>至少</b>要幾輛車？`, vis: '<span style="font-size:56px">🚌</span>', ans: q + 1, unit: '輛', hint: `${a} ÷ ${b} = ${q} …… ${rm}，剩下的人也要坐車！`, after: `${q} + 1 = ${q + 1}（輛）` }; },
-    () => { const b = rand(12, 24), q = rand(11, Math.floor(999 / b)); return { q: `${b} 個人合買一份 ${b * q} 元的禮物，每人出幾元？`, vis: '<span style="font-size:56px">🎁</span>', ans: q, unit: '元', hint: `${b * q} ÷ ${b}`, after: `${b * q} ÷ ${b} = ${q}（元）` }; }
+    () => { const b = rand(4, 8), q = rand(120, 480); return { q: `${b * q} 張色紙平分給 ${b} 個班，每班分到幾張？`, vis: '<span style="font-size:56px">📄</span>', ans: q, eq: `${b * q} ÷ ${b}`, unit: '張', hint: '平分給好幾個班', after: `${b * q} ÷ ${b} = ${q}（張）` }; },
+    () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，<b>最多</b>可以裝滿幾袋？`, vis: '<span style="font-size:56px">🍬</span>', ans: q, eq: `${a} ÷ ${b}`, rem: [q, rm], unit: '袋', hint: '每幾顆裝一袋，剩下的不夠一袋！', after: `${a} ÷ ${b} = ${q} …… ${rm}，最多 ${q} 袋` }; },
+    () => { const b = rand(12, 25), q = rand(11, 30), rm = rand(1, b - 1), a = b * q + rm; return { q: `${a} 顆糖果，每 ${b} 顆裝一袋，裝完後剩下幾顆？`, vis: '<span style="font-size:56px">🍬</span>', ans: rm, eq: `${a} ÷ ${b}`, rem: [q, rm], unit: '顆', hint: '每幾顆裝一袋，剩下的就是餘數！', after: `${a} ÷ ${b} = ${q} …… ${rm}` }; },
+    () => { const b = rand(35, 45), q = rand(5, 9), rm = rand(1, 20), a = b * q + rm; return { q: `${a} 人去校外教學，每輛車坐 ${b} 人，<b>至少</b>要幾輛車？`, vis: '<span style="font-size:56px">🚌</span>', ans: q + 1, eq: `${a} ÷ ${b}`, rem: [q, rm], eqRound: true, roundQ: `坐滿 ${q} 輛，還剩 ${rm} 人也要坐車，<b>至少</b>要幾輛車？`, unit: '輛', hint: '剩下的人也要坐車！', after: `${q} + 1 = ${q + 1}（輛）` }; },
+    () => { const b = rand(12, 24), q = rand(11, Math.floor(999 / b)); return { q: `${b} 個人合買一份 ${b * q} 元的禮物，每人出幾元？`, vis: '<span style="font-size:56px">🎁</span>', ans: q, eq: `${b * q} ÷ ${b}`, unit: '元', hint: '大家平分禮物的錢', after: `${b * q} ÷ ${b} = ${q}（元）` }; }
   ];
   quiz(st, rounds);
 }
@@ -124,8 +124,8 @@ function u5B(st) {
   const rounds = [
     { q: '正三角形的三個角都是幾度？', vis: triSVG(TRI.eq(), { angs: ['?', '?', '?'] }), ans: 60, unit: '度', hint: '用量角器量量看，三個角一樣大！', after: '正三角形三個角都是 60°' },
     () => { const d = pick([40, 50, 65, 70, 75]); return { q: `等腰三角形的一個底角是 ${d}°，另一個底角是幾度？`, vis: triSVG(TRI.iso(), { angs: [d + '°', '?', ''] }), ans: d, unit: '度', hint: '等腰三角形的兩個底角一樣大！', after: `兩個底角都是 ${d}°` }; },
-    () => { const s = rand(4, 12); return { q: `正三角形的一邊是 ${s} 公分，周長是幾公分？`, vis: triSVG(TRI.eq(), { sides: [s, '', ''] }), ans: s * 3, unit: '公分', hint: '三條邊一樣長！', after: `${s} × 3 = ${s * 3}（公分）` }; },
-    () => { const a = rand(5, 9), b = a + rand(1, 4); return { q: `等腰三角形兩腰各 ${b} 公分，底邊 ${a} 公分，周長是幾公分？`, vis: triSVG(triPts(a, b, b), { sides: [a, b, b] }), ans: a + b * 2, unit: '公分', hint: '把三條邊加起來！', after: `${b} + ${b} + ${a} = ${a + b * 2}（公分）` }; },
+    () => { const s = rand(4, 12); return { q: `正三角形的一邊是 ${s} 公分，周長是幾公分？`, vis: triSVG(TRI.eq(), { sides: [s, '', ''] }), ans: s * 3, eq: `${s} × 3`, alt: [`${s} + ${s} + ${s}`], known: [3], unit: '公分', hint: '三條邊一樣長！', after: `${s} × 3 = ${s * 3}（公分）` }; },
+    () => { const a = rand(5, 9), b = a + rand(1, 4); return { q: `等腰三角形兩腰各 ${b} 公分，底邊 ${a} 公分，周長是幾公分？`, vis: triSVG(triPts(a, b, b), { sides: [a, b, b] }), ans: a + b * 2, eq: `${b} + ${b} + ${a}`, alt: [`${b} × 2 + ${a}`], known: [2], unit: '公分', hint: '把三條邊加起來！', after: `${b} + ${b} + ${a} = ${a + b * 2}（公分）` }; },
     () => pick([
       { q: '有一個角是直角的三角形叫什麼？', keep: true, opts: [{ h: '直角三角形', ok: true }, { h: '鈍角三角形', ok: false }, { h: '正三角形', ok: false }] },
       { q: '有一個角是鈍角的三角形叫什麼？', keep: true, opts: [{ h: '鈍角三角形', ok: true }, { h: '直角三角形', ok: false }, { h: '銳角三角形', ok: false }] }

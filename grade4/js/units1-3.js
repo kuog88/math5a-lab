@@ -77,7 +77,7 @@ function u1C(st) {
     () => { const w1 = rand(21, 68), r1 = rand(11, 49) * 100, w2 = rand(11, 29), r2 = rand(1, 9) * 100; const a = w1 * 10000 + r1, b = w2 * 10000 + r2; return { q: `${wanFmt(a)} + ${wanFmt(b)} = ？`, vis: `<span class="eq sm">${wanFmt(a)} + ${wanFmt(b)}</span>`, ans: a + b, hint: '萬和萬相加，萬以下和萬以下相加！', after: `${wanFmt(a + b)}（${comma(a + b)}）` }; },
     () => { const a = rand(300, 980) * 10000 + rand(1, 9) * 1000, b = rand(120, 290) * 10000 + rand(1, 9) * 1000; return { q: `${comma(a)} − ${comma(b)} = ？`, vis: `<span class="eq sm">${comma(a)} − ${comma(b)}</span>`, ans: a - b, hint: '位數對齊再算，不夠減要向前一位借！', after: comma(a - b) }; },
     () => { const ns = shuffle([bigNum(10000000, 39999999), bigNum(40000000, 69999999), bigNum(70000000, 99999999)]); const mx = Math.max(...ns); return { q: '哪一個數<b>最大</b>？', opts: ns.map(v => ({ h: `<span class="small-opt">${comma(v)}</span>`, ok: v === mx })), hint: '都是八位數，從千萬位開始比！' }; },
-    () => { const a = rand(12, 48) * 10000 + rand(1000, 9999), b = rand(5, 29) * 10000 + rand(1000, 9999); return { q: `甲城有 ${comma(a)} 人，乙城有 ${comma(b)} 人，兩城一共有多少人？`, vis: '<span style="font-size:56px">🏙️</span>', ans: a + b, unit: '人', hint: '合起來，用加法！', after: `${comma(a)} + ${comma(b)} = ${comma(a + b)}` }; }
+    () => { const a = rand(12, 48) * 10000 + rand(1000, 9999), b = rand(5, 29) * 10000 + rand(1000, 9999); return { q: `甲城有 ${comma(a)} 人，乙城有 ${comma(b)} 人，兩城一共有多少人？`, vis: '<span style="font-size:56px">🏙️</span>', ans: a + b, eq: `${a} + ${b}`, unit: '人', hint: '合起來，用加法！', after: `${comma(a)} + ${comma(b)} = ${comma(a + b)}` }; }
   ];
   quiz(st, rounds);
 }
@@ -144,11 +144,11 @@ function u2B(st) {
 /* ===== 2-C 乘法應用挑戰 ===== */
 function u2C(st) {
   const rounds = [
-    () => { const a = rand(18, 36), b = rand(24, 48); return { q: `一箱飲料有 ${a} 瓶，${b} 箱共有幾瓶？`, vis: '<span style="font-size:56px">🧃</span>', ans: a * b, unit: '瓶', hint: `${a} × ${b}`, after: `${a} × ${b} = ${a * b}（瓶）` }; },
-    () => { const a = rand(12, 39) * 50, b = rand(3, 8); return { q: `一張音樂會門票 ${a} 元，買 ${b} 張要多少元？`, vis: '<span style="font-size:56px">🎫</span>', ans: a * b, unit: '元', hint: `${a} × ${b}`, after: `${a} × ${b} = ${a * b}（元）` }; },
-    () => { const a = rand(115, 265), b = rand(14, 31); return { q: `阿嬤每天走 ${a} 公尺，${b} 天共走幾公尺？`, vis: '<span style="font-size:56px">🚶‍♀️</span>', ans: a * b, unit: '公尺', hint: `${a} × ${b}`, after: `${a} × ${b} = ${a * b}（公尺）` }; },
-    () => { const a = rand(1105, 2350), b = rand(12, 25); return { q: `學校買 ${b} 臺平板，每臺 ${a} 元，共要多少元？`, vis: '<span style="font-size:56px">📱</span>', ans: a * b, unit: '元', hint: `${a} × ${b}`, after: `${a} × ${b} = ${a * b}（元）` }; },
-    () => { const a = rand(25, 45), b = rand(12, 18), c = rand(3, 9); return { q: `每排坐 ${a} 人，坐了 ${b} 排還有 ${c} 人沒位子，一共有幾人？`, vis: '<span style="font-size:56px">🪑</span>', ans: a * b + c, unit: '人', hint: `先算 ${a} × ${b}，再加 ${c}`, after: `${a} × ${b} + ${c} = ${a * b + c}（人）` }; }
+    () => { const a = rand(18, 36), b = rand(24, 48); return { q: `一箱飲料有 ${a} 瓶，${b} 箱共有幾瓶？`, vis: '<span style="font-size:56px">🧃</span>', ans: a * b, eq: `${a} × ${b}`, unit: '瓶', hint: '每箱一樣多，有好幾箱', after: `${a} × ${b} = ${a * b}（瓶）` }; },
+    () => { const a = rand(12, 39) * 50, b = rand(3, 8); return { q: `一張音樂會門票 ${a} 元，買 ${b} 張要多少元？`, vis: '<span style="font-size:56px">🎫</span>', ans: a * b, eq: `${a} × ${b}`, unit: '元', hint: '每張一樣多錢，買好幾張', after: `${a} × ${b} = ${a * b}（元）` }; },
+    () => { const a = rand(115, 265), b = rand(14, 31); return { q: `阿嬤每天走 ${a} 公尺，${b} 天共走幾公尺？`, vis: '<span style="font-size:56px">🚶‍♀️</span>', ans: a * b, eq: `${a} × ${b}`, unit: '公尺', hint: '每天走一樣遠，走好幾天', after: `${a} × ${b} = ${a * b}（公尺）` }; },
+    () => { const a = rand(1105, 2350), b = rand(12, 25); return { q: `學校買 ${b} 臺平板，每臺 ${a} 元，共要多少元？`, vis: '<span style="font-size:56px">📱</span>', ans: a * b, eq: `${a} × ${b}`, unit: '元', hint: '每臺一樣多錢，買好幾臺', after: `${a} × ${b} = ${a * b}（元）` }; },
+    () => { const a = rand(25, 45), b = rand(12, 18), c = rand(3, 9); return { q: `每排坐 ${a} 人，坐了 ${b} 排還有 ${c} 人沒位子，一共有幾人？`, vis: '<span style="font-size:56px">🪑</span>', ans: a * b + c, eq: `${a} × ${b} + ${c}`, unit: '人', hint: '坐滿的排數乘每排人數，再加上沒位子的人', after: `${a} × ${b} + ${c} = ${a * b + c}（人）` }; }
   ];
   quiz(st, rounds);
 }
@@ -214,10 +214,10 @@ function u3C(st) {
       { q: '轉一整圈是幾度？（周角）', vis: '<span style="font-size:64px">🔄</span>', ans: 360, unit: '度', hint: '兩個平角合起來！', after: '一圈 = 360°' },
       { q: '轉半圈是幾度？（平角）', vis: '<span style="font-size:64px">↩️</span>', ans: 180, unit: '度', hint: '兩個直角合起來！', after: '半圈 = 180°' }
     ]),
-    () => { const a = rand(3, 9) * 5, b = rand(4, 12) * 5; return { q: `${a}° 的角和 ${b}° 的角拼在一起，合成幾度？`, vis: `<div class="angs">${angleSVG(a, 0, 120)}<span class="eq">＋</span>${angleSVG(b, 0, 120)}</div>`, ans: a + b, unit: '度', hint: '角的合成就是把度數加起來！', after: `${a}° + ${b}° = ${a + b}°` }; },
-    () => { const a = rand(5, 16) * 10 + pick([0, 5]); return { q: `一條直線上（平角）分成兩個角，一個是 ${a}°，另一個是幾度？`, vis: angleSVG(180, 0, 140), ans: 180 - a, unit: '度', hint: '平角是 180°！', after: `180° − ${a}° = ${180 - a}°` }; },
-    () => { const a = rand(19, 34) * 10; return { q: `一個周角裡已經有 ${a}° 的角，剩下的角是幾度？`, vis: '<span style="font-size:64px">⭕</span>', ans: 360 - a, unit: '度', hint: '周角是 360°！', after: `360° − ${a}° = ${360 - a}°` }; },
-    () => { const [a, b] = pick([[45, 30], [45, 60], [90, 45], [90, 30]]); return { q: `用一副三角板的 ${a}° 角和 ${b}° 角拼起來，是幾度？`, vis: '<span style="font-size:64px">📐📐</span>', ans: a + b, unit: '度', hint: '把兩個角的度數加起來！', after: `${a}° + ${b}° = ${a + b}°` }; }
+    () => { const a = rand(3, 9) * 5, b = rand(4, 12) * 5; return { q: `${a}° 的角和 ${b}° 的角拼在一起，合成幾度？`, vis: `<div class="angs">${angleSVG(a, 0, 120)}<span class="eq">＋</span>${angleSVG(b, 0, 120)}</div>`, ans: a + b, eq: `${a} + ${b}`, unit: '度', hint: '角的合成就是把度數加起來！', after: `${a}° + ${b}° = ${a + b}°` }; },
+    () => { const a = rand(5, 16) * 10 + pick([0, 5]); return { q: `一條直線上（平角）分成兩個角，一個是 ${a}°，另一個是幾度？`, vis: angleSVG(180, 0, 140), ans: 180 - a, eq: `180 − ${a}`, known: [180], unit: '度', hint: '平角是 180°！', after: `180° − ${a}° = ${180 - a}°` }; },
+    () => { const a = rand(19, 34) * 10; return { q: `一個周角裡已經有 ${a}° 的角，剩下的角是幾度？`, vis: '<span style="font-size:64px">⭕</span>', ans: 360 - a, eq: `360 − ${a}`, known: [360], unit: '度', hint: '周角是 360°！', after: `360° − ${a}° = ${360 - a}°` }; },
+    () => { const [a, b] = pick([[45, 30], [45, 60], [90, 45], [90, 30]]); return { q: `用一副三角板的 ${a}° 角和 ${b}° 角拼起來，是幾度？`, vis: '<span style="font-size:64px">📐📐</span>', ans: a + b, eq: `${a} + ${b}`, unit: '度', hint: '把兩個角的度數加起來！', after: `${a}° + ${b}° = ${a + b}°` }; }
   ];
   quiz(st, rounds);
 }
