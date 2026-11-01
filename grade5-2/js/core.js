@@ -77,15 +77,24 @@ function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clea
 function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
-let cur = null, lastSay = '';
+let cur = null, lastSay = '', lastQ = '';
+/* 家長報表：curQ 是目前的題目和正確答案（quiz、eqBuild 會設定；其他關卡用說話泡泡的內容當題目）。
+   repTxt 把分數 span 換成「3/4」、帶分數換成「1又2/3」，不然去掉標籤會黏在一起 */
+let curQ = null;
+const repTxt = s => s === undefined ? s : String(s)
+  .replace(/(\d+)<span class="frac"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, ' $1又$2/$3 ')
+  .replace(/<span class="frac"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, ' $1/$2 ');
+function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: repTxt(curQ ? curQ.q : lastQ), a: repTxt(a), c: repTxt(c !== undefined ? c : curQ ? curQ.c : '') }); }
+/* 選項的文字（圖形選項用 o.t 說明） */
+const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const api = {
   say(html, sp) {
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
-    lastSay = sp || html; speak(lastSay);
+    lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); },
-  bad(msg) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); },
+  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
 
@@ -105,7 +114,7 @@ const FS = (n, d) => { const [a, b] = simp(n, d); return b === 1 ? `${a}` : F(a,
 /* 選項按鈕：答對呼叫 onRight，答錯扣分並提示 */
 function optBtn(o, onRight, hint) {
   const b = document.createElement('button');
-  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button';
+  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button'; b._o = o;
   b.onclick = () => {
     if (b.disabled) return;
     if (o.ok) {
@@ -114,7 +123,8 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！');
+      const right = $$('.opt', b.parentNode).map(x => x._o).find(x => x && x.ok);
+      api.bad(o.hint || hint || '再想想看！', optText(o), right ? optText(right) : undefined);
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -142,7 +152,7 @@ function keypad(box, ans, onRight, hint, unit = '', forceDec = false) {
       if (v === '' || v === '.') return;
       if (Math.abs(parseFloat(v) - ans) < 1e-9) { done = true; show.parentNode.classList.add('right'); api.ok(); onRight(); return; }
       show.parentNode.classList.remove('wrong'); void show.offsetWidth; show.parentNode.classList.add('wrong');
-      api.bad(hint || '再算算看！'); if (hint) speak(hint); v = '';
+      api.bad(hint || '再算算看！', v + (unit ? ' ' + unit : ''), ans + (unit ? ' ' + unit : '')); if (hint) speak(hint); v = '';
     } else if (k === '.') { if (!v.includes('.') && v.length < 8) v = (v || '0') + '.'; }
     else if (v.length < 9) v = (v === '0' ? '' : v) + k;
     show.textContent = v;
@@ -168,9 +178,10 @@ function keypad2(box, labels, ans, onRight, hint) {
       if (at === 0 && vals[1] === '') { at = 1; draw(); return; }
       if (vals.some(v => v === '')) return;
       if (+vals[0] === ans[0] && +vals[1] === ans[1]) { done = true; slots.forEach(s => s.classList.add('right')); api.ok(); onRight(); return; }
+      const said = labels.map((l, i) => `${vals[i]} ${l}`).join('、');
       slots.forEach((s, i) => { if (+vals[i] !== ans[i]) { s.classList.remove('wrong'); void s.offsetWidth; s.classList.add('wrong'); vals[i] = ''; } });
       at = +vals[0] === ans[0] ? 1 : 0;
-      api.bad(hint || '再算算看！'); if (hint) speak(hint);
+      api.bad(hint || '再算算看！', said, labels.map((l, i) => `${ans[i]} ${l}`).join('、')); if (hint) speak(hint);
     } else if (vals[at].length < 5) vals[at] = (vals[at] === '0' ? '' : vals[at]) + k;
     draw();
   });
@@ -202,7 +213,7 @@ function fracpad(box, ans, onRight, hint, simplest = false) {
       slots.forEach(s => { s.classList.remove('wrong'); void s.offsetWidth; s.classList.add('wrong'); });
       vals[0] = vals[1] = ''; at = 0;
       const h = eq ? '答案對了，但還可以再約分成最簡分數喔！' : (hint || '再算算看！');
-      api.bad(h); speak(h);
+      api.bad(h, `${n}/${d}`, simplest ? simp(ans[0], ans[1]).join('/') : `${ans[0]}/${ans[1]}`); speak(h);
     } else if (vals[at].length < 4) vals[at] = (vals[at] === '0' ? '' : vals[at]) + k;
     draw();
   });
@@ -218,6 +229,7 @@ function quiz(st, rounds) {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && (r.ans !== undefined || r.ans2 !== undefined || r.frac !== undefined);
+    curQ = { q: r.q, c: eqm ? '' : r.frac ? (r.simplest ? simp(r.frac[0], r.frac[1]) : r.frac).join('/') : r.ans2 ? r.labels.map((l, k) => `${r.ans2[k]} ${l}`).join('、') : typed ? `${r.ans}${r.unit ? ' ' + r.unit : ''}` : optText((r.opts || []).find(o => o.ok)) };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
@@ -377,6 +389,7 @@ function eqBuild(box, r, onRight) {
   const paths = [r.eq, ...(r.alt || [])].map(e => eqParse(eqTok(eqStr(e))));
   if (paths.some(p => !p)) console.error('列式小幫手：算式寫錯了', r.eq, r.alt);
   const nums = eqNums(r), frac = !!r.frac;
+  if (paths[0]) curQ = { q: r.q, c: `${Array.isArray(r.eq) ? eqStr(r.eq).slice(1, -1) : r.eq} = ${qFmt(eqVal(paths[0]), frac)}${r.eqRound ? `，答案 ${r.ans}` : ''}${r.unit ? ' ' + r.unit : ''}` }; // 家長報表：正確算式和答案
   const S = { paths: paths.filter(Boolean), allowed: new Set([...nums.map(qLit).filter(Boolean).map(qKey), ...paths.filter(Boolean).flatMap(eqLeaves)]) };
   const rows = [];
   let finished = false;
@@ -458,7 +471,7 @@ function eqBuild(box, r, onRight) {
     if (j.bad) {
       const text = MSG[j.bad](j);
       w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
-      msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+      msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, ''), w.T.map(t => t.s).join(' ') || '（還沒列）'); speak(text);
       return;
     }
     const v = j.final || j.step, res = $('.eq-res', w.el);

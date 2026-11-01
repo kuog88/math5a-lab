@@ -16,7 +16,8 @@ function u6A(st) {
       if (c.classList.contains('done')) return;
       sfx('tap');
       if (!sel || sel.dataset.s === c.dataset.s) { if (sel) sel.classList.remove('sel'); sel = c; c.classList.add('sel'); return; }
-      const p = B[+c.dataset.i];
+      const p = B[+c.dataset.i], fc = sel.dataset.s === 'f' ? sel : c, dc = fc === sel ? c : sel, f0 = B[+fc.dataset.i];
+      curQ = { q: `${F(f0[0], f0[1])} 和哪一張小數卡一樣大？`, c: f0[2] };
       if (sel.dataset.i === c.dataset.i) {
         sel.classList.remove('sel'); sel.classList.add('done'); c.classList.add('done'); sel = null;
         api.ok(`${p[0]}/${p[1]} ＝ ${p[2]}`); speak(`${p[1]}分之${p[0]}等於${p[2]}`);
@@ -24,7 +25,7 @@ function u6A(st) {
       } else {
         const f = B[+(sel.dataset.s === 'f' ? sel : c).dataset.i];
         sel.classList.remove('sel'); sel = null;
-        api.bad(`${f[0]}/${f[1]} 可以用 ${f[0]} ÷ ${f[1]} 算成小數喔！`);
+        api.bad(`${f[0]}/${f[1]} 可以用 ${f[0]} ÷ ${f[1]} 算成小數喔！`, B[+dc.dataset.i][2]);
       }
     });
   }
@@ -78,7 +79,7 @@ function u7A(st) {
     $('#okb', st).onclick = () => {
       const s = load.reduce((a, i) => a + ITEMS[i][2], 0);
       if (s === T) { $('#okb', st).disabled = true; api.ok(`剛好 ${name} ＝ ${T} 公斤！`); speak(`${name}等於${T}公斤`); r++; later(round, 1900); }
-      else api.bad(s > T ? `太重了！${name} 是 ${T} 公斤` : `還不夠！${name} 是 ${T} 公斤，1 公噸 ＝ 1000 公斤`);
+      else api.bad(s > T ? `太重了！${name} 是 ${T} 公斤` : `還不夠！${name} 是 ${T} 公斤，1 公噸 ＝ 1000 公斤`, `${s} 公斤`, `${T} 公斤（${name}）`);
     };
     draw();
   }
@@ -142,7 +143,7 @@ function u8A(st) {
     $('#okb', st).onclick = () => {
       const n = $$('rect.c.on', st).length;
       if (n === T) { $('#okb', st).disabled = true; api.ok(`對！${T} 格就是 ${T}%`); speak(`${T}格就是百分之${T}`); r++; later(round, 1800); }
-      else api.bad(`要塗 ${T} 格，現在是 ${n} 格。100 格的 1% 是 1 格。`);
+      else api.bad(`要塗 ${T} 格，現在是 ${n} 格。100 格的 1% 是 1 格。`, `塗了 ${n} 格`, `${T} 格`);
     };
   }
   round();
@@ -229,11 +230,12 @@ function u10A(st) {
     <div class="bins">${['柱體', '錐體', '球體'].map((b, i) => `<div class="bin" data-b="${i}"><h4>${b}</h4><div class="in"></div></div>`).join('')}</div>`;
   const bins = $$('.bin', st);
   const put = (el, bin) => {
-    const s = set[+el.dataset.i];
+    const s = set[+el.dataset.i], K = ['柱體', '錐體', '球體'];
+    curQ = { q: `${s[2]}是柱體、錐體還是球體？`, c: K[s[3]] };
     if (+bin.dataset.b === s[3]) {
       $('.in', bin).insertAdjacentHTML('beforeend', `<span>${s[2]}</span>`); el.remove(); api.ok(`${s[2]}是${['柱體', '錐體', '球體'][s[3]]}`); sel = null;
       if (--left === 0) later(api.finish, 900);
-    } else { el.classList.remove('sel'); sel = null; api.bad(s[3] === 0 ? '上下兩個底面一樣大、互相平行的是柱體。' : s[3] === 1 ? '只有一個底面、往上收成一個頂點的是錐體。' : '圓圓的、怎麼切都是圓的是球。'); }
+    } else { el.classList.remove('sel'); sel = null; api.bad(s[3] === 0 ? '上下兩個底面一樣大、互相平行的是柱體。' : s[3] === 1 ? '只有一個底面、往上收成一個頂點的是錐體。' : '圓圓的、怎麼切都是圓的是球。', K[+bin.dataset.b]); }
   };
   $$('.solid', st).forEach(el => draggable(el, bins, hit => {
     if (hit === 'tap') { $$('.solid.sel', st).forEach(x => x.classList.remove('sel')); sel = el; el.classList.add('sel'); sfx('tap'); }

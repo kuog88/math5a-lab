@@ -27,7 +27,7 @@ function u1A(st) {
       n = $$('.seg.on', st).length; $('#cnt', st).textContent = n;
     });
     $('#okb', st).onclick = () => {
-      if (n !== a) return api.bad(`每塊石板，每人都拿 1 份；${a} 塊就拿 ${a} 份喔！`);
+      if (n !== a) return api.bad(`每塊石板，每人都拿 1 份；${a} 塊就拿 ${a} 份喔！`, `選了 ${n} 份`, `${a} 份`);
       $('#okb', st).disabled = true; api.ok('分對了！');
       api.say(`一位隊員分到 ${a} 個 ${F(1, b)} 塊。用分數表示：${a} ÷ ${b} ＝ ? 塊`);
       fracpad($('#kw', st), [a, b], () => {
@@ -87,7 +87,7 @@ function u2A(st) {
     $('#okb', st).onclick = () => {
       const s = v.reduce((a, x, i) => a + x * C.w[i], 0);
       if (s === T) { $('#okb', st).disabled = true; api.ok('排對了！'); $('#okb', st).insertAdjacentHTML('afterend', `<div><span class="after">這個數是 ${read(big, T)}</span></div>`); speak('這個數是' + read(big, T)); r++; later(round, 2200); }
-      else api.bad(big ? '10 個百億是 1 個千億，記得進位！' : '10 個 0.01 是 1 個 0.1，記得進位！');
+      else api.bad(big ? '10 個百億是 1 個千億，記得進位！' : '10 個 0.01 是 1 個 0.1，記得進位！', read(big, s), read(big, T));
     };
     draw();
   }
@@ -135,7 +135,7 @@ function u3A(st) {
     const draw = () => { $('#wv', st).textContent = rd(w / 10); $('#hv', st).textContent = rd(h / 10); $$('rect.c', st).forEach(c => c.classList.toggle('on', +c.dataset.c < w && 9 - +c.dataset.r < h)); };
     $$('.grp button', st).forEach(bt => bt.onclick = () => { if ($('#okb', st).disabled) return; const d = +bt.dataset.d; if (bt.dataset.k === 'w') w = Math.max(0, Math.min(10, w + d)); else h = Math.max(0, Math.min(10, h + d)); sfx('tap'); draw(); });
     $('#okb', st).onclick = () => {
-      if (!((w === a && h === b) || (w === b && h === a))) return api.bad(`寬要是 0.${a}（${a} 行），高要是 0.${b}（${b} 列）。`);
+      if (!((w === a && h === b) || (w === b && h === a))) return api.bad(`寬要是 0.${a}（${a} 行），高要是 0.${b}（${b} 列）。`, `寬 ${rd(w / 10)}、高 ${rd(h / 10)}`, `寬 0.${a}、高 0.${b}`);
       $('#okb', st).disabled = true; api.ok('塗對了！');
       api.say(`塗了 ${a} × ${b} ＝ ${a * b} 格，每格是 0.01。所以 0.${a} × 0.${b} ＝ ?`);
       keypad($('#kw', st), rd(a * b / 100), () => {
@@ -194,7 +194,7 @@ function u4A(st) {
     dial.addEventListener('pointercancel', () => { drag = false; });
     $('#okb', st).onclick = () => {
       if (deg === T) { $('#okb', st).disabled = true; api.ok(`對！${name}的圓心角是 ${T}°`); speak(`${name}的圓心角是${T}度`); r++; later(round, 1900); }
-      else api.bad(name.includes('/') ? `一整圈是 360°，${name}的圓心角是 360° 的 ${name.replace(' 圓', '')}。` : `要轉到 ${T}°，現在是 ${deg}°。`);
+      else api.bad(name.includes('/') ? `一整圈是 360°，${name}的圓心角是 360° 的 ${name.replace(' 圓', '')}。` : `要轉到 ${T}°，現在是 ${deg}°。`, `${deg}°`, `${T}°`);
     };
     draw();
   }
@@ -207,7 +207,7 @@ function u4B(st) {
   const P = a => { const t = a * Math.PI / 180; return `${(55 + 44 * Math.cos(t)).toFixed(1)},${(55 - 44 * Math.sin(t)).toFixed(1)}`; };
   const sector = fig(`M55,55L${P(20)}A44,44 0 0,0 ${P(130)}Z`), segment = fig(`M${P(20)}A44,44 0 0,0 ${P(160)}Z`), wrongV = fig(`M${P(270)}L${P(30)}A44,44 0 0,0 ${P(150)}Z`);
   quiz(st, [
-    { q: '哪一個是<b>扇形</b>？（虛線是圓）', opts: [{ h: sector, ok: true }, { h: segment, ok: false, hint: '這個沒有經過圓心，是一條弦和一段圓弧。' }, { h: wrongV, ok: false, hint: '這個的頂點在圓周上，不是圓心。' }], hint: '扇形的頂點在圓心。' },
+    { q: '哪一個是<b>扇形</b>？（虛線是圓）', opts: [{ h: sector, t: '兩條半徑和一段圓弧圍成的圖（頂點在圓心）', ok: true }, { h: segment, t: '一條弦和一段圓弧圍成的圖', ok: false, hint: '這個沒有經過圓心，是一條弦和一段圓弧。' }, { h: wrongV, t: '頂點在圓周上的圖', ok: false, hint: '這個的頂點在圓周上，不是圓心。' }], hint: '扇形的頂點在圓心。' },
     { q: '扇形是由<b>兩條半徑</b>和一段什麼圍成的圖形？', opts: [{ h: '圓弧', ok: true }, { h: '直徑', ok: false }, { h: '線段', ok: false }], hint: '扇形外圍彎彎的那一段是圓弧。' },
     { q: '扇形中，兩條半徑所夾的角叫做什麼？', opts: [{ h: '圓心角', ok: true }, { h: '直角', ok: false }, { h: '平角', ok: false }], hint: '這個角的頂點在圓心。' },
     () => { const [n, d] = pick([[1, 6], [1, 4], [1, 3], [1, 8], [1, 2]]); return { q: `${F(n, d)} 圓的圓心角是幾度？`, vis: sectorSVG(360 / d, { size: 150, full: true }), eq: `360 ÷ ${d}`, alt: [`360 × 1/${d}`], ans: 360 / d, unit: '度', hint: `一整圈是 360°，360 ÷ ${d}。`, after: `360° ÷ ${d} ＝ ${360 / d}°` }; },
@@ -245,9 +245,10 @@ function u5A(st) {
     const draw = () => { $('#pic', st).innerHTML = isoSVG(boxCubes(d.l, d.w, d.h), { u: 24, max: 360 }); ['l', 'w', 'h'].forEach(k => $('#' + k + 'v', st).textContent = d[k]); $('#vv', st).textContent = `${d.l} × ${d.w} × ${d.h} ＝ ${d.l * d.w * d.h}`; };
     $$('.grp button', st).forEach(b => b.onclick = () => { const k = b.dataset.k; d[k] = Math.max(1, Math.min(6, d[k] + +b.dataset.d)); sfx('tap'); draw(); });
     $('#okb', st).onclick = () => {
+      const said = `長 ${d.l}、寬 ${d.w}、高 ${d.h}`, want = `長 ${T.l}、寬 ${T.w}、高 ${T.h}`;
       if (d.l === T.l && d.w === T.w && d.h === T.h) { $('#okb', st).disabled = true; api.ok('堆對了！'); speak(`長乘以寬乘以高，${T.l}乘${T.w}乘${T.h}等於${V}立方公分`); r++; later(round, 2000); }
-      else if (d.l * d.w * d.h === V) api.bad(`體積對了，但要符合題目：${given}。`);
-      else api.bad(`${NM[T.miss]} ＝ ${V} ÷ ${['l', 'w', 'h'].filter(k => k !== T.miss).map(k => T[k]).join(' ÷ ')}，算算看！`);
+      else if (d.l * d.w * d.h === V) api.bad(`體積對了，但要符合題目：${given}。`, said, want);
+      else api.bad(`${NM[T.miss]} ＝ ${V} ÷ ${['l', 'w', 'h'].filter(k => k !== T.miss).map(k => T[k]).join(' ÷ ')}，算算看！`, said, want);
     };
     draw();
   }
