@@ -7,17 +7,19 @@ function xquiz(st, rounds) {
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
-    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${r.pad ? 'numpad' : 'opts'}"></div><div class="xpl" hidden></div>`;
-    api.say(r.q, r.sp);
-    const ops = $(r.pad ? '.numpad' : '.opts', st);
-    (r.keep || r.pad ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, () => {
+    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${r.eq ? 'eqwrap' : r.pad ? 'numpad' : 'opts'}"></div><div class="xpl" hidden></div>`;
+    api.say(r.q, r.eq ? eqSay(r) : r.sp);
+    const done = () => {
       const x = $('.xpl', st), last = i === rounds.length - 1;
       x.innerHTML = `<div class="xpl-ex">📖 詳解：${r.ex}</div>${r.trap ? `<div class="xpl-trap">⚠️ 小心陷阱：${r.trap}</div>` : ''}<div class="center"><button class="btn mint xpl-next" type="button">${last ? '完成 🎉' : '下一題 ➜'}</button></div>`;
       x.hidden = false;
       speak('詳解。' + r.ex + (r.trap ? '小心陷阱。' + r.trap : ''));
       $('.xpl-next', x).onclick = () => { i++; show(); };
       x.scrollIntoView && x.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }, r.hint)));
+    };
+    if (r.eq) return eqBuild($('.eqwrap', st), r, done); // 列式小幫手
+    const ops = $(r.pad ? '.numpad' : '.opts', st);
+    (r.keep || r.pad ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, done, r.hint)));
   }
   show();
 }
@@ -264,7 +266,8 @@ const X6 = [
   () => ({
     q: '樹上有 3 隻 🐦，飛來 2 隻，<b>又</b>飛來 4 隻。現在樹上有幾隻？', sp: '樹上有3隻鳥，飛來2隻，又飛來4隻。現在樹上有幾隻？',
     vis: `${pics('🐦', 3, true)}<span class="eq">+</span>${pics('🐦', 2, true)}<span class="eq">+</span>${pics('🐦', 4, true)}`,
-    opts: nums(9, [9, 5, 7]), hint: '一共飛來了兩次，都要加進去！',
+    eq: [[3, '+', 2], ['R', '+', 4]], alt: sumPaths([3, 2, 4]).slice(1), ops: ['+'], ic: { 3: '🐦', 2: '🐦', 4: '🐦' }, e: '🐦', unit: '隻',
+    hint: '一共飛來了兩次，都要加進去！',
     ex: '3 + 2 = 5，再 5 + 4 = 9，現在樹上有 9 隻。', trap: '有兩次「飛來」，只加一次會答成 5 或 7。'
   }),
   () => ({
@@ -275,7 +278,7 @@ const X6 = [
   () => ({
     q: '盤子裡有 4 顆 🍎 和 3 根 🍌，媽媽又放進 2 顆 🍎。現在有幾顆 <b>蘋果</b>？', sp: '盤子裡有4顆蘋果和3根香蕉，媽媽又放進2顆蘋果。現在有幾顆蘋果？',
     vis: `<span class="plate">${pics('🍎', 4, true)}${pics('🍌', 3, true)}</span><span class="eq">+</span>${pics('🍎', 2, true)}`,
-    opts: nums(6, [6, 9, 7]), hint: '只問蘋果，香蕉不用加！',
+    eq: [4, '+', 2], ops: ['+'], ic: { 4: '🍎', 3: '🍌', 2: '🍎' }, e: '🍎', unit: '顆', hint: '只問蘋果，香蕉不用加！', numHint: '只問蘋果，香蕉不用加！',
     ex: '蘋果原本 4 顆，又放進 2 顆：4 + 2 = 6，現在有 6 顆蘋果。', trap: '香蕉是多出來的條件，題目只問蘋果。把香蕉也加進去會變成 9。'
   }),
   () => ({
@@ -350,25 +353,26 @@ const X7 = [
 const X8 = [
   () => ({
     q: '妹妹有 8 顆 🍬，吃了 2 顆，媽媽<b>又給她</b> 3 顆。現在妹妹有幾顆？', sp: '妹妹有8顆糖，吃了2顆，媽媽又給她3顆。現在妹妹有幾顆？',
-    vis: pics('🍬', 8, true), opts: nums(9, [9, 5, 6]), hint: '先減掉吃掉的，再加上媽媽給的！',
+    vis: pics('🍬', 8, true), eq: [[8, '−', 2], ['R', '+', 3]], alt: [[[8, '+', 3], ['R', '−', 2]]], ic: { 8: '🍬', 2: '🍬', 3: '🍬' }, e: '🍬', unit: '顆',
+    hint: '先減掉吃掉的，再加上媽媽給的！',
     ex: '先算吃掉以後：8 − 2 = 6，再加上媽媽給的：6 + 3 = 9，現在有 9 顆。', trap: '這題有兩個步驟。只算 8 − 2 會答 6；把 3 也當成減掉會答 3 或 5。'
   }),
   () => {
     const row = (e, n) => `<div class="row" style="font-size:32px">${Array.from({ length: 7 }, (_, i) => `<span style="width:40px">${i < n ? e : ''}</span>`).join('')}</div>`;
     return {
       q: '🐶 有 7 隻，🐱 有 4 隻。🐱 比 🐶 <b>少</b>幾隻？', sp: '小狗有7隻，小貓有4隻。小貓比小狗少幾隻？',
-      vis: `<div>${row('🐶', 7)}${row('🐱', 4)}</div>`, opts: nums(3, [3, 4, 7]), hint: '一個對一個，看小貓缺了幾隻！',
+      vis: `<div>${row('🐶', 7)}${row('🐱', 4)}</div>`, eq: [7, '−', 4], ic: { 7: '🐶', 4: '🐱' }, unit: '隻', hint: '「少幾隻」也是用減的，用 − ！',
       ex: '一隻小狗對一隻小貓，小貓缺了 3 隻。7 − 4 = 3，小貓比小狗少 3 隻。', trap: '「少幾隻」也是用減的，用大的數減小的數：7 − 4，不是 4 − 7，也不是答小貓有 4 隻。'
     };
   },
   () => ({
     q: '空格裡要填幾？', vis: `<span class="eq"><span class="box">?</span> − 4 = 5</span>`, sp: '幾減4等於5？',
-    pad: true, opts: numpadOpts(9, 1, 10), hint: '拿走 4 個以後還剩 5 個，原本有幾個？',
+    eq: [5, '+', 4], nums: [4, 5], hint: '拿走 4 個以後還剩 5 個，原本有幾個？把它們合起來，用 ＋ ！',
     ex: '拿走 4 個還剩 5 個，原本就是 5 和 4 合起來：5 + 4 = 9。檢查：9 − 4 = 5。', trap: '不能直接算 5 − 4 = 1。空格是「原本有幾個」，一定比剩下的 5 還要多。'
   }),
   () => ({
     q: '停車場有 10 輛 🚗，開走了一些，還剩 6 輛。<b>開走了</b>幾輛？', sp: '停車場有10輛車，開走了一些，還剩6輛。開走了幾輛？',
-    vis: `<span class="eq">10 − <span class="box">?</span> = 6</span>`, opts: nums(4, [4, 6, 10]), hint: '10 要拿走幾個，才會剩下 6 個？',
+    vis: `<span class="eq">10 − <span class="box">?</span> = 6</span>`, eq: [10, '−', 6], ic: { 6: '🚗' }, e: '🚗', unit: '輛', hint: '10 輛裡面拿走剩下的 6 輛，就是開走的，用 − ！',
     ex: '10 可以分成 6 和 4，剩下 6 輛，所以開走了 4 輛。10 − 4 = 6。', trap: '6 是「剩下」的車，題目問的是「開走」的車。'
   }),
   () => ({

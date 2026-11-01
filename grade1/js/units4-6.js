@@ -166,11 +166,10 @@ function u6A(st) {
     }
     function ask() {
       sup.hidden = true;
-      api.say(`${a} 個再放進 ${b} 個，現在一共有幾個？`);
-      $('.qvis', st).innerHTML = `<span class="eq">${a} + ${b} = <span class="box">?</span></span>`;
-      numOpts(a + b, 1, 10).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
-        $('.box', st).textContent = a + b; speak(`${a} 加 ${b} 等於 ${a + b}`); r++; later(round, 1800);
-      }, `從 ${a} 接著往後數 ${b} 個！`)));
+      // 列式小幫手：列出 a + b，電腦算答案（第 6 單元只放 ＋）
+      const q = { q: `${a} 個再放進 ${b} 個，一共有幾個？`, eq: [a, '+', b], ops: ['+'], ic: { [a]: e, [b]: e }, e, unit: '個' };
+      api.say(q.q, eqSay(q));
+      eqBuild($('.opts', st), q, () => { r++; later(round, 600); });
     }
   }
   round();
@@ -187,13 +186,12 @@ function u6B(st) {
   ];
   const rounds = shuffle(stories).map(fn => () => {
     const a = rand(2, 6), b = rand(1, Math.min(4, 10 - a)), [txt, ea, eb, u] = fn(a, b), c = a + b;
-    // 第 6 單元還沒教減號，錯的選項只用加法
-    const wrong = [`${a} + ${b} = ${c + 1}`, `${a} + ${b} = ${c - 1}`, `${a + 1} + ${b} = ${c + 1}`];
+    // 列式小幫手：第 6 單元還沒教減號，符號鍵只放 ＋
     return {
-      q: `${txt}<br>一共有幾${u}？選對的算式。`, sp: `${txt}一共有幾${u}？選對的算式。`,
+      q: `${txt}<br>一共有幾${u}？`, sp: `${txt}一共有幾${u}？`,
       vis: `${pics(ea, a, true)}<span class="eq">+</span>${pics(eb, b, true)}`,
-      opts: [{ h: `<span class="eq" style="font-size:30px">${a} + ${b} = ${c}</span>`, ok: true }, ...shuffle(wrong).slice(0, 2).map(w => ({ h: `<span class="eq" style="font-size:30px">${w}</span>`, ok: false }))],
-      hint: '「又來了」、「一共」要用加法，再數數看答案對不對！'
+      eq: [a, '+', b], ops: ['+'], ic: { [b]: eb, [a]: ea }, e: ea === eb ? ea : '💐', unit: u,
+      after: `${a} + ${b} = ${c}`
     };
   });
   quiz(st, rounds);

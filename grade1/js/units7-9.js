@@ -156,11 +156,10 @@ function u8A(st) {
       f.appendChild(t);
     });
     function ask() {
-      api.say(`${n} 個${verb}了 ${b} 個，還剩幾個？`);
-      $('.qvis', st).innerHTML = `<span class="eq">${n} − ${b} = <span class="box">?</span></span>`;
-      numOpts(n - b, 0, 10).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
-        $('.box', st).textContent = n - b; speak(`${n} 減 ${b} 等於 ${n - b}`); r++; later(round, 1800);
-      }, '數一數還留下來的！')));
+      // 列式小幫手：列出 n − b，電腦算答案
+      const q = { q: `${n} 個${verb}了 ${b} 個，還剩幾個？`, eq: [n, '−', b], ic: { [n]: e, [b]: e }, e, unit: '個' };
+      api.say(q.q, eqSay(q));
+      eqBuild($('.opts', st), q, () => { r++; later(round, 600); });
     }
   }
   round();
@@ -168,22 +167,21 @@ function u8A(st) {
 
 /* ===== 8-B 加還是減：讀題選算式 ===== */
 function u8B(st) {
+  // 列式小幫手：讀題列出加法或減法，電腦算答案。[題目, 符號, 前面的圖示, 後面的圖示, 單位]
   const bank = [
-    (a, b) => [`池塘有 ${a} 隻小鴨，游走了 ${b} 隻，還剩幾隻？`, '-'],
-    (a, b) => [`籃子裡有 ${a} 顆蘋果，媽媽又放進 ${b} 顆，現在有幾顆？`, '+'],
-    (a, b) => [`哥哥有 ${a} 張貼紙，我有 ${b} 張，哥哥比我多幾張？`, '-'],
-    (a, b) => [`妹妹有 ${a} 顆糖，吃掉 ${b} 顆，還有幾顆？`, '-'],
-    (a, b) => [`公車上有 ${a} 個人，又上車 ${b} 個人，現在有幾個人？`, '+'],
-    (a, b) => [`紅花有 ${a} 朵，黃花有 ${b} 朵，一共有幾朵？`, '+']
+    (a, b) => [`池塘有 ${a} 隻 🦆，游走了 ${b} 隻，還剩幾隻？`, '−', '🦆', '🦆', '隻'],
+    (a, b) => [`籃子裡有 ${a} 顆 🍎，媽媽又放進 ${b} 顆，現在有幾顆？`, '+', '🍎', '🍎', '顆'],
+    (a, b) => [`哥哥有 ${a} 張貼紙，我有 ${b} 張，哥哥比我多幾張？`, '−', '⭐', '⭐', '張'],
+    (a, b) => [`妹妹有 ${a} 顆 🍬，吃掉 ${b} 顆，還有幾顆？`, '−', '🍬', '🍬', '顆'],
+    (a, b) => [`公車上有 ${a} 個人，又上車 ${b} 個人，現在有幾個人？`, '+', '🧒', '🧒', '人'],
+    (a, b) => [`紅花有 ${a} 朵 🌹，黃花有 ${b} 朵 🌼，一共有幾朵？`, '+', '🌹', '🌼', '朵']
   ];
   quiz(st, shuffle(bank).map(fn => () => {
     const a = rand(5, 9), bb = rand(1, Math.min(4, 10 - a));
-    const [q, op] = fn(a, bb);
-    const plus = `${a} + ${bb} = ${a + bb}`, minus = `${a} − ${bb} = ${a - bb}`;
+    const [q, op, ea, eb, unit] = fn(a, bb);
     return {
-      q: `${q}<br><small>選出對的算式：</small>`, sp: `${q}選出對的算式。`,
-      opts: [{ h: `<span class="eq" style="font-size:30px">${plus}</span>`, ok: op === '+' }, { h: `<span class="eq" style="font-size:30px">${minus}</span>`, ok: op === '-' }],
-      hint: op === '+' ? '「又來了」、「一共」是變多，用加法！' : '「走了」、「吃掉」、「多幾個」用減法！'
+      q, eq: [a, op, bb], ic: { [bb]: eb, [a]: ea }, e: ea === eb ? ea : '💐', unit,
+      after: `${a} ${op} ${bb} = ${op === '+' ? a + bb : a - bb}`
     };
   }));
 }
