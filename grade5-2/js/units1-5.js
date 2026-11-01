@@ -42,9 +42,9 @@ function u1A(st) {
 /* ===== 1-B 分數倍與積的大小 ===== */
 function u1B(st) {
   quiz(st, [
-    () => { const q = pick([3, 4, 5, 6, 8]), p = coprime(q), n = q * rand(2, 6), ans = n / q * p; return { q: `一袋神殿細沙重 ${n} 公斤，${F(p, q)} 袋重幾公斤？`, ans, unit: '公斤', hint: `先算 ${n} ÷ ${q}，再乘以 ${p}。`, after: `${n} × ${F(p, q)} ＝ ${ans} 公斤` }; },
+    () => { const q = pick([3, 4, 5, 6, 8]), p = coprime(q), n = q * rand(2, 6), ans = n / q * p; return { q: `一袋神殿細沙重 ${n} 公斤，${F(p, q)} 袋重幾公斤？`, eq: `${n} × ${p}/${q}`, alt: [`${n} ÷ ${q} × ${p}`, `${n} × ${p} ÷ ${q}`], ans, unit: '公斤', hint: `先算 ${n} ÷ ${q}，再乘以 ${p}。`, after: `${n} × ${F(p, q)} ＝ ${ans} 公斤` }; },
     () => { const b = rand(3, 7), a = coprime(b), d = rand(2, 6), c = coprime(d); return { q: `${F(a, b)} × ${F(c, d)} ＝ ?`, frac: [a * c, b * d], hint: '分子乘分子，分母乘分母。', after: fracAfter(`${F(a, b)} × ${F(c, d)}`, a * c, b * d) }; },
-    () => { const [a, b, c, d] = pick([[3, 4, 2, 3], [5, 6, 3, 5], [4, 5, 1, 2], [2, 3, 3, 4], [5, 8, 2, 5]]); return { q: `一條金色緞帶長 ${F(a, b)} 公尺，用掉它的 ${F(c, d)}，用掉幾公尺？`, frac: [a * c, b * d], hint: `用掉 ${a}/${b} 公尺的 ${c}/${d} 倍，用乘法算。`, after: fracAfter(`${F(a, b)} × ${F(c, d)}`, a * c, b * d) + ' 公尺' }; },
+    () => { const [a, b, c, d] = pick([[3, 4, 2, 3], [5, 6, 3, 5], [4, 5, 1, 2], [2, 3, 3, 4], [5, 8, 2, 5]]); return { q: `一條金色緞帶長 ${F(a, b)} 公尺，用掉它的 ${F(c, d)}，用掉幾公尺？`, eq: `${a}/${b} × ${c}/${d}`, frac: [a * c, b * d], unit: '公尺', hint: `用掉 ${a}/${b} 公尺的 ${c}/${d} 倍，用乘法算。`, after: fracAfter(`${F(a, b)} × ${F(c, d)}`, a * c, b * d) + ' 公尺' }; },
     () => { const n = pick([24, 36, 48, 60]), m = pick([[3, 5], [7, 4], [5, 8], [9, 5], [2, 3]]), v = n * m[0] / m[1]; return { q: `${n} × ${F(m[0], m[1])} ○ ${n}`, keep: true, opts: cmpOpts(v, n), hint: '乘數比 1 大，積就比被乘數大；乘數比 1 小，積就變小。', after: `${n} × ${F(m[0], m[1])} ＝ ${v}，${sign(v, n)} ${n}` }; },
     () => { const m = pick([[4, 3], [2, 7], [11, 6], [5, 9]]), [a, b] = pick([[3, 4], [2, 5], [5, 6]]); const L = a * m[0] / (b * m[1]), R = a / b; return { q: `${F(a, b)} × ${F(m[0], m[1])} ○ ${F(a, b)}`, keep: true, opts: cmpOpts(L, R), hint: `看乘數 ${m[0]}/${m[1]} 比 1 大還是比 1 小。`, after: `乘數 ${F(m[0], m[1])} ${m[0] > m[1] ? '＞' : '＜'} 1，所以積${m[0] > m[1] ? '變大' : '變小'}` }; },
     { q: '一個數（不是 0）乘以<b>真分數</b>，積會比原來的數怎麼樣？', opts: [{ h: '變小', ok: true }, { h: '變大', ok: false }, { h: '不變', ok: false }], hint: '真分數比 1 小，乘以比 1 小的數，積會變小。' }
@@ -56,9 +56,9 @@ function u1C(st) {
   quiz(st, shuffle([
     () => { const b = pick([5, 7, 9, 11]), n = pick([2, 3]), k = rand(1, Math.floor((b - 1) / n)), a = n * k; return { q: `${F(a, b)} ÷ ${n} ＝ ?`, frac: [a, b * n], hint: '分子可以被整除時，直接把分子除以整數。', after: `${F(a, b)} ÷ ${n} ＝ ${FS(a, b * n)}` }; },
     () => { const b = pick([3, 4, 5, 7]), a = coprime(b), n = pick([2, 3, 4].filter(x => a % x)); return { q: `${F(a, b)} ÷ ${n} ＝ ?`, frac: [a, b * n], hint: `分子不能整除時，把分母乘以 ${n}。`, after: `${F(a, b)} ÷ ${n} ＝ ${F(a, b + ' × ' + n)} ＝ ${FS(a, b * n)}` }; },
-    () => { const [a, b, n, what, per] = pick([[4, 5, 2, '公升椰棗汁', '人'], [9, 10, 3, '公斤香料', '袋'], [3, 4, 5, '公尺麻繩', '段'], [6, 7, 4, '公斤沙金', '罐']]); return { q: `${F(a, b)} ${what}平分成 ${n} ${per}，每${per}是多少？`, frac: [a, b * n], hint: `用 ${a}/${b} ÷ ${n} 來算。`, after: `${F(a, b)} ÷ ${n} ＝ ${FS(a, b * n)}` }; },
-    () => { const b = rand(4, 9), a = rand(2, 13); return { q: `${a} 公升水平分給 ${b} 隻駱駝，每隻喝幾公升？（用分數回答）`, frac: [a, b], hint: '整數相除的結果可以用分數表示：被除數當分子，除數當分母。', after: `${a} ÷ ${b} ＝ ${FS(a, b)} 公升` }; },
-    () => { const n = pick([2, 3, 4]), b = pick([5, 7]), a = coprime(b); return { q: `□ ÷ ${n} ＝ ${F(a, b)}，□ ＝ ?`, frac: [a * n, b], hint: `用乘法還原：□ ＝ ${a}/${b} × ${n}。`, after: `□ ＝ ${F(a, b)} × ${n} ＝ ${FS(a * n, b)}` }; },
+    () => { const [a, b, n, what, per] = pick([[4, 5, 2, '公升椰棗汁', '人'], [9, 10, 3, '公斤香料', '袋'], [3, 4, 5, '公尺麻繩', '段'], [6, 7, 4, '公斤沙金', '罐']]); return { q: `${F(a, b)} ${what}平分成 ${n} ${per}，每${per}是多少？`, eq: `${a}/${b} ÷ ${n}`, alt: [`${a}/${b} × 1/${n}`], frac: [a, b * n], unit: what.replace(/^公(升|斤|尺).*/, '公$1'), hint: `用 ${a}/${b} ÷ ${n} 來算。`, after: `${F(a, b)} ÷ ${n} ＝ ${FS(a, b * n)}` }; },
+    () => { const b = rand(4, 9), a = rand(2, 13); return { q: `${a} 公升水平分給 ${b} 隻駱駝，每隻喝幾公升？（用分數回答）`, eq: `${a} ÷ ${b}`, frac: [a, b], unit: '公升', hint: '整數相除的結果可以用分數表示：被除數當分子，除數當分母。', after: `${a} ÷ ${b} ＝ ${FS(a, b)} 公升` }; },
+    () => { const n = pick([2, 3, 4]), b = pick([5, 7]), a = coprime(b); return { q: `□ ÷ ${n} ＝ ${F(a, b)}，□ ＝ ?`, eq: `${a}/${b} × ${n}`, frac: [a * n, b], hint: `用乘法還原：□ ＝ ${a}/${b} × ${n}。`, after: `□ ＝ ${F(a, b)} × ${n} ＝ ${FS(a * n, b)}` }; },
     () => { const b = pick([5, 7, 9]), a = coprime(b), n = rand(2, 4); return { q: `${F(a, b)} ÷ ${n} ○ ${F(a, b)}`, keep: true, opts: cmpOpts(a / (b * n), a / b), hint: '分給好幾份，每一份會比原來少。', after: `${F(a, b)} ÷ ${n} ＝ ${F(a, b * n)}，比 ${F(a, b)} 小` }; }
   ]));
 }
@@ -165,9 +165,9 @@ function u3C(st) {
     () => { const A = rand(11, 99), B = rand(2, 9), v = rd(A * B / 100); return { q: `${rd(A / 10)} × ${rd(B / 10)} ＝ ?`, ans: v, dec: true, hint: '先當整數乘，再數一數共有幾位小數。', after: `${rd(A / 10)} × ${rd(B / 10)} ＝ ${v}` }; },
     () => { const A = rand(101, 999), n = rand(3, 9), v = rd(A * n / 100); return { q: `${rd(A / 100)} × ${n} ＝ ?`, ans: v, dec: true, hint: '先算整數乘法，積是 2 位小數。', after: `${rd(A / 100)} × ${n} ＝ ${v}` }; },
     () => { const n = pick([8, 4]), v = rd(0.125 * n); return { q: `0.125 × ${n} ＝ ?`, ans: v, dec: true, hint: '125 × 8 ＝ 1000 喔！', after: `0.125 × ${n} ＝ ${v}` }; },
-    () => { const [p, q, u, txt] = pick([[32.5, 2.4, '元', '一公升椰子油 32.5 元，買 2.4 公升要幾元？'], [45, 2.6, '元', '絲綢每公尺 45 元，買 2.6 公尺要幾元？'], [1.8, 3.5, '公尺', '一匹布長 1.8 公尺，3.5 匹布長幾公尺？']]); const v = rd(p * q); return { q: txt, ans: v, unit: u, dec: true, hint: `${p} × ${q}`, after: `${p} × ${q} ＝ ${v} ${u}` }; },
-    () => { const [l, w] = pick([[12.5, 4.8], [6.5, 3.2], [7.5, 0.8]]), v = rd(l * w); return { q: `一塊長方形攤位長 ${l} 公尺、寬 ${w} 公尺，面積是多少平方公尺？`, ans: v, unit: '平方公尺', dec: true, hint: '長方形面積 ＝ 長 × 寬。', after: `${l} × ${w} ＝ ${v} 平方公尺` }; },
-    () => { const p = pick([0.6, 0.8, 1.2]), k = pick([0.75, 0.5, 2.5]), v = rd(p * k); return { q: `一包香料重 ${p} 公斤，${k} 包重幾公斤？`, ans: v, unit: '公斤', dec: true, hint: `${p} × ${k}`, after: `${p} × ${k} ＝ ${v} 公斤` }; }
+    () => { const [p, q, u, txt] = pick([[32.5, 2.4, '元', '一公升椰子油 32.5 元，買 2.4 公升要幾元？'], [45, 2.6, '元', '絲綢每公尺 45 元，買 2.6 公尺要幾元？'], [1.8, 3.5, '公尺', '一匹布長 1.8 公尺，3.5 匹布長幾公尺？']]); const v = rd(p * q); return { q: txt, eq: `${p} × ${q}`, ans: v, unit: u, dec: true, hint: `${p} × ${q}`, after: `${p} × ${q} ＝ ${v} ${u}` }; },
+    () => { const [l, w] = pick([[12.5, 4.8], [6.5, 3.2], [7.5, 0.8]]), v = rd(l * w); return { q: `一塊長方形攤位長 ${l} 公尺、寬 ${w} 公尺，面積是多少平方公尺？`, eq: `${l} × ${w}`, ans: v, unit: '平方公尺', dec: true, hint: '長方形面積 ＝ 長 × 寬。', after: `${l} × ${w} ＝ ${v} 平方公尺` }; },
+    () => { const p = pick([0.6, 0.8, 1.2]), k = pick([0.75, 0.5, 2.5]), v = rd(p * k); return { q: `一包香料重 ${p} 公斤，${k} 包重幾公斤？`, eq: `${p} × ${k}`, ans: v, unit: '公斤', dec: true, hint: `${p} × ${k}`, after: `${p} × ${k} ＝ ${v} 公斤` }; }
   ]));
 }
 
@@ -210,8 +210,8 @@ function u4B(st) {
     { q: '哪一個是<b>扇形</b>？（虛線是圓）', opts: [{ h: sector, ok: true }, { h: segment, ok: false, hint: '這個沒有經過圓心，是一條弦和一段圓弧。' }, { h: wrongV, ok: false, hint: '這個的頂點在圓周上，不是圓心。' }], hint: '扇形的頂點在圓心。' },
     { q: '扇形是由<b>兩條半徑</b>和一段什麼圍成的圖形？', opts: [{ h: '圓弧', ok: true }, { h: '直徑', ok: false }, { h: '線段', ok: false }], hint: '扇形外圍彎彎的那一段是圓弧。' },
     { q: '扇形中，兩條半徑所夾的角叫做什麼？', opts: [{ h: '圓心角', ok: true }, { h: '直角', ok: false }, { h: '平角', ok: false }], hint: '這個角的頂點在圓心。' },
-    () => { const [n, d] = pick([[1, 6], [1, 4], [1, 3], [1, 8], [1, 2]]); return { q: `${F(n, d)} 圓的圓心角是幾度？`, vis: sectorSVG(360 / d, { size: 150, full: true }), ans: 360 / d, unit: '度', hint: `一整圈是 360°，360 ÷ ${d}。`, after: `360° ÷ ${d} ＝ ${360 / d}°` }; },
-    () => { const a = pick([45, 60, 30, 90]); return { q: `一個圓可以剛好分成幾個圓心角 ${a}° 的扇形？`, ans: 360 / a, unit: '個', hint: `360 ÷ ${a}`, after: `360 ÷ ${a} ＝ ${360 / a} 個` }; },
+    () => { const [n, d] = pick([[1, 6], [1, 4], [1, 3], [1, 8], [1, 2]]); return { q: `${F(n, d)} 圓的圓心角是幾度？`, vis: sectorSVG(360 / d, { size: 150, full: true }), eq: `360 ÷ ${d}`, alt: [`360 × 1/${d}`], ans: 360 / d, unit: '度', hint: `一整圈是 360°，360 ÷ ${d}。`, after: `360° ÷ ${d} ＝ ${360 / d}°` }; },
+    () => { const a = pick([45, 60, 30, 90]); return { q: `一個圓可以剛好分成幾個圓心角 ${a}° 的扇形？`, eq: `360 ÷ ${a}`, ans: 360 / a, unit: '個', hint: `360 ÷ ${a}`, after: `360 ÷ ${a} ＝ ${360 / a} 個` }; },
     { q: '圓心角是 180° 的扇形，也就是什麼？', vis: sectorSVG(180, { size: 150, full: true }), opts: [{ h: `${F(1, 2)} 圓`, ok: true }, { h: `${F(1, 4)} 圓`, ok: false }, { h: '一整個圓', ok: false }], hint: '180° 是 360° 的一半。' }
   ]);
 }
@@ -220,11 +220,11 @@ function u4B(st) {
 function u4C(st) {
   quiz(st, shuffle([
     () => { const a = pick([120, 72, 270, 240, 40]); const [n, d] = simp(a, 360); return { q: `這個扇形的圓心角是 ${a}°，它是幾分之幾圓？`, vis: sectorSVG(a, { size: 160, full: true, label: a + '°' }), frac: [a, 360], simplest: true, hint: `用 ${a}/360 再約分。`, after: `${a}/360 ＝ ${F(n, d)}，是 ${F(n, d)} 圓` }; },
-    () => { const k = rand(2, 5); return { q: `${k} 個 ${F(1, 6)} 圓拼在一起，是圓心角幾度的扇形？`, ans: 60 * k, unit: '度', hint: '1/6 圓是 60°。', after: `60° × ${k} ＝ ${60 * k}°` }; },
-    { q: `${F(1, 4)} 圓和 ${F(1, 3)} 圓拼在一起，圓心角是幾度？`, ans: 210, unit: '度', hint: '90° ＋ 120°', after: '90° ＋ 120° ＝ 210°' },
+    () => { const k = rand(2, 5); return { q: `${k} 個 ${F(1, 6)} 圓拼在一起，是圓心角幾度的扇形？`, eq: `60 × ${k}`, alt: [`360 ÷ 6 × ${k}`, `360 × 1/6 × ${k}`, `360 × ${k}/6`], ans: 60 * k, unit: '度', hint: '1/6 圓是 60°。', after: `60° × ${k} ＝ ${60 * k}°` }; },
+    { q: `${F(1, 4)} 圓和 ${F(1, 3)} 圓拼在一起，圓心角是幾度？`, eq: '90 + 120', alt: ['360 ÷ 4 + 360 ÷ 3', '360 × 1/4 + 360 × 1/3', '360 × 7/12'], ans: 210, unit: '度', hint: '90° ＋ 120°', after: '90° ＋ 120° ＝ 210°' },
     { q: '時鐘的時針從 12 走到 4，掃過的扇形是幾分之幾圓？', frac: [1, 3], simplest: true, hint: '12 走到 4 是 4 大格，一圈有 12 大格。', after: `4/12 ＝ ${F(1, 3)} 圓（120°）` },
     { q: '兩個扇形半徑一樣長，圓心角一個是 90°、一個是 60°，哪一個比較大？', opts: [{ h: '90° 的扇形', ok: true }, { h: '60° 的扇形', ok: false }, { h: '一樣大', ok: false }], hint: '半徑相同時，圓心角越大，扇形越大。' },
-    () => { const [n, d] = pick([[3, 4], [5, 6], [2, 3], [3, 8]]); return { q: `${F(n, d)} 圓的圓心角是幾度？`, ans: 360 / d * n, unit: '度', hint: `360 ÷ ${d} × ${n}`, after: `360° ÷ ${d} × ${n} ＝ ${360 / d * n}°` }; }
+    () => { const [n, d] = pick([[3, 4], [5, 6], [2, 3], [3, 8]]); return { q: `${F(n, d)} 圓的圓心角是幾度？`, eq: `360 ÷ ${d} × ${n}`, alt: [`360 × ${n}/${d}`, `360 × ${n} ÷ ${d}`], ans: 360 / d * n, unit: '度', hint: `360 ÷ ${d} × ${n}`, after: `360° ÷ ${d} × ${n} ＝ ${360 / d * n}°` }; }
   ]));
 }
 
@@ -260,18 +260,18 @@ function u5B(st) {
     { q: '1 立方公尺 ＝ ? 立方公分', opts: [{ h: '1000000', ok: true }, { h: '1000', ok: false }, { h: '10000', ok: false }], hint: '1 公尺 ＝ 100 公分，100 × 100 × 100。', after: '100 × 100 × 100 ＝ 1000000' },
     () => { const k = rand(2, 9); return { q: `${k} 立方公尺 ＝ ? 立方公分`, ans: k * 1000000, unit: '立方公分', hint: '1 立方公尺是 1000000 立方公分。', after: `${k} 立方公尺 ＝ ${comma(k * 1000000)} 立方公分` }; },
     () => { const k = rand(11, 49); return { q: `${comma(k * 100000)} 立方公分 ＝ ? 立方公尺`, ans: rd(k / 10), dec: true, unit: '立方公尺', hint: '除以 1000000。', after: `${comma(k * 100000)} 立方公分 ＝ ${rd(k / 10)} 立方公尺` }; },
-    () => { const l = rand(3, 6), w = rand(2, 4), h = rand(2, 4); return { q: '這個長方體的體積是多少立方公分？', vis: isoSVG(boxCubes(l, w, h), { u: 22, dims: { l, w, h } }), ans: l * w * h, unit: '立方公分', hint: '長方體體積 ＝ 長 × 寬 × 高。', after: `${l} × ${w} × ${h} ＝ ${l * w * h} 立方公分` }; },
-    () => { const [l, w, h] = pick([[2, 1.5, 1], [3, 2, 0.5], [2.5, 2, 2]]), v = rd(l * w * h); return { q: `長 ${l} 公尺、寬 ${w} 公尺、高 ${h} 公尺的石箱，體積是多少立方公尺？`, ans: v, dec: true, unit: '立方公尺', hint: '長 × 寬 × 高，單位是立方公尺。', after: `${l} × ${w} × ${h} ＝ ${v} 立方公尺` }; },
+    () => { const l = rand(3, 6), w = rand(2, 4), h = rand(2, 4); return { q: '這個長方體的體積是多少立方公分？', vis: isoSVG(boxCubes(l, w, h), { u: 22, dims: { l, w, h } }), eq: `${l} × ${w} × ${h}`, nums: [l, w, h], ans: l * w * h, unit: '立方公分', hint: '長方體體積 ＝ 長 × 寬 × 高。', after: `${l} × ${w} × ${h} ＝ ${l * w * h} 立方公分` }; },
+    () => { const [l, w, h] = pick([[2, 1.5, 1], [3, 2, 0.5], [2.5, 2, 2]]), v = rd(l * w * h); return { q: `長 ${l} 公尺、寬 ${w} 公尺、高 ${h} 公尺的石箱，體積是多少立方公尺？`, eq: `${l} × ${w} × ${h}`, ans: v, dec: true, unit: '立方公尺', hint: '長 × 寬 × 高，單位是立方公尺。', after: `${l} × ${w} × ${h} ＝ ${v} 立方公尺` }; },
     { q: '正方體的體積公式是什麼？', opts: [{ h: '邊長 × 邊長 × 邊長', ok: true, }, { h: '邊長 × 4', ok: false }, { h: '邊長 × 邊長', ok: false }], hint: '正方體的長、寬、高都是邊長。' }
   ]);
 }
 
 /* ===== 5-C 複合形體的體積 ===== */
 function u5C(st) {
-  const L = () => { const a = rand(4, 6), b = rand(2, 3), c = rand(1, 2), t = rand(2, 3), k = rand(1, 2); return { cubes: [...boxCubes(a, b, c), ...boxCubes(k, b, t, 0, 0, c)], v: a * b * c + k * b * t, txt: `下層：長 ${a}、寬 ${b}、高 ${c}；上層：長 ${k}、寬 ${b}、高 ${t}（單位：公分）`, how: `${a} × ${b} × ${c} ＋ ${k} × ${b} × ${t} ＝ ${a * b * c + k * b * t}` }; };
-  const Cut = () => { const a = rand(4, 6), b = rand(3, 4), c = rand(3, 4), x = 2, z = rand(1, 2); const cubes = boxCubes(a, b, c).filter(([i, , k]) => !(i >= a - x && k >= c - z)); return { cubes, v: a * b * c - x * b * z, txt: `大長方體長 ${a}、寬 ${b}、高 ${c}，挖掉一角（長 ${x}、寬 ${b}、高 ${z}）（單位：公分）`, how: `${a} × ${b} × ${c} − ${x} × ${b} × ${z} ＝ ${a * b * c - x * b * z}` }; };
-  const Step = () => { const b = rand(2, 3); return { cubes: [...boxCubes(3, b, 1), ...boxCubes(2, b, 1, 0, 0, 1), ...boxCubes(1, b, 1, 0, 0, 2)], v: 6 * b, txt: `每一個小石塊都是 1 立方公分，寬 ${b} 公分的石階`, how: `(3 ＋ 2 ＋ 1) × ${b} ＝ ${6 * b}` }; };
-  quiz(st, [L, Cut, Step, L].map(g => () => { const s = g(); return { q: `這個複合形體的體積是多少立方公分？<br><small>${s.txt}</small>`, vis: isoSVG(s.cubes, { u: 22, max: 360 }), ans: s.v, unit: '立方公分', hint: '可以切成兩個長方體相加，或用大長方體減去缺的部分。', after: s.how + ' 立方公分' }; }));
+  const L = () => { const a = rand(4, 6), b = rand(2, 3), c = rand(1, 2), t = rand(2, 3), k = rand(1, 2); return { cubes: [...boxCubes(a, b, c), ...boxCubes(k, b, t, 0, 0, c)], v: a * b * c + k * b * t, txt: `下層：長 ${a}、寬 ${b}、高 ${c}；上層：長 ${k}、寬 ${b}、高 ${t}（單位：公分）`, how: `${a} × ${b} × ${c} ＋ ${k} × ${b} × ${t} ＝ ${a * b * c + k * b * t}`, eq: `${a} × ${b} × ${c} + ${k} × ${b} × ${t}` }; };
+  const Cut = () => { const a = rand(4, 6), b = rand(3, 4), c = rand(3, 4), x = 2, z = rand(1, 2); const cubes = boxCubes(a, b, c).filter(([i, , k]) => !(i >= a - x && k >= c - z)); return { cubes, v: a * b * c - x * b * z, txt: `大長方體長 ${a}、寬 ${b}、高 ${c}，挖掉一角（長 ${x}、寬 ${b}、高 ${z}）（單位：公分）`, how: `${a} × ${b} × ${c} − ${x} × ${b} × ${z} ＝ ${a * b * c - x * b * z}`, eq: `${a} × ${b} × ${c} − ${x} × ${b} × ${z}` }; };
+  const Step = () => { const b = rand(2, 3); return { cubes: [...boxCubes(3, b, 1), ...boxCubes(2, b, 1, 0, 0, 1), ...boxCubes(1, b, 1, 0, 0, 2)], v: 6 * b, txt: `每一個小石塊都是 1 立方公分，寬 ${b} 公分的石階`, how: `(3 ＋ 2 ＋ 1) × ${b} ＝ ${6 * b}`, eq: `(3 + 2 + 1) × ${b}`, alt: [`3 × ${b} + 2 × ${b} + 1 × ${b}`] }; };
+  quiz(st, [L, Cut, Step, L].map(g => () => { const s = g(); return { q: `這個複合形體的體積是多少立方公分？<br><small>${s.txt}</small>`, vis: isoSVG(s.cubes, { u: 22, max: 360 }), eq: s.eq, alt: s.alt, ans: s.v, unit: '立方公分', hint: '可以切成兩個長方體相加，或用大長方體減去缺的部分。', after: s.how + ' 立方公分' }; }));
 }
 
 LEVELS.u1 = [u1A, u1B, u1C];

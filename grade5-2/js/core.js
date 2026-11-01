@@ -217,13 +217,14 @@ function quiz(st, rounds) {
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
-    const typed = r.ans !== undefined || r.ans2 !== undefined || r.frac !== undefined;
-    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${typed ? 'kwrap' : 'opts'}"></div>`;
+    const eqm = !!r.eq, typed = !eqm && (r.ans !== undefined || r.ans2 !== undefined || r.frac !== undefined);
+    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
       if (r.after) { $('.qvis', st).insertAdjacentHTML('beforeend', `<div class="after">${r.after}</div>`); speak(r.after); }
       i++; later(show, r.after ? 2200 : 1000);
     };
+    if (eqm) return eqBuild($('.eqwrap', st), r, next);
     if (r.frac) return fracpad($('.kwrap', st), r.frac, next, r.hint, r.simplest);
     if (r.ans2) return keypad2($('.kwrap', st), r.labels, r.ans2, next, r.hint);
     if (typed) return keypad($('.kwrap', st), r.ans, next, r.hint, r.unit, r.dec);
@@ -231,6 +232,258 @@ function quiz(st, rounds) {
     (r.keep ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, next, r.hint)));
   }
   show();
+}
+
+/* ---------- 列式小幫手（2026-11，由三上 eqBuild 改寫成五年級版） ----------
+   應用題只要把「算式」列對就過關，答案由電腦用精確分數算，小朋友不用拿紙筆。
+   r.eq：算式字串，例如 '24 × 3/5'、'(20 − 2) × (12 − 2) × (8 − 1)'、'600 − 600 × 30%'。
+     數字可寫整數、小數、分數 a/b（a/b 是「一個數」）、百分率 p%；運算用 ＋ − × ÷ 和括號。
+     也相容三上的陣列寫法 [[a, op, b], [x, op, 'R']]。
+   r.alt：其他也算對的列法（字串陣列），可以讓「一步一步列」走別的路。
+   r.nums：題目數字不在文字裡（例如在圖上）時，直接給數字按鈕。
+   可以一行列完（用括號），也可以一步一步列：列對其中一步，電腦算出答案，下一行用「第 N 步的答案」。
+   ＋、× 的順序可以交換；0.48、48%、12/25 都當成同一個數；值對、而且只用到題目數字或標準換算數的列法也算對。
+   r.eqRound：列對後，再用小鍵盤填 r.ans（例如四捨五入的概數）。r.frac 有給時，答案用分數顯示。 */
+const EQ_WHY = {
+  '+': '「一共、合起來、再加上」用加法 ＋',
+  '−': '「還剩、用掉、扣掉、少了」用減法 −',
+  '×': '「每份一樣多，有好幾份」「幾分之幾倍、百分之幾、打幾折」「長 × 寬 × 高」用乘法 ×',
+  '÷': '「平分、每份是多少」「比率 ＝ 部分 ÷ 全部」「已知一部分，求全部」用除法 ÷'
+};
+/* 精確分數 [分子, 分母]，避免 0.1 ＋ 0.2 這種浮點誤差 */
+const qN = (n, d = 1) => { if (d < 0) { n = -n; d = -d; } const g = gcd(Math.abs(n), d) || 1; return [n / g, d / g]; };
+const qAdd = (a, b) => qN(a[0] * b[1] + b[0] * a[1], a[1] * b[1]);
+const qMul = (a, b) => qN(a[0] * b[0], a[1] * b[1]);
+const qInv = a => a[0] ? qN(a[1], a[0]) : null;
+const qKey = a => a[0] + '/' + a[1];
+function qLit(s) {
+  const m = /^(\d+)(?:\.(\d+))?(?:\/(\d+))?(%)?$/.exec(s); if (!m) return null;
+  let v = qN(+(m[1] + (m[2] || '')), 10 ** (m[2] || '').length);
+  if (m[3]) { if (+m[3] === 0) return null; v = qMul(v, [1, +m[3]]); }
+  if (m[4]) v = qMul(v, [1, 100]);
+  return v;
+}
+/* 精確值轉成文字：能除盡用小數，不然用分數（frac 為 true 一律用分數） */
+function qFmt(v, frac) {
+  const [n, d] = v; if (d === 1) return String(n);
+  let x = d; while (x % 2 === 0) x /= 2; while (x % 5 === 0) x /= 5;
+  if (!frac && x === 1) { let k = 0; while ((10 ** k) % d) k++; const s = String(Math.abs(n) * (10 ** k / d)).padStart(k + 1, '0'); return (n < 0 ? '−' : '') + s.slice(0, -k) + '.' + s.slice(-k); }
+  const w = Math.floor(n / d), f = F(n, d);
+  if (!frac) return `${f} ≈ ${(Math.floor(n / d * 10000) / 10000).toFixed(4)}…`;
+  return w >= 1 ? `${f} ＝ ${w}${F(n - w * d, d)}` : f;
+}
+const qTok = v => v[1] === 1 ? String(v[0]) : /<|≈/.test(qFmt(v)) ? qKey(v) : qFmt(v);
+const eqTok = s => String(s).replace(/＋/g, '+').replace(/[-－]/g, '−').replace(/[*＊]/g, '×').replace(/（/g, '(').replace(/）/g, ')').match(/\d+(?:\.\d+)?(?:\/\d+)?%?|[+−×÷()]|\S/g) || [];
+/* 三上的陣列寫法轉成字串 */
+function eqStr(e) {
+  if (!Array.isArray(e)) return e;
+  const steps = Array.isArray(e[0]) ? e : [e];
+  return steps.reduce((s, [a, op, b]) => `(${[a, b].map(x => x === 'R' ? s : x).join(` ${op} `)})`, '');
+}
+/* 算式樹：葉子 {v, s}；節點 {op:'+'|'×', kids:[{neg, n}]}（neg 在加法是 −、在乘法是 ÷），同種運算攤平 */
+function eqNode(op, kids) {
+  const out = [];
+  kids.forEach(k => { if (k.n.op === op) k.n.kids.forEach(c => out.push({ neg: c.neg !== k.neg, n: c.n })); else out.push(k); });
+  return out.length === 1 && !out[0].neg ? out[0].n : { op, kids: out };
+}
+function eqParse(toks) {
+  let i = 0;
+  function factor() {
+    const t = toks[i++];
+    if (t === '(') { const e = expr(); if (toks[i++] !== ')') throw 0; return e; }
+    const v = t && qLit(t); if (!v) throw 0;
+    return { v, s: t };
+  }
+  function chain(sub, a, b, op) {
+    const kids = [{ neg: false, n: sub() }];
+    while (toks[i] === a || toks[i] === b) { const o = toks[i++]; kids.push({ neg: o === b, n: sub() }); }
+    return eqNode(op, kids);
+  }
+  const term = () => chain(factor, '×', '÷', '×'), expr = () => chain(term, '+', '−', '+');
+  try { const t = expr(); return i === toks.length ? t : null; } catch (e) { return null; }
+}
+function eqVal(t) {
+  if (t.v) return t.v;
+  let acc = t.op === '+' ? [0, 1] : [1, 1];
+  for (const k of t.kids) {
+    let v = eqVal(k.n); if (!v) return null;
+    if (k.neg) { v = t.op === '+' ? [-v[0], v[1]] : qInv(v); if (!v) return null; }
+    acc = t.op === '+' ? qAdd(acc, v) : qMul(acc, v);
+  }
+  return acc;
+}
+const eqLeaves = t => t.v ? [qKey(t.v)] : t.kids.flatMap(k => eqLeaves(k.n));
+const eqSig = t => eqLeaves(t).sort().join(',');
+function eqOpList(t, s = []) {
+  if (t.v) return s;
+  let first = true;
+  t.kids.forEach(k => { if (k.neg) s.push(t.op === '+' ? '−' : '÷'); else if (first) first = false; else s.push(t.op === '+' ? '+' : '×'); eqOpList(k.n, s); });
+  return s;
+}
+const eqOpsOf = t => new Set(eqOpList(t)), eqOpSig = t => eqOpList(t).sort().join('');
+/* 列出所有「可以先算的一部分」：make(R) 把那一部分換成第 N 步的答案 */
+function eqSubs(t) {
+  if (t.v) return [];
+  const out = [], n = t.kids.length;
+  for (let m = 1; m < (1 << n); m++) {
+    const pk = t.kids.filter((_, j) => m >> j & 1), rest = t.kids.filter((_, j) => !(m >> j & 1));
+    if (pk.length < 2) continue;
+    /* 全部是 ÷（或 −）的一組，例如 ÷ (50 × 40) 攤平成 ÷ 50 ÷ 40：先算 50 × 40，再 ÷ 答案 */
+    if (pk.every(k => k.neg)) { out.push({ t: { op: t.op, kids: pk.map(k => ({ neg: false, n: k.n })) }, make: R => eqNode(t.op, [...rest, { neg: true, n: R }]) }); continue; }
+    out.push({ t: { op: t.op, kids: pk }, make: R => rest.length ? eqNode(t.op, [...rest, { neg: false, n: R }]) : R });
+  }
+  t.kids.forEach((k, j) => eqSubs(k.n).forEach(s => out.push({ t: s.t, make: R => eqNode(t.op, t.kids.map((c, x) => x === j ? { neg: c.neg, n: s.make(R) } : c)) })));
+  return out;
+}
+/* 題目裡的數字（分數、小數、百分率都算） */
+function eqNums(r) {
+  if (r.nums) return r.nums.map(String);
+  const plain = String(r.q || '').replace(/<span class="frac"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/(\d),(?=\d{3})/g, '$1');
+  return [...new Set(plain.match(/\d+(?:\.\d+)?(?:\/\d+)?%?/g) || [])];
+}
+/* 判斷一行算式。S = {paths, allowed}；回傳 {final} / {step, next} / {bad} */
+function eqJudge(S, toks) {
+  if (!toks.length) return { bad: 'empty' };
+  const t = eqParse(toks); if (!t) return { bad: 'syntax' };
+  const v = eqVal(t); if (!v) return { bad: 'zero' };
+  if (t.v) return { bad: 'noop' };
+  const key = qKey(v), sig = eqSig(t), leaves = eqLeaves(t), target = qKey(eqVal(S.paths[0]));
+  const ops = eqOpSig(t);
+  const match = x => eqSig(x) === sig && qKey(eqVal(x)) === key && eqOpSig(x) === ops;
+  if (S.paths.some(match)) return { final: v };
+  const pathLeaves = new Set(S.paths.flatMap(eqLeaves));
+  if (key === target && leaves.every(l => S.allowed.has(l) && (l !== target || pathLeaves.has(l)))) return { final: v };
+  const next = [];
+  S.paths.forEach(p => eqSubs(p).forEach(s => { if (match(s.t)) next.push(s.make); }));
+  if (next.length) return { step: v, next };
+  if (!leaves.every(l => S.allowed.has(l))) return { bad: 'num' };
+  const kOps = eqOpsOf(t);
+  const same = S.paths.flatMap(p => [p, ...eqSubs(p).map(s => s.t)]).filter(x => eqSig(x) === sig);
+  if (same.length) {
+    const exact = same.find(x => eqOpSig(x) === eqOpSig(t));
+    if (!exact) { const xo = eqOpList(same[0]), ko = eqOpList(t), cnt = (a, o) => a.filter(y => y === o).length; return { bad: 'op', op: xo.find(o => cnt(xo, o) > cnt(ko, o)) || xo[0] }; }
+    return { bad: kOps.has('−') || kOps.has('÷') ? 'order' : 'paren' };
+  }
+  const pOps = eqOpsOf(S.paths[0]);
+  if (![...kOps].some(o => pOps.has(o))) return { bad: 'op', op: [...pOps][0] };
+  return { bad: 'nums' };
+}
+const eqIsNum = s => /^\d/.test(s);
+const eqTokHTML = s => {
+  const m = /^(\d+(?:\.\d*)?)\/(\d*)(%?)$/.exec(s);
+  return m ? F(m[1], m[2] || '□') + m[3] : eqIsNum(s) ? s : `<i class="eq-o">${s}</i>`;
+};
+function eqBuild(box, r, onRight) {
+  const paths = [r.eq, ...(r.alt || [])].map(e => eqParse(eqTok(eqStr(e))));
+  if (paths.some(p => !p)) console.error('列式小幫手：算式寫錯了', r.eq, r.alt);
+  const nums = eqNums(r), frac = !!r.frac;
+  const S = { paths: paths.filter(Boolean), allowed: new Set([...nums.map(qLit).filter(Boolean).map(qKey), ...paths.filter(Boolean).flatMap(eqLeaves)]) };
+  const rows = [];
+  let finished = false;
+  box.innerHTML = `<div class="eq-tip">✏️ 不用自己算！把<b>算式</b>列出來，答案電腦幫你算。<br><small>可以一次列完（先算的加括號），也可以一步一步列。分數用「／」鍵，例如 3／4。</small></div>
+    <div class="eq-chips">${nums.length ? '<span class="eq-lbl">題目裡的數字：</span>' : '<span class="eq-lbl">數字在圖上，用下面的鍵盤輸入：</span>'}${nums.map(n => `<button type="button" class="eq-chip" data-n="${n}">${eqTokHTML(n)}</button>`).join('')}</div>
+    <div class="eq-rows"></div>
+    <div class="eq-pad">${['7', '8', '9', '+', '−', '4', '5', '6', '×', '÷', '1', '2', '3', '(', ')', '0', '.', '/', '%', '⌫'].map(k => `<button type="button" class="eq-key${'+−×÷'.includes(k) ? ' op' : '()/%'.includes(k) ? ' fn' : k === '⌫' ? ' del' : ''}" data-k="${k}">${k === '/' ? '分數／' : k}</button>`).join('')}</div>
+    <div class="eq-msg"></div>
+    <div class="center"><button type="button" class="btn teal eq-go">✔ 檢查算式</button></div>
+    <div class="kwrap eq-round"></div>`;
+  const rowsBox = $('.eq-rows', box), msg = $('.eq-msg', box), chips = $('.eq-chips', box);
+  const row = () => rows[rows.length - 1];
+  function addRow() {
+    const el = document.createElement('div'); el.className = 'eq-row';
+    el.innerHTML = `${rows.length ? `<div class="eq-step">第 ${rows.length + 1} 步</div>` : ''}<div class="eq-line"><div class="eq-expr"></div><span class="eq-sign">=</span><span class="eq-res">?</span><button type="button" class="eq-clr" title="清除這一行">🧹</button></div>`;
+    rowsBox.appendChild(el);
+    const w = { el, T: [] }; rows.push(w);
+    $('.eq-clr', el).onclick = () => { if (w.done || finished) return; w.T = []; sfx('tap'); draw(); };
+    draw();
+  }
+  function draw() {
+    rows.forEach(w => { $('.eq-expr', w.el).innerHTML = w.T.map(t => `<span class="eq-t${t.lock ? ' lock' : ''}">${eqTokHTML(t.s)}</span>`).join('') + (w.done ? '' : '<span class="eq-caret"></span>'); });
+  }
+  const hint = s => { toast(s); speak(s); };
+  function put(s) {
+    if (finished) return;
+    const T = row().T, last = T[T.length - 1];
+    if (last && (eqIsNum(last.s) || last.s === ')')) return hint('數字後面要先放符號喔！');
+    T.push({ s, lock: true }); sfx('pop'); draw();
+  }
+  chips.addEventListener('click', e => { const c = e.target.closest('.eq-chip'); if (c) put(c.dataset.n); });
+  $$('.eq-key', box).forEach(b => b.onclick = () => {
+    if (finished) return;
+    const k = b.dataset.k, T = row().T, last = T[T.length - 1], ls = last ? last.s : '';
+    const open = last && eqIsNum(ls) && !last.lock && !ls.endsWith('%');
+    sfx('tap');
+    if (/\d/.test(k)) {
+      if (open) { if (ls.length < 9) last.s = ls === '0' ? k : ls + k; }
+      else if (last && (eqIsNum(ls) || ls === ')')) return hint('數字後面要先放符號喔！');
+      else T.push({ s: k });
+    } else if (k === '.') {
+      if (open && !/[./]/.test(ls)) last.s += '.';
+      else if (!last || !(eqIsNum(ls) || ls === ')')) T.push({ s: '0.' });
+    } else if (k === '/') {
+      if (open && !ls.includes('/') && !ls.endsWith('.')) last.s += '/';
+      else hint('先打分子，再按「分數／」，再打分母。');
+    } else if (k === '%') {
+      if (open && !ls.endsWith('/') && !ls.endsWith('.')) last.s += '%';
+      else hint('先打數字，再按 %。');
+    } else if ('+−×÷'.includes(k)) {
+      if (last && (eqIsNum(ls) || ls === ')')) T.push({ s: k });
+      else if (last && '+−×÷'.includes(ls)) last.s = k;
+      else return hint('先放數字，再放符號喔！');
+    } else if (k === '(') {
+      if (!last || '+−×÷('.includes(ls)) T.push({ s: '(' });
+      else return hint('括號前面要先放符號喔！');
+    } else if (k === ')') {
+      const depth = T.filter(t => t.s === '(').length - T.filter(t => t.s === ')').length;
+      if (depth > 0 && last && (eqIsNum(ls) || ls === ')')) T.push({ s: ')' });
+    } else if (k === '⌫') {
+      if (open && ls.length > 1) last.s = ls.slice(0, -1); else T.pop();
+    }
+    draw();
+  });
+  const MSG = {
+    empty: () => '還沒有列算式喔！點題目裡的數字和符號來列式。',
+    syntax: () => '算式還沒列完整：數字和符號要一個接一個，分數要有分母，括號也要成對喔！',
+    zero: () => '不能除以 0 喔！',
+    noop: () => '要列出「算式」（數字和符號），不是只寫一個數喔！',
+    num: () => `${r.hint ? r.hint + '　' : ''}有一個數字題目裡沒有直接寫，先想想要怎麼換算喔！`,
+    op: j => `${r.hint ? r.hint + '　' : ''}${EQ_WHY[j.op]}`,
+    order: () => '數字和符號都找對了！減法要把原本的量放前面，除法要把被分的量放前面；先算的部分記得加括號。',
+    paren: () => '數字和符號都找對了！想想看哪一部分要先算，要不要加括號？',
+    nums: () => `符號對了！數字再檢查一下。${r.hint || '再讀一次題目，找出要算的是哪些數。'}`
+  };
+  $('.eq-go', box).onclick = () => {
+    if (finished) return;
+    const w = row(), j = eqJudge(S, w.T.map(t => t.s));
+    if (j.bad) {
+      const text = MSG[j.bad](j);
+      w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
+      msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+      return;
+    }
+    const v = j.final || j.step, res = $('.eq-res', w.el);
+    w.done = true; w.el.classList.add('done'); res.innerHTML = qFmt(v, frac); res.classList.add('pop'); draw();
+    if (j.step) {
+      const k = rows.length, R = { v, s: qTok(v) };
+      S.paths = j.next.map(mk => mk(R));
+      S.allowed.add(qKey(v));
+      if (k === 1) w.el.insertAdjacentHTML('afterbegin', '<div class="eq-step">第 1 步</div>');
+      chips.insertAdjacentHTML('beforeend', `<button type="button" class="eq-chip res" data-n="${R.s}">第 ${k} 步答案 ${eqTokHTML(R.s)}</button>`);
+      msg.innerHTML = `✅ 第 ${k} 步列對了！電腦算出 <b>${qFmt(v, frac)}</b>，接著列下一步（可以點「第 ${k} 步答案」）。`;
+      sfx('ok'); speak(`列對了，答案是 ${qFmt(v, frac)}。接著列下一步`);
+      if (rows.length < 6) addRow();
+      return;
+    }
+    finished = true; $('.eq-go', box).disabled = true;
+    msg.innerHTML = `✅ 算式列對了！答案是 <b class="eq-ans">${qFmt(v, frac)}${r.unit ? ' ' + r.unit : ''}</b>`;
+    api.ok();
+    if (r.eqRound) {
+      msg.insertAdjacentHTML('beforeend', `<br>${r.roundQ || '再用四捨五入取概數：'}`); speak(r.roundQ || '再用四捨五入取概數');
+      return keypad($('.eq-round', box), r.ans, onRight, r.hint, r.unit, true);
+    }
+    later(onRight, 700);
+  };
+  addRow();
 }
 
 /* 拖曳（滑鼠、觸控都可）。沒移動就當成「點一下」，onDrop 收到 'tap'；
