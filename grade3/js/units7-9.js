@@ -69,11 +69,11 @@ function u7B(st) {
 /* ===== 7-C 容量計算挑戰 ===== */
 function u7C(st) {
   const rounds = [
-    () => { const m = rand(1, 9) * 50 + 100; return { q: `1 公升的果汁，倒出 ${m} 毫升，還剩幾毫升？`, vis: '<span style="font-size:56px">🧃</span>', ans: 1000 - m, unit: '毫升', hint: '1 公升 = 1000 毫升', after: `1000 − ${m} = ${1000 - m}（毫升）` }; },
-    () => { const a = rand(1, 3) * 1000 + rand(1, 9) * 100, b = rand(1, 2) * 1000 + rand(1, 9) * 100; return { q: `${lText(a)} 加 ${lText(b)} 是幾毫升？`, ans: a + b, unit: '毫升', hint: '都換成毫升再加！', after: `${a} + ${b} = ${a + b}（毫升）= ${lText(a + b)}` }; },
-    () => { const v = rand(3, 9) * 100 + 50 * rand(0, 1), n = rand(2, 4); return { q: `一瓶水 ${v} 毫升，${n} 瓶一共幾毫升？`, vis: pics('🍼', n, true), ans: v * n, unit: '毫升', hint: `${v} × ${n}`, after: `${v} × ${n} = ${v * n}（毫升）= ${lText(v * n)}` }; },
-    () => { const big = rand(2, 4) * 1000, small = rand(3, 9) * 100 + 50; return { q: `大桶有 ${big / 1000} 公升水，小桶有 ${small} 毫升，大桶比小桶多幾毫升？`, vis: '<span style="font-size:56px">🪣</span>', ans: big - small, unit: '毫升', hint: `${big / 1000} 公升 = ${big} 毫升`, after: `${big} − ${small} = ${big - small}（毫升）` }; },
-    () => { const c = pick([200, 250]), n = 1000 / c; return { q: `1 公升的牛奶，每杯倒 ${c} 毫升，可以剛好倒滿幾杯？`, vis: '<span style="font-size:56px">🥛</span>', ans: n, unit: '杯', hint: `${c} 毫升加幾次會是 1000 毫升？`, after: `${c} × ${n} = 1000，可以倒 ${n} 杯` }; }
+    () => { const m = rand(1, 9) * 50 + 100; return { q: `1 公升的果汁，倒出 ${m} 毫升，還剩幾毫升？`, vis: '<span style="font-size:56px">🧃</span>', eq: [1000, '−', m], ans: 1000 - m, unit: '毫升', hint: '1 公升 = 1000 毫升', after: `1000 − ${m} = ${1000 - m}（毫升）` }; },
+    () => { const a = rand(1, 3) * 1000 + rand(1, 9) * 100, b = rand(1, 2) * 1000 + rand(1, 9) * 100; return { q: `${lText(a)} 加 ${lText(b)} 是幾毫升？`, eq: [a, '+', b], ans: a + b, unit: '毫升', hint: `都換成毫升再加：${lText(a)} = ${a} 毫升，${lText(b)} = ${b} 毫升`, after: `${a} + ${b} = ${a + b}（毫升）= ${lText(a + b)}` }; },
+    () => { const v = rand(3, 9) * 100 + 50 * rand(0, 1), n = rand(2, 4); return { q: `一瓶水 ${v} 毫升，${n} 瓶一共幾毫升？`, vis: pics('🍼', n, true), eq: [v, '×', n], ans: v * n, unit: '毫升', hint: '每瓶一樣多，有好幾瓶。', after: `${v} × ${n} = ${v * n}（毫升）= ${lText(v * n)}` }; },
+    () => { const big = rand(2, 4) * 1000, small = rand(3, 9) * 100 + 50; return { q: `大桶有 ${big / 1000} 公升水，小桶有 ${small} 毫升，大桶比小桶多幾毫升？`, vis: '<span style="font-size:56px">🪣</span>', eq: [big, '−', small], ans: big - small, unit: '毫升', hint: `${big / 1000} 公升 = ${big} 毫升`, after: `${big} − ${small} = ${big - small}（毫升）` }; },
+    () => { const c = pick([200, 250]), n = 1000 / c; return { q: `1 公升的牛奶，每杯倒 ${c} 毫升，可以剛好倒滿幾杯？`, vis: '<span style="font-size:56px">🥛</span>', eq: [1000, '÷', c], ans: n, unit: '杯', hint: '1 公升 = 1000 毫升，每杯一樣多，可以分成幾杯？', after: `${c} × ${n} = 1000，可以倒 ${n} 杯` }; }
   ];
   quiz(st, rounds);
 }

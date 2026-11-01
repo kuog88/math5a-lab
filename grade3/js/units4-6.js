@@ -71,10 +71,10 @@ function u4C(st) {
   const rounds = [
     () => { const a = rand(21, 59), b = rand(12, 39), s = a + b; return { q: `${cmText(a)} + ${cmText(b)} = ？`, opts: opt3(s, [s - 10, s + 10, s + 1]), hint: '毫米加毫米，滿 10 毫米換成 1 公分！', after: `= ${cmText(s)}` }; },
     () => { let a, b; do { a = rand(52, 98); b = rand(13, 48); } while (a % 10 >= b % 10); const d = a - b; return { q: `${cmText(a)} − ${cmText(b)} = ？`, opts: opt3(d, [d + 10, d - 10, d + 2]), hint: '毫米不夠減，借 1 公分當 10 毫米！', after: `= ${cmText(d)}` }; },
-    () => { const c = rand(15, 85); return { q: `1 公尺 − ${c} 公分 = 幾公分？`, ans: 100 - c, unit: '公分', hint: '1 公尺 = 100 公分', after: `100 − ${c} = ${100 - c}（公分）` }; },
+    () => { const c = rand(15, 85); return { q: `1 公尺 − ${c} 公分 = 幾公分？`, eq: [100, '−', c], ans: 100 - c, unit: '公分', hint: '1 公尺 = 100 公分', after: `100 − ${c} = ${100 - c}（公分）` }; },
     () => { const m = rand(1, 3), c = rand(5, 95); return { q: `${m} 公尺 ${c} 公分是幾公分？`, ans: m * 100 + c, unit: '公分', hint: `${m} 公尺是 ${m * 100} 公分`, after: `${m * 100} + ${c} = ${m * 100 + c}（公分）` }; },
-    () => { const a = rand(3, 6), m = rand(2, 8), n = rand(2, 4), L = (a * 10 + m) * n; return { q: `一段緞帶長 ${a} 公分 ${m} 毫米，${n} 段接起來一共長幾毫米？`, vis: '<span style="font-size:56px">🎀</span>', ans: L, unit: '毫米', hint: `先換成 ${a * 10 + m} 毫米，再乘以 ${n}`, after: `${a * 10 + m} × ${n} = ${L}（毫米）= ${cmText(L)}` }; },
-    () => { const a = rand(8, 15), b = rand(2, 6), m = rand(1, 9); return { q: `一根吸管長 ${a} 公分，剪掉 ${b} 公分 ${m} 毫米，還剩幾毫米？`, vis: '<span style="font-size:56px">🥤</span>', ans: a * 10 - b * 10 - m, unit: '毫米', hint: `${a} 公分 = ${a * 10} 毫米，${b} 公分 ${m} 毫米 = ${b * 10 + m} 毫米`, after: `${a * 10} − ${b * 10 + m} = ${a * 10 - b * 10 - m}（毫米）` }; }
+    () => { const a = rand(3, 6), m = rand(2, 8), n = rand(2, 4), L = (a * 10 + m) * n; return { q: `一段緞帶長 ${a} 公分 ${m} 毫米，${n} 段接起來一共長幾毫米？`, vis: '<span style="font-size:56px">🎀</span>', eq: [a * 10 + m, '×', n], ans: L, unit: '毫米', hint: `一段是 ${a * 10 + m} 毫米，有 ${n} 段一樣長。`, after: `${a * 10 + m} × ${n} = ${L}（毫米）= ${cmText(L)}` }; },
+    () => { const a = rand(8, 15), b = rand(2, 6), m = rand(1, 9); return { q: `一根吸管長 ${a} 公分，剪掉 ${b} 公分 ${m} 毫米，還剩幾毫米？`, vis: '<span style="font-size:56px">🥤</span>', eq: [a * 10, '−', b * 10 + m], ans: a * 10 - b * 10 - m, unit: '毫米', hint: `${a} 公分 = ${a * 10} 毫米，${b} 公分 ${m} 毫米 = ${b * 10 + m} 毫米`, after: `${a * 10} − ${b * 10 + m} = ${a * 10 - b * 10 - m}（毫米）` }; }
   ];
   quiz(st, rounds);
 }
@@ -236,18 +236,18 @@ function u6C(st) {
   }
   function word() {
     const w = [
-      () => { const d = rand(4, 8), q = rand(4, 9), m = rand(1, d - 1), n = d * q + m; return { q: `${n} 顆糖果平分給 ${d} 個小朋友，每人分到幾顆？`, vis: '<span style="font-size:56px">🍬</span>', a: q, hint: `${n} ÷ ${d}，看商！`, after: `${n} ÷ ${d} = ${q} … ${m}，每人 ${q} 顆，剩 ${m} 顆` }; },
-      () => { const d = rand(5, 9), q = rand(3, 9), m = rand(1, d - 1), n = d * q + m; return { q: `${n} 枝鉛筆，每 ${d} 枝綁成一束，綁好後剩下幾枝？`, vis: '<span style="font-size:56px">✏️</span>', a: m, hint: `${n} ÷ ${d}，看餘數！`, after: `${n} ÷ ${d} = ${q} … ${m}，剩 ${m} 枝` }; }
+      () => { const d = rand(4, 8), q = rand(4, 9), m = rand(1, d - 1), n = d * q + m; return { q: `${n} 顆糖果平分給 ${d} 個小朋友，每人分到幾顆？`, vis: '<span style="font-size:56px">🍬</span>', a: q, eq: [n, '÷', d], hint: '平分用除法，答案看「商」！', after: `${n} ÷ ${d} = ${q} … ${m}，每人 ${q} 顆，剩 ${m} 顆` }; },
+      () => { const d = rand(5, 9), q = rand(3, 9), m = rand(1, d - 1), n = d * q + m; return { q: `${n} 枝鉛筆，每 ${d} 枝綁成一束，綁好後剩下幾枝？`, vis: '<span style="font-size:56px">✏️</span>', a: m, eq: [n, '÷', d], hint: '每幾枝一束，用除法，剩下的看「餘數」！', after: `${n} ÷ ${d} = ${q} … ${m}，剩 ${m} 枝` }; }
     ];
     let k = 0;
     const once = () => {
       if (k >= w.length) return api.finish();
       const R = w[k]();
-      st.innerHTML = `${dots(probs.length + k, probs.length + 2)}<div class="qvis">${R.vis}</div><div class="numpad"></div>`;
+      st.innerHTML = `${dots(probs.length + k, probs.length + 2)}<div class="qvis">${R.vis}</div><div class="eqwrap"></div>`;
       api.say(R.q);
-      digitPad($('.numpad', st), R.a, () => {
-        $('.qvis', st).insertAdjacentHTML('beforeend', `<div class="after">${R.after}</div>`); speak(R.after.replace(/…/g, '餘')); k++; later(once, 2300);
-      }, R.hint);
+      eqBuild($('.eqwrap', st), R, () => {
+        $('.qvis', st).insertAdjacentHTML('beforeend', `<div class="after">${R.after}</div>`); speak(R.after.replace(/…/g, '餘')); k++; later(once, 2600);
+      });
     };
     once();
   }

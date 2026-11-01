@@ -172,8 +172,8 @@ function u2B(st) {
     () => { const [a, ah] = near(), [b, bh] = near(), s = ah + bh; return { q: `${a} + ${b} 大約是多少？`, sp: `${a} 加 ${b} 大約是多少？`, vis: `<span class="eq sm">${a} ≈ ${ah}　${b} ≈ ${bh}</span>`, opts: [{ h: N(s), ok: true }, { h: N(s + 1000), ok: false }, { h: N(s - 100), ok: false }], hint: `${a} 很接近 ${ah}，${b} 很接近 ${bh}，先算整百！`, after: `${ah} + ${bh} = ${s}，大約是 ${s}` }; },
     () => { let a, ah, b, bh; do { [a, ah] = near(); [b, bh] = near(); } while (ah <= bh); const s = ah - bh; return { q: `${a} − ${b} 大約是多少？`, vis: `<span class="eq sm">${a} ≈ ${ah}　${b} ≈ ${bh}</span>`, opts: [{ h: N(s), ok: true }, { h: N(s + 1000), ok: false }, { h: N(s + 200), ok: false }], hint: '先想成接近的整百再減！', after: `${ah} − ${bh} = ${s}` }; },
     () => { const a = rand(3000, 9000), b = rand(1000, a - 500), c = a - b; return { q: `${a} − ${b} = ${c}，可以用哪一個算式來驗算？`, opts: [{ h: `<span class="small-opt">${c} + ${b}</span>`, ok: true }, { h: `<span class="small-opt">${c} − ${b}</span>`, ok: false }, { h: `<span class="small-opt">${a} + ${b}</span>`, ok: false }], hint: '差加減數，會等於被減數！', after: `${c} + ${b} = ${a}，算對了！` }; },
-    () => { const s = rand(25, 90) * 100, b = rand(1100, s - 500); return { q: `□ + ${b} = ${s}，□ 是多少？`, vis: `<span class="eq sm"><span class="box">?</span> + ${b} = ${s}</span>`, ans: s - b, hint: `用 ${s} − ${b} 就可以找到 □！`, after: `${s} − ${b} = ${s - b}` }; },
-    () => { const a = rand(3000, 9800), c = rand(1000, a - 1000); return { q: `${a} − □ = ${c}，□ 是多少？`, vis: `<span class="eq sm">${a} − <span class="box">?</span> = ${c}</span>`, ans: a - c, hint: `用 ${a} − ${c} 就可以找到 □！`, after: `${a} − ${c} = ${a - c}` }; },
+    () => { const s = rand(25, 90) * 100, b = rand(1100, s - 500); return { q: `□ + ${b} = ${s}，□ 是多少？`, vis: `<span class="eq sm"><span class="box">?</span> + ${b} = ${s}</span>`, eq: [s, '−', b], ans: s - b, hint: `用 ${s} − ${b} 就可以找到 □！`, after: `${s} − ${b} = ${s - b}` }; },
+    () => { const a = rand(3000, 9800), c = rand(1000, a - 1000); return { q: `${a} − □ = ${c}，□ 是多少？`, vis: `<span class="eq sm">${a} − <span class="box">?</span> = ${c}</span>`, eq: [a, '−', c], ans: a - c, hint: `用 ${a} − ${c} 就可以找到 □！`, after: `${a} − ${c} = ${a - c}` }; },
     () => { let a, b; do { a = rand(1200, 6000); b = rand(1200, 3500); } while ((a % 10) + (b % 10) < 10); const wrong = a + b - 10; return { q: `小明算 ${a} + ${b} = ${wrong}，他算對了嗎？`, opts: [{ h: '錯了，忘記進位', ok: true }, { h: '算對了', ok: false }, { h: '錯了，不用進位', ok: false }].map(o => ({ ...o, h: `<span class="small-opt">${o.h}</span>` })), hint: `個位 ${a % 10} + ${b % 10} 滿十了，要進位！`, after: `${a} + ${b} = ${a + b}` }; }
   ];
   quiz(st, rounds);
@@ -182,11 +182,11 @@ function u2B(st) {
 /* ===== 2-C 加減應用挑戰 ===== */
 function u2C(st) {
   const rounds = [
-    () => { const a = rand(1200, 4800), b = rand(1200, 4800); return { q: `圖書館有故事書 ${a} 本、科學書 ${b} 本，一共有幾本？`, vis: '<span style="font-size:56px">📚</span>', ans: a + b, unit: '本', hint: '合起來用加法！', after: `${a} + ${b} = ${a + b}` }; },
-    () => { const a = rand(3, 9) * 1000, b = rand(1050, a - 300); return { q: `媽媽帶了 ${a} 元，買電鍋花了 ${b} 元，還剩下幾元？`, vis: '<span style="font-size:56px">💰</span>', ans: a - b, unit: '元', hint: '剩下用減法，整千減要連續借位喔！', after: `${a} − ${b} = ${a - b}` }; },
-    () => { const a = rand(2500, 6000), d = rand(800, 2400); return { q: `第一天有 ${a} 人參觀，第二天比第一天多 ${d} 人，第二天有幾人？`, vis: '<span style="font-size:56px">🎡</span>', ans: a + d, unit: '人', hint: '比第一天多，用加法！', after: `${a} + ${d} = ${a + d}` }; },
-    () => { const a = rand(4000, 9000), b = rand(1500, a - 800); return { q: `哥哥跑了 ${a} 公尺，弟弟跑了 ${b} 公尺，哥哥比弟弟多跑幾公尺？`, vis: '<span style="font-size:56px">🏃</span>', ans: a - b, unit: '公尺', hint: '比多少用減法：大的減小的。', after: `${a} − ${b} = ${a - b}` }; },
-    () => { const c = rand(3000, 8000), s = rand(1000, c - 1000); return { q: `一箱有 ${c} 顆彈珠，賣掉一些後剩下 ${s} 顆，賣掉幾顆？`, vis: '<span style="font-size:56px">🔮</span>', ans: c - s, unit: '顆', hint: '原來的減掉剩下的，就是賣掉的。', after: `${c} − ${s} = ${c - s}` }; }
+    () => { const a = rand(1200, 4800), b = rand(1200, 4800); return { q: `圖書館有故事書 ${a} 本、科學書 ${b} 本，一共有幾本？`, vis: '<span style="font-size:56px">📚</span>', eq: [a, '+', b], ans: a + b, unit: '本', hint: '合起來用加法！', after: `${a} + ${b} = ${a + b}` }; },
+    () => { const a = rand(3, 9) * 1000, b = rand(1050, a - 300); return { q: `媽媽帶了 ${a} 元，買電鍋花了 ${b} 元，還剩下幾元？`, vis: '<span style="font-size:56px">💰</span>', eq: [a, '−', b], ans: a - b, unit: '元', hint: '花掉了，錢會變少。', after: `${a} − ${b} = ${a - b}` }; },
+    () => { const a = rand(2500, 6000), d = rand(800, 2400); return { q: `第一天有 ${a} 人參觀，第二天比第一天多 ${d} 人，第二天有幾人？`, vis: '<span style="font-size:56px">🎡</span>', eq: [a, '+', d], ans: a + d, unit: '人', hint: '比第一天多，用加法！', after: `${a} + ${d} = ${a + d}` }; },
+    () => { const a = rand(4000, 9000), b = rand(1500, a - 800); return { q: `哥哥跑了 ${a} 公尺，弟弟跑了 ${b} 公尺，哥哥比弟弟多跑幾公尺？`, vis: '<span style="font-size:56px">🏃</span>', eq: [a, '−', b], ans: a - b, unit: '公尺', hint: '比多少用減法：大的減小的。', after: `${a} − ${b} = ${a - b}` }; },
+    () => { const c = rand(3000, 8000), s = rand(1000, c - 1000); return { q: `一箱有 ${c} 顆彈珠，賣掉一些後剩下 ${s} 顆，賣掉幾顆？`, vis: '<span style="font-size:56px">🔮</span>', eq: [c, '−', s], ans: c - s, unit: '顆', hint: '原來的減掉剩下的，就是賣掉的。', after: `${c} − ${s} = ${c - s}` }; }
   ];
   quiz(st, rounds);
 }
@@ -250,11 +250,11 @@ function u3B(st) {
 /* ===== 3-C 乘法應用挑戰 ===== */
 function u3C(st) {
   const rounds = [
-    () => { const p = rand(12, 48), n = rand(3, 9); return { q: `一盒彩色筆有 ${p} 枝，${n} 盒有幾枝？`, vis: pics('🖍️', n, true), ans: p * n, unit: '枝', hint: `${p} 枝的 ${n} 倍，用 ${p} × ${n}`, after: `${p} × ${n} = ${p * n}` }; },
-    () => { const p = rand(115, 380), n = rand(3, 9); return { q: `一張門票 ${p} 元，買 ${n} 張要多少元？`, vis: '<span style="font-size:56px">🎟️</span>', ans: p * n, unit: '元', hint: `${p} × ${n}，從個位乘起，記得進位！`, after: `${p} × ${n} = ${p * n}` }; },
-    () => { const d = rand(205, 650), n = 7; return { q: `小華每天走 ${d} 公尺上學，一個星期 7 天一共走幾公尺？`, vis: '<span style="font-size:56px">🚶</span>', ans: d * n, unit: '公尺', hint: `${d} × 7`, after: `${d} × 7 = ${d * n}` }; },
-    () => { const p = rand(125, 299), n = rand(3, 6), have = (Math.floor(p * n / 1000) + 1) * 1000; return { q: `一個便當 ${p} 元，買 ${n} 個，付 ${have} 元，要找回多少元？`, vis: '<span style="font-size:56px">🍱</span>', ans: have - p * n, unit: '元', hint: `先算 ${p} × ${n} = ${p * n}，再用 ${have} 去減。`, after: `${have} − ${p * n} = ${have - p * n}` }; },
-    () => { const k = rand(16, 28), n = rand(4, 9); return { q: `一排有 ${k} 張椅子，排了 ${n} 排以後又多排 1 排，一共有幾張？`, vis: '<span style="font-size:56px">🪑</span>', ans: k * (n + 1), unit: '張', hint: `多一排就是 ${n + 1} 排：${k} × ${n + 1}`, after: `${k} × ${n + 1} = ${k * (n + 1)}` }; }
+    () => { const p = rand(12, 48), n = rand(3, 9); return { q: `一盒彩色筆有 ${p} 枝，${n} 盒有幾枝？`, vis: pics('🖍️', n, true), eq: [p, '×', n], ans: p * n, unit: '枝', hint: `每盒一樣多，有 ${n} 盒。`, after: `${p} × ${n} = ${p * n}` }; },
+    () => { const p = rand(115, 380), n = rand(3, 9); return { q: `一張門票 ${p} 元，買 ${n} 張要多少元？`, vis: '<span style="font-size:56px">🎟️</span>', eq: [p, '×', n], ans: p * n, unit: '元', hint: '每張一樣貴，買好幾張。', after: `${p} × ${n} = ${p * n}` }; },
+    () => { const d = rand(205, 650), n = 7; return { q: `小華每天走 ${d} 公尺上學，一個星期 7 天一共走幾公尺？`, vis: '<span style="font-size:56px">🚶</span>', eq: [d, '×', 7], ans: d * n, unit: '公尺', hint: '每天走一樣遠，走了 7 天。', after: `${d} × 7 = ${d * n}` }; },
+    () => { const p = rand(125, 299), n = rand(3, 6), have = (Math.floor(p * n / 1000) + 1) * 1000; return { q: `一個便當 ${p} 元，買 ${n} 個，付 ${have} 元，要找回多少元？`, vis: '<span style="font-size:56px">🍱</span>', eq: [[p, '×', n], [have, '−', 'R']], ans: have - p * n, unit: '元', hint: `先算 ${n} 個便當要多少錢，再算要找回多少。`, after: `${have} − ${p * n} = ${have - p * n}` }; },
+    () => { const k = rand(16, 28), n = rand(4, 9); return { q: `一排有 ${k} 張椅子，排了 ${n} 排以後又多排 1 排，一共有幾張？`, vis: '<span style="font-size:56px">🪑</span>', eq: [k, '×', n + 1], alt: [[[n, '+', 1], [k, '×', 'R']], [[k, '×', n], ['R', '+', k]]], ans: k * (n + 1), unit: '張', hint: `排了 ${n} 排又多 1 排，一共幾排呢？`, after: `${k} × ${n + 1} = ${k * (n + 1)}` }; }
   ];
   quiz(st, rounds);
 }

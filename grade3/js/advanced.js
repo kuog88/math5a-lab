@@ -7,8 +7,8 @@ function xquiz(st, rounds) {
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
-    const typed = r.ans !== undefined;
-    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${typed ? 'kwrap' : 'opts'}"></div><div class="xpl" hidden></div>`;
+    const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
+    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : 'opts'}"></div><div class="xpl" hidden></div>`;
     api.say(r.q, r.sp);
     const done = () => {
       const x = $('.xpl', st), last = i === rounds.length - 1;
@@ -18,6 +18,7 @@ function xquiz(st, rounds) {
       $('.xpl-next', x).onclick = () => { i++; show(); };
       x.scrollIntoView && x.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     };
+    if (eqm) return eqBuild($('.eqwrap', st), r, done);
     if (typed) return keypad($('.kwrap', st), r.ans, done, r.hint, r.unit);
     const ops = $('.opts', st);
     (r.keep ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, done, r.hint)));
@@ -88,14 +89,14 @@ const X2 = [
   {
     q: '一個數減去 1258，等於 3746。這個數是多少？', sp: '一個數減去1258，等於3746。這個數是多少？',
     vis: '<span class="eq sm"><span class="box">?</span> − 1258 = 3746</span>',
-    ans: 5004, hint: '被減數 = 差 + 減數',
+    eq: [3746, '+', 1258], ans: 5004, hint: '被減數 = 差 + 減數',
     ex: '□ − 1258 = 3746，□ = 3746 + 1258 = <b>5004</b>。驗算：5004 − 1258 = 3746。',
     trap: '題目有「減去」，但要求的是被減數，要用<b>加法</b>。用 3746 − 1258 = 2488 就錯了。'
   },
   {
     q: '哥哥有 2560 元，<b>比弟弟多</b> 875 元。弟弟有多少元？', sp: '哥哥有2560元，比弟弟多875元。弟弟有多少元？',
     vis: '<span style="font-size:44px">👦💰　🧒💰</span>',
-    ans: 1685, unit: '元', hint: '哥哥比較多，弟弟比較少喔！',
+    eq: [2560, '−', 875], ans: 1685, unit: '元', hint: '哥哥比較多，弟弟比較少喔！',
     ex: '哥哥比弟弟多 875 元，表示弟弟比哥哥少 875 元：2560 − 875 = <b>1685</b> 元。',
     trap: '看到「多」不一定用加法！誰比較多要先想清楚，2560 + 875 = 3435 是錯的。'
   },
@@ -128,7 +129,7 @@ const X3 = [
   {
     q: '一盒蛋有 6 個，一箱裝 24 盒。<b>9 箱</b>一共有幾個蛋？', sp: '一盒蛋有6個，一箱裝24盒。9箱一共有幾個蛋？',
     vis: '<span style="font-size:44px">🥚📦</span>',
-    ans: 1296, unit: '個', hint: '先算一箱有幾個蛋。',
+    eq: [[6, '×', 24], ['R', '×', 9]], alt: [[[24, '×', 9], ['R', '×', 6]], [[6, '×', 9], ['R', '×', 24]]], ans: 1296, unit: '個', hint: '先算一箱有幾個蛋。',
     ex: '一箱：24 × 6 = 144 個。9 箱：144 × 9 = <b>1296</b> 個。',
     trap: '要算兩步！只算 24 × 9 = 216 是「盒」數，不是蛋的個數。'
   },
@@ -142,7 +143,7 @@ const X3 = [
   {
     q: '每張門票 135 元，老師買 8 張，付了 2000 元，應該找回多少元？', sp: '每張門票135元，老師買8張，付了2000元，應該找回多少元？',
     vis: '<span style="font-size:44px">🎫 × 8</span>',
-    ans: 920, unit: '元', hint: '先算 8 張要多少錢。',
+    eq: [[135, '×', 8], [2000, '−', 'R']], ans: 920, unit: '元', hint: '先算 8 張要多少錢。',
     ex: '8 張：135 × 8 = 1080 元。找回：2000 − 1080 = <b>920</b> 元。',
     trap: '135 × 8 的十位：3 × 8 = 24 再加進位 4 = 28，要再進 2 到百位，連續進位別漏掉。'
   },
@@ -261,7 +262,7 @@ const X6 = [
   {
     q: '<span class="box">?</span> ÷ 8 = 6 … 5，□ 是多少？', sp: '方格除以8等於6，餘5，方格是多少？',
     vis: '<span class="eq sm"><span class="box">?</span> ÷ 8 = 6 … 5</span>',
-    ans: 53, hint: '被除數 = 除數 × 商 + 餘數',
+    eq: [[8, '×', 6], ['R', '+', 5]], ans: 53, hint: '被除數 = 除數 × 商 + 餘數',
     ex: '8 × 6 = 48，再加上餘數 5：48 + 5 = <b>53</b>。驗算：53 ÷ 8 = 6 … 5。',
     trap: '別忘了加餘數，只算 8 × 6 = 48 是錯的。'
   },
@@ -310,7 +311,7 @@ const X7 = [
   {
     q: '一瓶果汁有 <b>1 公升 50 毫升</b>，倒了 4 杯，每杯 250 毫升，還剩幾毫升？', sp: '一瓶果汁有1公升50毫升，倒了4杯，每杯250毫升，還剩幾毫升？',
     vis: '<span style="font-size:44px">🧃 → 🥛🥛🥛🥛</span>',
-    ans: 50, unit: '毫升', hint: '先把 1 公升 50 毫升換成毫升，再算倒掉多少。',
+    eq: [[250, '×', 4], [1050, '−', 'R']], ans: 50, unit: '毫升', hint: '先把 1 公升 50 毫升換成毫升（1050 毫升），再算倒掉多少。',
     ex: '1 公升 50 毫升 = 1050 毫升。倒掉 250 × 4 = 1000 毫升。1050 − 1000 = <b>50</b> 毫升。',
     trap: '1 公升 50 毫升是 1050 毫升，不是 1500 毫升。'
   },
