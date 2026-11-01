@@ -89,8 +89,22 @@ function confetti() {
   }
 }
 let cleanups = [];
-function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); return id; }
-function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
+function later(fn, ms) { const id = setTimeout(() => { okLock = 0; fn(); }, ms); cleanups.push(() => clearTimeout(id)); return id; }
+/* 答對後鎖住舞台：api.ok() 之後到下一個 later() 執行（或 api.say() 出下一題）之前，
+   答對那一刻已經在舞台上的東西點了都不算，避免「好了／確定」連點兩下一次跳兩題（最多鎖 4 秒）。
+   答對後才出現的按鈕（詳解的「下一題」、接著填的小鍵盤）不受影響。 */
+let okLock = 0, okOld = new WeakSet();
+/* 換題後馬上重畫的地方（詳解的「下一題」）：0.4 秒內舞台的點擊不算，連點的第二下才不會按到新題目的選項 */
+let calmUntil = 0;
+const calmStage = (ms = 400) => { calmUntil = Date.now() + ms; };
+function lockStage() { okLock = Date.now(); okOld = new WeakSet(); const s = document.getElementById('stage'); if (s) s.querySelectorAll('*').forEach(el => okOld.add(el)); }
+['click', 'pointerdown'].forEach(t => document.addEventListener(t, e => {
+  if (Date.now() < calmUntil && e.target.closest && e.target.closest('#stage')) { e.stopPropagation(); e.preventDefault(); return; }
+  if (!okLock || !okOld.has(e.target)) return;
+  if (Date.now() - okLock > 4000) { okLock = 0; return; }
+  e.stopPropagation(); e.preventDefault();
+}, true));
+function runCleanup() { okLock = 0; cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
 let cur = null, lastSay = '', lastQ = '';
@@ -111,11 +125,12 @@ function setQ(r) {
 }
 const api = {
   say(html, sp) {
+    okLock = 0;
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
     lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  ok(msg) { lockStage(); sfx('ok'); if (msg) toast(msg); rep(true); },
   bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
@@ -145,6 +160,9 @@ function optBtn(o, onRight, hint) {
 /* 數字選項 */
 function numOpts(ans, wrongs, unit = '') {
   const s = [...new Set([fmt(ans), ...wrongs.map(fmt)])].slice(0, 4);
+  // 錯的答案和正確答案一樣（或互相重複）時，補附近的數，保證不重複、至少 2 個
+  const want = Math.max(2, Math.min(4, wrongs.length + 1)), step = Number.isInteger(ans) ? 1 : 0.1;
+  for (let d = 1; s.length < want && d < 100; d++) [ans + d * step, ans - d * step].forEach(v => { if (v >= 0 && s.length < want && !s.includes(fmt(v))) s.push(fmt(v)); });
   return s.map(v => ({ h: `${N(v)}${unit ? `<small>${unit}</small>` : ''}`, ok: v === fmt(ans) }));
 }
 
@@ -152,7 +170,7 @@ function numOpts(ans, wrongs, unit = '') {
 function parseIn(s) {
   if (/^\d+:\d+$/.test(s)) return { ratio: s.split(':').map(Number) };
   let m = s.match(/^(\d+)_(\d+)\/(\d+)$/);
-  if (m) { const w = +m[1], a = +m[2], b = +m[3]; return b ? { v: w + a / b, frac: [w * b + a, b], mixed: a < b } : null; }
+  if (m) { const w = +m[1], a = +m[2], b = +m[3]; return b ? { v: w + a / b, frac: [w * b + a, b], mixed: a > 0 && a < b } : null; }
   m = s.match(/^(\d+)\/(\d+)$/);
   if (m) return +m[2] ? { v: +m[1] / +m[2], frac: [+m[1], +m[2]] } : null;
   if (/^\d*\.?\d+$|^\d+\.$/.test(s)) return { v: parseFloat(s) };
@@ -169,6 +187,7 @@ function checkAns(s, ans) {
     return gcd(x, y) === 1 ? true : '比對了，但還可以再化簡成最簡整數比！';
   }
   if (p.ratio) return false;
+  if (p.mixed === false) return '帶分數的分數部分要是真分數喔！';
   const want = typeof ans === 'string' ? (([a, b]) => +a / +b)(ans.split('/')) : ans;
   if (Math.abs(p.v - want) > 1e-9) return false;
   if (p.frac && p.frac[1] !== 1 && gcd(p.frac[0], p.frac[1]) !== 1) return '答案對了，但要約成最簡分數喔！';
@@ -410,6 +429,7 @@ function eqBuild(box, r, onRight) {
     if (w.a === '' || w.op === '' || w.b === '') return bad('還有格子是空的喔！兩個數字和中間的符號都要放進去。');
     const a = Qp(w.a), b = Qp(w.b);
     if (!a || !b) return bad('有一個數字還沒打完整，分數要有分子和分母喔！');
+    if ([w.a, w.b].some(s => { const m = /^\d+_(\d+)\/(\d+)$/.exec(s); return m && !(+m[1] > 0 && +m[1] < +m[2]); })) return bad('帶分數的分數部分要是真分數喔！');
     if (w.op === '÷' && b.n === 0) return bad('不能除以 0 喔！');
     const next = [], seen = new Set();
     states.forEach(s => eqStep(s, a, w.op, b).forEach(t => { const k = JSON.stringify(t); if (!seen.has(k)) { seen.add(k); next.push(t); } }));
