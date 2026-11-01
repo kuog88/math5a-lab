@@ -58,8 +58,8 @@ function u7B(st) {
 function u7C(st) {
   const rounds = [
     () => factRound(2, rand(2, 9)), () => factRound(5, rand(2, 9)), () => factRound(4, rand(2, 9)), () => factRound(8, rand(2, 9)),
-    () => { const k = rand(3, 9); return { q: `一隻章魚有 8 隻腳，${k} 隻章魚有幾隻腳？`, vis: pics('🐙', k, true), ans: 8 * k, unit: '隻', hint: `8 × ${k} 算算看！`, after: `8 × ${k} = ${8 * k}（隻）` }; },
-    () => { const k = rand(3, 9); return { q: `一包糖果 5 元，買 ${k} 包要幾元？`, vis: pics('🍬', k, true), ans: 5 * k, unit: '元', hint: `5 × ${k} 算算看！`, after: `5 × ${k} = ${5 * k}（元）` }; }
+    () => { const k = rand(3, 9); return { q: `一隻章魚有 8 隻腳，${k} 隻章魚有幾隻腳？`, vis: pics('🐙', k, true), eq: [8, '×', k], unit: '隻', hint: '每隻一樣是 8 隻腳，用乘法！', after: `8 × ${k} = ${8 * k}（隻）` }; },
+    () => { const k = rand(3, 9); return { q: `一包糖果 5 元，買 ${k} 包要幾元？`, vis: pics('🍬', k, true), eq: [5, '×', k], unit: '元', hint: '每包一樣是 5 元，用乘法！', after: `5 × ${k} = ${5 * k}（元）` }; }
   ];
   quiz(st, rounds);
 }
@@ -183,8 +183,8 @@ function u9C(st) {
   const rounds = [
     () => factRound(3, rand(2, 9)), () => factRound(6, rand(2, 9)), () => factRound(7, rand(2, 9)), () => factRound(9, rand(2, 9)),
     () => { const n = pick([3, 6, 7, 9]), k = rand(2, 9); return { q: `□ × ${k} = ${n * k}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> × ${k} = ${n * k}</span>`, ans: n, hint: `幾的 ${k} 倍是 ${n * k}？背背乘法表！`, after: `${n} × ${k} = ${n * k}` }; },
-    () => { const k = rand(3, 8); return { q: `一星期有 7 天，${k} 個星期有幾天？`, vis: '<span style="font-size:52px">📅</span>', ans: 7 * k, unit: '天', hint: `7 × ${k} 算算看！`, after: `7 × ${k} = ${7 * k}（天）` }; },
-    () => { const k = rand(3, 7); return { q: `一盒蛋有 6 顆，${k} 盒蛋，再加上 3 顆，一共有幾顆？`, vis: pics('🥚', 6, true), ans: 6 * k + 3, unit: '顆', hint: `先算 6 × ${k}，再加 3！`, after: `6 × ${k} = ${6 * k}，${6 * k} + 3 = ${6 * k + 3}（顆）` }; }
+    () => { const k = rand(3, 8); return { q: `一星期有 7 天，${k} 個星期有幾天？`, vis: '<span style="font-size:52px">📅</span>', eq: [7, '×', k], unit: '天', hint: '每星期一樣是 7 天，用乘法！', after: `7 × ${k} = ${7 * k}（天）` }; },
+    () => { const k = rand(3, 7); return { q: `一盒蛋有 6 顆，${k} 盒蛋，再加上 3 顆，一共有幾顆？`, vis: pics('🥚', 6, true), eq: [[6, '×', k], ['R', '+', 3]], unit: '顆', hint: '先算盒子裡的蛋，再加 3 顆！', after: `6 × ${k} = ${6 * k}，${6 * k} + 3 = ${6 * k + 3}（顆）` }; }
   ];
   quiz(st, rounds);
 }
@@ -275,9 +275,9 @@ function u10C(st) {
   const sum = a => a.reduce((s, v) => s + v, 0);
   const rounds = [
     { q: '沿著圖形的周界走一圈，這一圈的長度叫做什麼？', vis: polySVG(SHAPES.quad.pts, { c: '#c9f2e3' }), keep: true, opts: [{ h: '周長', ok: true }, { h: '頂點', ok: false }, { h: '內部', ok: false }], hint: '周界一圈的長度叫做周長！' },
-    () => { const s = [rand(4, 9), rand(4, 9), rand(4, 9)]; return { q: '這個三角形的周長是幾公分？', vis: polySVG(SHAPES.tri.pts, { labels: s.map(v => `${v} 公分`) }), ans: sum(s), unit: '公分', hint: '把 3 條邊的長度加起來！', after: `${s.join(' + ')} = ${sum(s)}（公分）` }; },
-    () => { const a = rand(3, 6), b = a + rand(2, 5); return { q: '這個長方形的周長是幾公分？', vis: polySVG(SHAPES.rect.pts, { labels: [`${b} 公分`, `${a} 公分`] }), ans: 2 * (a + b), unit: '公分', hint: `長方形對邊一樣長：${b} + ${a} + ${b} + ${a}`, after: `${b} + ${a} + ${b} + ${a} = ${2 * (a + b)}（公分）` }; },
-    () => { const a = rand(3, 9); return { q: `正方形一條邊 ${a} 公分，周長是幾公分？`, vis: polySVG(SHAPES.sq.pts, { labels: [`${a} 公分`] }), ans: 4 * a, unit: '公分', hint: `4 條邊都是 ${a} 公分：${a} + ${a} + ${a} + ${a}，也可以用 ${a} × 4`, after: `${a} × 4 = ${4 * a}（公分）` }; },
+    () => { const s = [rand(4, 9), rand(4, 9), rand(4, 9)]; return { q: '這個三角形的周長是幾公分？', vis: polySVG(SHAPES.tri.pts, { labels: s.map(v => `${v} 公分`) }), eq: sumPaths(s)[0], alt: sumPaths(s), nums: s, unit: '公分', hint: '周長是 3 條邊加起來！', after: `${s.join(' + ')} = ${sum(s)}（公分）` }; },
+    () => { const a = rand(3, 6), b = a + rand(2, 5); return { q: '這個長方形的周長是幾公分？', vis: polySVG(SHAPES.rect.pts, { labels: [`${b} 公分`, `${a} 公分`] }), eq: sumPaths([b, a, b, a])[0], alt: sumPaths([b, a, b, a]).concat([[[b, '+', a], ['R', '×', 2]], [[b, '×', 2], [a, '×', 2], ['R1', '+', 'R2']]]), nums: [b, a], extra: [2], unit: '公分', hint: '長方形 4 條邊，對面的邊一樣長，全部加起來！', after: `${b} + ${a} + ${b} + ${a} = ${2 * (a + b)}（公分）` }; },
+    () => { const a = rand(3, 9); return { q: `正方形一條邊 ${a} 公分，周長是幾公分？`, vis: polySVG(SHAPES.sq.pts, { labels: [`${a} 公分`] }), eq: [a, '×', 4], alt: sumPaths([a, a, a, a]).concat([[[a, '+', a], ['R', '×', 2]], [[a, '×', 2], ['R', '×', 2]]]), extra: [2, 4], unit: '公分', hint: '正方形 4 條邊一樣長，4 條加起來，或用乘法！', after: `${a} × 4 = ${4 * a}（公分）` }; },
     () => { const w = rand(2, 5), h = rand(1, 3), cells = []; for (let i = 0; i < h; i++) for (let j = 0; j < w; j++) cells.push([i, j]); return { q: '每一小格的邊都是 1 公分，這個圖形的周長是幾公分？', vis: gridShape(cells, '#ffd1e3'), ans: 2 * (w + h), unit: '公分', hint: '沿著外面的邊，一段一段數，有幾個 1 公分？', after: `${w} + ${h} + ${w} + ${h} = ${2 * (w + h)}（公分）` }; }
   ];
   quiz(st, rounds);

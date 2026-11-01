@@ -46,9 +46,9 @@ function u4B(st) {
 /* ===== 4-C 解題和驗算 ===== */
 function u4C(st) {
   const rounds = [
-    () => { const b = rand(14, 38), c = b + rand(20, 50); return { q: `□ + ${b} = ${c}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> + ${b} = ${c}</span>`, ans: c - b, hint: `用 ${c} − ${b} 算算看！`, after: `${c} − ${b} = ${c - b}` }; },
-    () => { const a = rand(60, 95), x = rand(15, 45); return { q: `${a} − □ = ${a - x}，□ 是多少？`, vis: `<span class="eq">${a} − <span class="box">?</span> = ${a - x}</span>`, ans: x, hint: `用 ${a} − ${a - x} 算算看！`, after: `${a} − ${a - x} = ${x}` }; },
-    () => { const b = rand(16, 34), c = rand(22, 50); return { q: `□ − ${b} = ${c}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> − ${b} = ${c}</span>`, ans: b + c, hint: `用 ${c} + ${b} 算算看！`, after: `${c} + ${b} = ${b + c}` }; },
+    () => { const b = rand(14, 38), c = b + rand(20, 50); return { q: `□ + ${b} = ${c}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> + ${b} = ${c}</span>`, eq: [c, '−', b], hint: '加數不知道，用減法找！', after: `${c} − ${b} = ${c - b}` }; },
+    () => { const a = rand(60, 95), x = rand(15, 45); return { q: `${a} − □ = ${a - x}，□ 是多少？`, vis: `<span class="eq">${a} − <span class="box">?</span> = ${a - x}</span>`, eq: [a, '−', a - x], hint: '減數不知道，用大的數減剩下的！', after: `${a} − ${a - x} = ${x}` }; },
+    () => { const b = rand(16, 34), c = rand(22, 50); return { q: `□ − ${b} = ${c}，□ 是多少？`, vis: `<span class="eq"><span class="box">?</span> − ${b} = ${c}</span>`, eq: [c, '+', b], hint: '原來的數不知道，把剩下的加回去！', after: `${c} + ${b} = ${b + c}` }; },
     () => { const a = rand(52, 94), b = rand(17, 39), d = a - b; return { q: `${a} − ${b} = ${d}，用哪一個算式<b>驗算</b>？`, sp: `${a} − ${b} = ${d}，用哪一個算式驗算？`, opts: [{ h: `${d} + ${b} = ${a}`, ok: true }, { h: `${d} − ${b} = ${d - b}`, ok: false }, { h: `${a} + ${b} = ${a + b}`, ok: false }], hint: '答案加回減掉的數，要等於原來的數！' }; },
     () => { const a = rand(36, 58), b = rand(25, 39), wrong = a + b - 10; return { q: `小明算 ${a} + ${b} = ${wrong}。用 ${wrong} − ${b} 驗算，結果是 ${wrong - b}，他算對了嗎？`, opts: [{ h: '算對了', ok: false }, { h: '算錯了', ok: true }], keep: true, hint: `${wrong - b} 跟 ${a} 不一樣，所以算錯了！`, after: `正確答案是 ${a + b}` }; },
     () => { const a = rand(25, 59), b = rand(15, 39), c = a + b + pick([-3, 0, 4]); return { q: `${a} + ${b} ○ ${c}，圈圈裡要放什麼？`, vis: `<span class="eq">${a} + ${b} <span class="box">?</span> ${c}</span>`, keep: true, opts: [{ h: '＞', ok: a + b > c }, { h: '＝', ok: a + b === c }, { h: '＜', ok: a + b < c }], hint: `先算 ${a} + ${b} 是多少！`, after: `${a} + ${b} = ${a + b}` }; },
@@ -103,8 +103,8 @@ function u5B(st) {
 /* ===== 5-C 容量挑戰：用杯數比 ===== */
 function u5C(st) {
   const rounds = [
-    () => { const a = rand(8, 14), b = rand(3, 7); return { q: `用同樣的杯子量，水壺裝 ${a} 杯，水瓶裝 ${b} 杯，水壺比水瓶多裝幾杯？`, vis: '<span style="font-size:52px">🫖 🍼</span>', ans: a - b, unit: '杯', hint: '比多幾杯，用減法！', after: `${a} − ${b} = ${a - b}（杯）` }; },
-    () => { const a = rand(6, 12), b = rand(5, 9); return { q: `把裝 ${a} 杯的水和裝 ${b} 杯的水一起倒進大水桶，一共幾杯？`, vis: '<span style="font-size:52px">🪣</span>', ans: a + b, unit: '杯', hint: '合在一起，用加法！', after: `${a} + ${b} = ${a + b}（杯）` }; },
+    () => { const a = rand(8, 14), b = rand(3, 7); return { q: `用同樣的杯子量，水壺裝 ${a} 杯，水瓶裝 ${b} 杯，水壺比水瓶多裝幾杯？`, vis: '<span style="font-size:52px">🫖 🍼</span>', eq: [a, '−', b], unit: '杯', hint: '比多幾杯，用減法！', after: `${a} − ${b} = ${a - b}（杯）` }; },
+    () => { const a = rand(6, 12), b = rand(5, 9); return { q: `把裝 ${a} 杯的水和裝 ${b} 杯的水一起倒進大水桶，一共幾杯？`, vis: '<span style="font-size:52px">🪣</span>', eq: [a, '+', b], unit: '杯', hint: '合在一起，用加法！', after: `${a} + ${b} = ${a + b}（杯）` }; },
     () => { const ns = shuffle([rand(3, 5), rand(6, 8), rand(9, 12)]), names = ['🫖 水壺', '🥤 水瓶', '🍲 湯鍋']; const mx = Math.max(...ns); return { q: `用同樣的杯子量：水壺 ${ns[0]} 杯、水瓶 ${ns[1]} 杯、湯鍋 ${ns[2]} 杯。哪一個裝得<b>最多</b>？`, sp: `用同樣的杯子量：水壺 ${ns[0]} 杯、水瓶 ${ns[1]} 杯、湯鍋 ${ns[2]} 杯。哪一個裝得最多？`, keep: true, opts: names.map((h, i) => ({ h, ok: ns[i] === mx })), hint: '杯數最多的裝得最多！' }; },
     () => { const s = rand(3, 4), b = s * 2; return { q: `同一個水瓶，用紅杯子量是 ${s} 杯，用藍杯子量是 ${b} 杯。哪一種杯子比較大？`, keep: true, opts: [{ h: '🟥 紅杯子', ok: true }, { h: '🟦 藍杯子', ok: false }], hint: '杯子越大，倒的杯數越少喔！' }; }
   ];
@@ -133,7 +133,8 @@ function u6A(st) {
     function ask() {
       phase = 3; $('#bn', st).textContent = '?';
       api.say(`公車上原來有 ${a} 人，上車 ${b} 人，下車 ${c} 人。現在車上有幾人？`);
-      keypad($('#kw', st), a + b - c, () => { $('#qv', st).innerHTML = `<div class="after">${a} + ${b} − ${c} = ${a + b - c}（人）</div>`; speak(`${a} 加 ${b} 減 ${c} 等於 ${a + b - c}`); r++; later(round, 2600); }, '先加上車的，再減下車的！', '人');
+      const kw = $('#kw', st); kw.className = 'eqwrap';
+      eqBuild(kw, { q: `原來有 ${a} 人，上車 ${b} 人，下車 ${c} 人`, eq: [[a, '+', b], ['R', '−', c]], alt: [[[a, '−', c], ['R', '+', b]]], unit: '人', hint: '上車是加，下車是減！' }, () => { $('#qv', st).innerHTML = `<div class="after">${a} + ${b} − ${c} = ${a + b - c}（人）</div>`; speak(`${a} 加 ${b} 減 ${c} 等於 ${a + b - c}`); r++; later(round, 2600); });
     }
   }
   round();
@@ -153,10 +154,10 @@ function u6B(st) {
 /* ===== 6-C 兩步驟挑戰 ===== */
 function u6C(st) {
   const rounds = [
-    () => { const a = rand(15, 30), b = rand(12, 25), c = rand(10, 20); return { q: `一年級種了 ${a} 棵樹，二年級種了 ${b} 棵，三年級種了 ${c} 棵。一共種了幾棵？`, vis: '<span style="font-size:52px">🌳</span>', ans: a + b + c, unit: '棵', hint: '三個數加起來，可以一個一個加！', after: `${a} + ${b} + ${c} = ${a + b + c}（棵）` }; },
-    () => { const a = rand(60, 90), b = rand(12, 25), c = rand(10, 20); return { q: `圖書館有 ${a} 本書，借出 ${b} 本，又借出 ${c} 本。還剩幾本？`, vis: '<span style="font-size:52px">📖</span>', ans: a - b - c, unit: '本', hint: '借出兩次，連續減！', after: `${a} − ${b} − ${c} = ${a - b - c}（本）` }; },
-    () => { const a = rand(30, 50), b = rand(15, 25), c = rand(10, 30); return { q: `停車場有 ${a} 輛車，開走 ${b} 輛，又開進來 ${c} 輛。現在有幾輛？`, vis: '<span style="font-size:52px">🚗🅿️</span>', ans: a - b + c, unit: '輛', hint: '開走是減，開進來是加！', after: `${a} − ${b} + ${c} = ${a - b + c}（輛）` }; },
-    () => { const a = rand(25, 40), d = rand(8, 15), b = a - d; return { q: `哥哥有 ${a} 張卡片，弟弟比哥哥少 ${d} 張。兩人一共有幾張？`, vis: '<span style="font-size:52px">🃏</span>', ans: a + b, unit: '張', hint: `先算弟弟有 ${a} − ${d} 張，再把兩人加起來！`, after: `弟弟 ${a} − ${d} = ${b}，${a} + ${b} = ${a + b}（張）` }; }
+    () => { const a = rand(15, 30), b = rand(12, 25), c = rand(10, 20); return { q: `一年級種了 ${a} 棵樹，二年級種了 ${b} 棵，三年級種了 ${c} 棵。一共種了幾棵？`, vis: '<span style="font-size:52px">🌳</span>', eq: [[a, '+', b], ['R', '+', c]], alt: sumPaths([a, b, c]), unit: '棵', hint: '一共，用加法！先加兩個，再加第三個。', after: `${a} + ${b} + ${c} = ${a + b + c}（棵）` }; },
+    () => { const a = rand(60, 90), b = rand(12, 25), c = rand(10, 20); return { q: `圖書館有 ${a} 本書，借出 ${b} 本，又借出 ${c} 本。還剩幾本？`, vis: '<span style="font-size:52px">📖</span>', eq: [[a, '−', b], ['R', '−', c]], alt: [[[a, '−', c], ['R', '−', b]], [[b, '+', c], [a, '−', 'R']]], unit: '本', hint: '借出去會變少，用減法！', after: `${a} − ${b} − ${c} = ${a - b - c}（本）` }; },
+    () => { const a = rand(30, 50), b = rand(15, 25), c = rand(10, 30); return { q: `停車場有 ${a} 輛車，開走 ${b} 輛，又開進來 ${c} 輛。現在有幾輛？`, vis: '<span style="font-size:52px">🚗🅿️</span>', eq: [[a, '−', b], ['R', '+', c]], alt: [[[a, '+', c], ['R', '−', b]]], unit: '輛', hint: '開走是減，開進來是加！', after: `${a} − ${b} + ${c} = ${a - b + c}（輛）` }; },
+    () => { const a = rand(25, 40), d = rand(8, 15), b = a - d; return { q: `哥哥有 ${a} 張卡片，弟弟比哥哥少 ${d} 張。兩人一共有幾張？`, vis: '<span style="font-size:52px">🃏</span>', eq: [[a, '−', d], [a, '+', 'R']], alt: [[[a, '+', a], ['R', '−', d]]], unit: '張', hint: '先算弟弟有幾張，再把兩人加起來！', after: `弟弟 ${a} − ${d} = ${b}，${a} + ${b} = ${a + b}（張）` }; }
   ];
   quiz(st, rounds);
 }

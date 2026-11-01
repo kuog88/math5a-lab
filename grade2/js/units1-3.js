@@ -128,11 +128,11 @@ function u2B(st) {
 /* ===== 2-C 加、減法的應用 ===== */
 function u2C(st) {
   const rounds = [
-    () => { const a = rand(24, 58), b = rand(19, 45); return { q: `一年級有 ${a} 人，二年級有 ${b} 人，合起來有幾人？`, vis: '<span style="font-size:56px">🧒👧</span>', ans: a + b, unit: '人', hint: '合起來，用加法！', after: `${a} + ${b} = ${a + b}（人）` }; },
-    () => { const a = rand(58, 96), b = rand(17, 39); return { q: `水果店有 ${a} 顆橘子，賣掉 ${b} 顆，還剩幾顆？`, vis: '<span style="font-size:56px">🍊</span>', ans: a - b, unit: '顆', hint: '賣掉會變少，用減法！', after: `${a} − ${b} = ${a - b}（顆）` }; },
-    () => { const a = rand(38, 67), b = rand(25, 48); return { q: `二年甲班有 ${a} 本故事書，又買了 ${b} 本，現在有幾本？`, vis: '<span style="font-size:56px">📚</span>', ans: a + b, unit: '本', hint: '又買了，是變多，用加法！', after: `${a} + ${b} = ${a + b}（本）` }; },
-    () => { const a = rand(52, 93), b = rand(17, 39); return { q: `小美有 ${a} 張貼紙，送給妹妹 ${b} 張，還剩幾張？`, vis: '<span style="font-size:56px">⭐</span>', ans: a - b, unit: '張', hint: '送出去會變少，用減法！', after: `${a} − ${b} = ${a - b}（張）` }; },
-    () => { const a = rand(55, 89), b = rand(26, 49); return { q: `哥哥跳繩 ${a} 下，弟弟跳 ${b} 下，哥哥比弟弟多跳幾下？`, vis: '<span style="font-size:56px">🪢</span>', ans: a - b, unit: '下', hint: '比多少，用大的減小的！', after: `${a} − ${b} = ${a - b}（下）` }; }
+    () => { const a = rand(24, 58), b = rand(19, 45); return { q: `一年級有 ${a} 人，二年級有 ${b} 人，合起來有幾人？`, vis: '<span style="font-size:56px">🧒👧</span>', eq: [a, '+', b], unit: '人', hint: '合起來，用加法！', after: `${a} + ${b} = ${a + b}（人）` }; },
+    () => { const a = rand(58, 96), b = rand(17, 39); return { q: `水果店有 ${a} 顆橘子，賣掉 ${b} 顆，還剩幾顆？`, vis: '<span style="font-size:56px">🍊</span>', eq: [a, '−', b], unit: '顆', hint: '賣掉會變少，用減法！', after: `${a} − ${b} = ${a - b}（顆）` }; },
+    () => { const a = rand(38, 67), b = rand(25, 48); return { q: `二年甲班有 ${a} 本故事書，又買了 ${b} 本，現在有幾本？`, vis: '<span style="font-size:56px">📚</span>', eq: [a, '+', b], unit: '本', hint: '又買了，是變多，用加法！', after: `${a} + ${b} = ${a + b}（本）` }; },
+    () => { const a = rand(52, 93), b = rand(17, 39); return { q: `小美有 ${a} 張貼紙，送給妹妹 ${b} 張，還剩幾張？`, vis: '<span style="font-size:56px">⭐</span>', eq: [a, '−', b], unit: '張', hint: '送出去會變少，用減法！', after: `${a} − ${b} = ${a - b}（張）` }; },
+    () => { const a = rand(55, 89), b = rand(26, 49); return { q: `哥哥跳繩 ${a} 下，弟弟跳 ${b} 下，哥哥比弟弟多跳幾下？`, vis: '<span style="font-size:56px">🪢</span>', eq: [a, '−', b], unit: '下', hint: '比多少，用大的減小的！', after: `${a} − ${b} = ${a - b}（下）` }; }
   ];
   quiz(st, rounds);
 }
@@ -176,10 +176,10 @@ function u3B(st) {
 /* ===== 3-C 長度的加減 ===== */
 function u3C(st) {
   const rounds = [
-    () => { const a = rand(5, 9), b = rand(3, 8); return { q: `把 ${a} 公分和 ${b} 公分的紙條接起來（沒有重疊），一共幾公分？`, vis: rulerSVG(a + b + 1, [{ from: 0, len: a, c: '#ffc93c' }, { from: a, len: b, c: '#5bb4ff' }]), ans: a + b, unit: '公分', hint: '接起來是合在一起，用加法！', after: `${a} + ${b} = ${a + b}（公分）` }; },
-    () => { const a = rand(10, 14), b = rand(3, 6); return { q: `一條 ${a} 公分的緞帶，剪掉 ${b} 公分，還剩幾公分？`, vis: '<span style="font-size:56px">🎀✂️</span>', ans: a - b, unit: '公分', hint: '剪掉會變短，用減法！', after: `${a} − ${b} = ${a - b}（公分）` }; },
-    () => { const a = rand(12, 18), b = rand(6, 11); return { q: `鉛筆長 ${a} 公分，蠟筆長 ${b} 公分，鉛筆比蠟筆長幾公分？`, vis: '<span style="font-size:56px">✏️🖍️</span>', ans: a - b, unit: '公分', hint: '比長多少，用大的減小的！', after: `${a} − ${b} = ${a - b}（公分）` }; },
-    () => { const a = rand(23, 45), b = rand(14, 30); return { q: `小明量窗戶，先量到 ${a} 公分，再往上量 ${b} 公分，窗戶一共有幾公分高？`, vis: '<span style="font-size:56px">📏</span>', ans: a + b, unit: '公分', hint: '兩段接起來，用加法！', after: `${a} + ${b} = ${a + b}（公分）` }; },
+    () => { const a = rand(5, 9), b = rand(3, 8); return { q: `把 ${a} 公分和 ${b} 公分的紙條接起來（沒有重疊），一共幾公分？`, vis: rulerSVG(a + b + 1, [{ from: 0, len: a, c: '#ffc93c' }, { from: a, len: b, c: '#5bb4ff' }]), eq: [a, '+', b], unit: '公分', hint: '接起來是合在一起，用加法！', after: `${a} + ${b} = ${a + b}（公分）` }; },
+    () => { const a = rand(10, 14), b = rand(3, 6); return { q: `一條 ${a} 公分的緞帶，剪掉 ${b} 公分，還剩幾公分？`, vis: '<span style="font-size:56px">🎀✂️</span>', eq: [a, '−', b], unit: '公分', hint: '剪掉會變短，用減法！', after: `${a} − ${b} = ${a - b}（公分）` }; },
+    () => { const a = rand(12, 18), b = rand(6, 11); return { q: `鉛筆長 ${a} 公分，蠟筆長 ${b} 公分，鉛筆比蠟筆長幾公分？`, vis: '<span style="font-size:56px">✏️🖍️</span>', eq: [a, '−', b], unit: '公分', hint: '比長多少，用大的減小的！', after: `${a} − ${b} = ${a - b}（公分）` }; },
+    () => { const a = rand(23, 45), b = rand(14, 30); return { q: `小明量窗戶，先量到 ${a} 公分，再往上量 ${b} 公分，窗戶一共有幾公分高？`, vis: '<span style="font-size:56px">📏</span>', eq: [a, '+', b], unit: '公分', hint: '兩段接起來，用加法！', after: `${a} + ${b} = ${a + b}（公分）` }; },
     () => { const e = rand(6, 9); return { q: `小華估計書桌上的橡皮擦大約長幾公分？`, vis: '<span style="font-size:56px">🧽</span>', keep: true, opts: [{ h: '約 1 公分', ok: false }, { h: `約 ${e} 公分`, ok: true }, { h: '約 100 公分', ok: false }], hint: '想想看，橡皮擦大概有幾根手指寬？' }; }
   ];
   quiz(st, rounds);
