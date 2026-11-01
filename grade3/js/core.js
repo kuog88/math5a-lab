@@ -70,14 +70,17 @@ function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cl
 
 /* ---------- 關卡 API ---------- */
 let cur = null, lastSay = '';
+/* 家長報表：curQ 是目前的題目和正確答案（quiz 會設定；其他關卡用貓頭鷹說的話當題目） */
+let curQ = null;
+function rep(ok, a) { window.KGReport && KGReport.answer(ok, { q: curQ ? curQ.q : lastSay, a, c: curQ ? curQ.c : '' }); }
 const api = {
   say(html, sp) {
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
     lastSay = sp || html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); },
-  bad(msg) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); },
+  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  bad(msg, a) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
 
@@ -97,7 +100,7 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！');
+      api.bad(o.hint || hint || '再想想看！', o.h);
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -127,7 +130,7 @@ function keypad(box, ans, onRight, hint, unit = '') {
       if (v === '' || v === '.') return;
       if (Math.abs(parseFloat(v) - ans) < 1e-9) { done = true; show.parentNode.classList.add('right'); api.ok(); onRight(); return; }
       show.parentNode.classList.remove('wrong'); void show.offsetWidth; show.parentNode.classList.add('wrong');
-      api.bad(hint || '再算算看！'); if (hint) speak(hint); v = '';
+      api.bad(hint || '再算算看！', v + (unit ? ' ' + unit : '')); if (hint) speak(hint); v = '';
     } else if (k === '.') { if (!v.includes('.') && v.length < 8) v = (v || '0') + '.'; }
     else if (v.length < 9) v = (v === '0' ? '' : v) + k;
     show.textContent = v;
@@ -143,6 +146,8 @@ function quiz(st, rounds) {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
+    const okOpt = (r.opts || []).find(o => o.ok);
+    curQ = { q: r.q, c: eqm ? eqText(eqPaths(r)[0]) + ' = ' + r.ans + (r.unit ? ' ' + r.unit : '') : typed ? r.ans + (r.unit ? ' ' + r.unit : '') : okOpt ? okOpt.h : '' };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : r.pad ? 'numpad' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
@@ -169,6 +174,7 @@ const EQ_WHY = {
   '×': '「每一份一樣多，有好幾份」用乘法 ×',
   '÷': '「平分、每份幾個、可以分成幾份」用除法 ÷'
 };
+function eqText(p) { return p.map((e, i) => e.map(v => v === 'R' ? `(第${i}步)` : v).join(' ')).join('，'); }
 function eqCalc(a, op, b) { return op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : Math.floor(a / b); }
 function eqPaths(r) {
   const norm = e => Array.isArray(e[0]) ? e : [e];
@@ -229,8 +235,9 @@ function eqBuild(box, r, onRight) {
   }
   function bad(text) {
     const w = rows[rows.length - 1];
+    const said = `${w.a || '□'} ${w.op || '○'} ${w.b || '□'}`;
     w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
-    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, ''), said); speak(text);
   }
   $('.eq-go', box).onclick = () => {
     if (finished) return;

@@ -31,9 +31,10 @@ function renderHub() {
 function openLevel(ui, mi) {
   runCleanup();
   const u = UNITS[ui];
-  cur = { ui, mi, miss: 0, done: false };
+  cur = { ui, mi, miss: 0, done: false }; curQ = null;
   $('#hub').hidden = true; $('#play').hidden = false; $('#homeBtn').hidden = false; $('#result').hidden = true;
   $('#lvTitle').innerHTML = `<span class="u-no" style="background:${u.c}">第 ${u.no} 單元 ${u.name}</span><br>${MODE_TAG[mi]}：${u.modes[mi]}`;
+  window.KGReport && KGReport.level(`${u.no}-${'ABCD'[mi] || mi + 1} ${MODE_TAG[mi]}：${u.modes[mi]}`, `第 ${u.no} 單元 ${u.name}`);
   const old = $('#stage'), st = old.cloneNode(false); old.replaceWith(st); // 換新的舞台，清掉舊的事件
   window.scrollTo(0, 0);
   try { LEVELS[u.id][mi](st); } catch (e) { console.error(e); st.innerHTML = '<p>這一關出了點問題，請回首頁再試一次。</p>'; }
@@ -44,6 +45,7 @@ function goHome() { runCleanup(); cur = null; $('#play').hidden = true; $('#resu
 window.onLevelDone = c => {
   const stars = c.miss === 0 ? 3 : c.miss <= 2 ? 2 : 1, k = keyOf(c.ui, c.mi);
   const best = Math.max(P[k] || 0, stars); P[k] = best; saveP();
+  window.KGReport && KGReport.done({ stars });
   sfx('win'); confetti();
   $('#rTitle').textContent = stars === 3 ? '太厲害了！' : stars === 2 ? '過關了！' : '完成了！';
   $('#rStars').innerHTML = starHTML(stars);
