@@ -73,8 +73,18 @@ function bubbles() {
   }
 }
 let cleanups = [];
-function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); return id; }
-function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
+function later(fn, ms) { const id = setTimeout(() => { okLock = 0; fn(); }, ms); cleanups.push(() => clearTimeout(id)); return id; }
+/* 答對後鎖住舞台：api.ok() 之後到下一個 later() 執行（或 api.say() 出下一題）之前，
+   答對那一刻已經在舞台上的東西點了都不算，避免「好了／確定」連點兩下一次跳兩題（最多鎖 4 秒）。
+   答對後才出現的按鈕（詳解的「下一題」、接著填的小鍵盤）不受影響。 */
+let okLock = 0, okOld = new WeakSet();
+function lockStage() { okLock = Date.now(); okOld = new WeakSet(); const s = document.getElementById('stage'); if (s) s.querySelectorAll('*').forEach(el => okOld.add(el)); }
+['click', 'pointerdown'].forEach(t => document.addEventListener(t, e => {
+  if (!okLock || !okOld.has(e.target)) return;
+  if (Date.now() - okLock > 4000) { okLock = 0; return; }
+  e.stopPropagation(); e.preventDefault();
+}, true));
+function runCleanup() { okLock = 0; cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
 let cur = null, lastSay = '', lastQ = '';
@@ -86,11 +96,12 @@ function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: repTxt(curQ
 const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const api = {
   say(html, sp) {
+    okLock = 0;
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
     lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  ok(msg) { lockStage(); sfx('ok'); if (msg) toast(msg); rep(true); },
   bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
