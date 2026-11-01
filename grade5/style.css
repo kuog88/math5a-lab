@@ -212,3 +212,43 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 .xpl-trap{margin-top:8px;padding:8px 12px;border-radius:14px;background:#fff4dc;border:3px dashed var(--orange)}
 .opt svg{display:block}
 @media (max-width:600px){.xpl{font-size:18px}}
+/* 列式小幫手：列對算式，答案電腦算（2026-11） */
+.eqwrap{max-width:600px;margin:8px auto 0}
+.eq-tip{text-align:center;font-weight:900;color:var(--muted);font-size:17px;margin-bottom:6px}
+.eq-chips{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:4px 0 8px}
+.eq-lbl{font-weight:900;font-size:16px}
+.eq-chip{min-width:52px;min-height:48px;padding:4px 12px;border-radius:14px;border:3px solid var(--blue);background:#fff;color:#2f8de0;font-size:24px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #3b8fd6;font-family:"Arial Rounded MT Bold",Arial,sans-serif}
+.eq-chip:active{transform:translateY(3px);box-shadow:0 1px 0 #3b8fd6}
+.eq-chip.sm{font-size:18px;min-height:44px;min-width:44px}
+.eq-chip .fr,.eq-slot .fr{font-size:.75em}
+.eq-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin:8px 0;padding:12px 6px;border-radius:20px;background:#f6f2ff;border:3px solid transparent}
+.eq-row.done{background:#e6fbf3;border-color:#bdeedb}
+.eq-row.shake{animation:shake .4s}
+.eq-step{width:100%;text-align:center;font-weight:900;color:var(--orange);display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px}
+.eq-slot{min-width:80px;min-height:64px;padding:2px 10px;border-radius:16px;border:4px dashed #cbb8e0;background:#fff;color:var(--ink);font-size:30px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:"Arial Rounded MT Bold",Arial,sans-serif}
+.eq-slot.op{min-width:60px;color:var(--purple);font-size:34px}
+.eq-slot.filled{border-style:solid;border-color:var(--blue)}
+.eq-slot.act{border-style:solid;border-color:var(--pink);box-shadow:0 0 0 5px #ffe1ee}
+.eq-slot.res{border-style:solid;border-color:var(--mint);color:#1fa979;cursor:default;min-width:88px}
+.eq-slot.res.pop{animation:pop .4s}
+.eq-sign{font-size:32px;font-weight:900}
+.eq-pad{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin:10px auto 0}
+.eq-key{min-height:58px;border-radius:18px;border:4px solid var(--line);background:#fff;color:var(--ink);font-size:28px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #e3d6ec;font-family:"Arial Rounded MT Bold",Arial,sans-serif;line-height:1}
+.eq-key:active{transform:translateY(3px);box-shadow:0 2px 0 #e3d6ec}
+.eq-key.op{background:#f3eeff;color:var(--purple);border-color:#d9ccff}
+.eq-key.sym{background:#f4efff;font-size:24px}
+.eq-key small{display:block;font-size:12px;color:var(--muted)}
+.eq-msg{min-height:30px;margin:10px 0 4px;text-align:center;font-size:19px;font-weight:900;line-height:1.6}
+.eq-ans{color:#1fa979;font-size:1.3em}
+.eqwrap .center{text-align:center}
+@media (max-width:600px){
+  .eq-tip{font-size:15px}
+  .eq-chip{font-size:20px;min-width:44px;padding:4px 8px}
+  .eq-row{gap:4px;padding:10px 2px}
+  .eq-slot{min-width:54px;min-height:56px;font-size:22px;padding:2px 4px;border-width:3px}
+  .eq-slot.op{min-width:42px;font-size:26px}
+  .eq-slot.res{min-width:58px}
+  .eq-sign{font-size:22px}
+  .eq-key{min-height:52px;font-size:24px}
+  .eq-msg{font-size:17px}
+}

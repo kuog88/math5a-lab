@@ -92,12 +92,12 @@ function kiteSVG(a, b, ang) {
 }
 function u5C(st) {
   quiz(st, [
-    () => { const a = rand(4, 9), b = rand(a + 2, 14); return { q: `四邊形 ABCD 是線對稱圖形，對稱軸是 AC。AB = ${a} 公分、BC = ${b} 公分，周長是幾公分？`, vis: kiteSVG(`${a}`, `${b}`), ans: 2 * (a + b), unit: '公分', hint: 'AD 和 AB 是對稱邊、CD 和 CB 是對稱邊，一樣長！', after: `(${a} + ${b}) × 2 = ${2 * (a + b)}（公分）` }; },
+    () => { const a = rand(4, 9), b = rand(a + 2, 14); return { q: `四邊形 ABCD 是線對稱圖形，對稱軸是 AC。AB = ${a} 公分、BC = ${b} 公分，周長是幾公分？`, vis: kiteSVG(`${a}`, `${b}`), eq: `(${a} + ${b}) × 2`, alt: [`${a} × 2 + ${b} × 2`, `${a} + ${b} + ${a} + ${b}`], known: [2], ans: 2 * (a + b), unit: '公分', hint: 'AD 和 AB 是對稱邊、CD 和 CB 是對稱邊，一樣長！', after: `(${a} + ${b}) × 2 = ${2 * (a + b)}（公分）` }; },
     () => { const x = rand(8, 13) * 10; return { q: `四邊形 ABCD 是線對稱圖形，對稱軸是 AC。角 B 是 ${x}°，角 D 是幾度？`, vis: kiteSVG('', '', x), ans: x, unit: '度', hint: '角 B 和角 D 是對稱角。', after: `對稱角一樣大，角 D = ${x}°` }; },
-    () => { const k = rand(2, 7); return { q: `方格紙上，A 點在對稱軸左邊 ${k} 格。A 的對稱點 A′ 和 A 相距幾格？`, ans: 2 * k, unit: '格', hint: 'A′ 在對稱軸右邊，離對稱軸也是一樣遠。', after: `${k} + ${k} = ${2 * k}（格）` }; },
+    () => { const k = rand(2, 7); return { q: `方格紙上，A 點在對稱軸左邊 ${k} 格。A 的對稱點 A′ 和 A 相距幾格？`, eq: `${k} + ${k}`, alt: [`${k} × 2`], known: [2], ans: 2 * k, unit: '格', hint: 'A′ 在對稱軸右邊，離對稱軸也是一樣遠。', after: `${k} + ${k} = ${2 * k}（格）` }; },
     () => { const n = pick([5, 6, 8]); return { q: `正${PNAME[n]}有幾條對稱軸？`, vis: polySVG(n, []).replace(/class="vx"/g, ''), ans: n, unit: '條', hint: '正多邊形有幾條邊，就有幾條對稱軸。', after: `正${PNAME[n]}有 ${n} 條對稱軸` }; },
     () => { const d = rand(3, 9); return { q: `A 點到對稱軸的距離是 ${d} 公分，A 的對稱點 A′ 到對稱軸是幾公分？`, ans: d, unit: '公分', hint: '對稱點到對稱軸的距離相等。' }; },
-    () => { const L = rand(4, 9) * 2; return { q: `線對稱圖形中，一組對稱點 P 和 P′ 相距 ${L} 公分。P 到對稱軸是幾公分？`, ans: L / 2, unit: '公分', hint: '對稱軸把對稱點的連線分成一樣長的兩段。', after: `${L} ÷ 2 = ${L / 2}（公分）` }; }
+    () => { const L = rand(4, 9) * 2; return { q: `線對稱圖形中，一組對稱點 P 和 P′ 相距 ${L} 公分。P 到對稱軸是幾公分？`, eq: `${L} ÷ 2`, known: [2], ans: L / 2, unit: '公分', hint: '對稱軸把對稱點的連線分成一樣長的兩段。', after: `${L} ÷ 2 = ${L / 2}（公分）` }; }
   ]);
 }
 
@@ -156,8 +156,8 @@ function u6C(st) {
     () => { const [a, b, c, d] = fracPair(false), L = lcm(b, d), x = a * L / b + c * L / d; return { q: `${fr(a, b)} + ${fr(c, d)} = ？`, sp: `${b}分之${a}加${d}分之${c}`, ans: frAns(x, L), keys: K, hint: `通分成分母 ${L}，答案要約成最簡分數。`, after: `${fr(a * L / b, L)} + ${fr(c * L / d, L)} = ${frm(x, L)}` }; },
     () => { const [a, b, c, d] = fracPair(true), L = lcm(b, d), x = a * L / b - c * L / d; return { q: `${fr(a, b)} − ${fr(c, d)} = ？`, sp: `${b}分之${a}減${d}分之${c}`, ans: frAns(x, L), keys: K, hint: `通分成分母 ${L}，答案要約成最簡分數。`, after: `${fr(a * L / b, L)} − ${fr(c * L / d, L)} = ${frm(x, L)}` }; },
     () => { const [a, b, c, d] = pick([[1, 2, 2, 3], [3, 4, 1, 2], [2, 3, 5, 6], [4, 5, 1, 2]]), w1 = rand(1, 3), w2 = rand(1, 2), L = lcm(b, d), x = (w1 * b + a) * L / b + (w2 * d + c) * L / d; return { q: `${w1}${fr(a, b)} + ${w2}${fr(c, d)} = ？`, sp: `${w1}又${b}分之${a}加${w2}又${d}分之${c}`, ans: frAns(x, L), keys: K, hint: '整數和整數加、分數和分數加；分數超過 1 要進位。', after: `= ${frm(x, L)}` }; },
-    () => { const [a, b, c, d] = pick([[3, 4, 1, 3], [5, 6, 1, 4], [2, 3, 1, 4], [4, 5, 1, 2]]), L = lcm(b, d), x = a * L / b - c * L / d; return { q: `一瓶果汁有 ${fr(a, b)} 公升，喝掉 ${fr(c, d)} 公升，還剩下幾公升？`, sp: `一瓶果汁有${b}分之${a}公升，喝掉${d}分之${c}公升，還剩幾公升`, vis: '<span style="font-size:56px">🧃</span>', ans: frAns(x, L), keys: K, unit: '公升', hint: `用減法，通分成分母 ${L}。`, after: `${fr(a, b)} − ${fr(c, d)} = ${frm(x, L)}（公升）` }; },
-    () => { const [a, b, c, d] = pick([[2, 5, 1, 2], [1, 3, 3, 8], [3, 10, 1, 4], [1, 6, 4, 9]]), L = lcm(b, d), x = a * L / b + c * L / d; return { q: `紅緞帶長 ${fr(a, b)} 公尺，藍緞帶長 ${fr(c, d)} 公尺，兩條一共幾公尺？`, sp: `紅緞帶長${b}分之${a}公尺，藍緞帶長${d}分之${c}公尺，一共幾公尺`, vis: '<span style="font-size:56px">🎀</span>', ans: frAns(x, L), keys: K, unit: '公尺', hint: `用加法，通分成分母 ${L}。`, after: `${fr(a, b)} + ${fr(c, d)} = ${frm(x, L)}（公尺）` }; }
+    () => { const [a, b, c, d] = pick([[3, 4, 1, 3], [5, 6, 1, 4], [2, 3, 1, 4], [4, 5, 1, 2]]), L = lcm(b, d), x = a * L / b - c * L / d; return { q: `一瓶果汁有 ${fr(a, b)} 公升，喝掉 ${fr(c, d)} 公升，還剩下幾公升？`, sp: `一瓶果汁有${b}分之${a}公升，喝掉${d}分之${c}公升，還剩幾公升`, vis: '<span style="font-size:56px">🧃</span>', eq: `${a}/${b} − ${c}/${d}`, ans: frAns(x, L), keys: K, unit: '公升', hint: `用減法，通分成分母 ${L}。`, after: `${fr(a, b)} − ${fr(c, d)} = ${frm(x, L)}（公升）` }; },
+    () => { const [a, b, c, d] = pick([[2, 5, 1, 2], [1, 3, 3, 8], [3, 10, 1, 4], [1, 6, 4, 9]]), L = lcm(b, d), x = a * L / b + c * L / d; return { q: `紅緞帶長 ${fr(a, b)} 公尺，藍緞帶長 ${fr(c, d)} 公尺，兩條一共幾公尺？`, sp: `紅緞帶長${b}分之${a}公尺，藍緞帶長${d}分之${c}公尺，一共幾公尺`, vis: '<span style="font-size:56px">🎀</span>', eq: `${a}/${b} + ${c}/${d}`, ans: frAns(x, L), keys: K, unit: '公尺', hint: `用加法，通分成分母 ${L}。`, after: `${fr(a, b)} + ${fr(c, d)} = ${frm(x, L)}（公尺）` }; }
   ]);
 }
 

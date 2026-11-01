@@ -196,7 +196,7 @@ function u2C(st) {
     () => { const [a, b] = pick([[6, 8], [4, 10], [6, 9], [8, 12], [9, 12]]); return { q: `${a} 和 ${b} 的<b>最小公倍數</b>是多少？`, ans: lcm(a, b), hint: `把 ${b} 的倍數一個一個寫出來，看哪一個也是 ${a} 的倍數。`, after: `最小公倍數是 ${lcm(a, b)}` }; },
     () => { const [a, b] = pick([[24, 36], [30, 45], [32, 48], [18, 42]]); return { q: `有 ${a} 顆糖果和 ${b} 塊餅乾，要平分給一些小朋友，都剛好分完。<b>最多</b>可以分給幾人？`, vis: '<span style="font-size:56px">🍬🍪</span>', ans: gcd(a, b), unit: '人', hint: `人數要同時是 ${a} 和 ${b} 的因數，而且最大。`, after: `${a} 和 ${b} 的最大公因數是 ${gcd(a, b)}` }; },
     () => { const [a, b] = pick([[6, 8], [10, 15], [8, 12], [12, 18]]); return { q: `甲公車每 ${a} 分鐘一班，乙公車每 ${b} 分鐘一班。7 點兩車同時發車，<b>至少</b>再過幾分鐘兩車會再同時發車？`, vis: '<span style="font-size:56px">🚌🚍</span>', ans: lcm(a, b), unit: '分鐘', hint: `時間要同時是 ${a} 和 ${b} 的倍數，而且最小。`, after: `${a} 和 ${b} 的最小公倍數是 ${lcm(a, b)}` }; },
-    () => { const x = pick([6, 7, 8, 9]), m = pick([50, 60, 80]); return { q: `${m} 以內（含 ${m}），${x} 的倍數有幾個？`, ans: Math.floor(m / x), unit: '個', hint: `${m} ÷ ${x} = ? 商就是答案。`, after: `${m} ÷ ${x} = ${Math.floor(m / x)} …… ${m % x}，有 ${Math.floor(m / x)} 個` }; }
+    () => { const x = pick([6, 7, 8, 9]), m = pick([50, 60, 80]); return { q: `${m} 以內（含 ${m}），${x} 的倍數有幾個？`, eq: `${m} ÷ ${x}`, rem: true, ans: Math.floor(m / x), unit: '個', hint: `${m} ÷ ${x} = ? 商就是答案。`, after: `${m} ÷ ${x} = ${Math.floor(m / x)} …… ${m % x}，有 ${Math.floor(m / x)} 個` }; }
   ]);
 }
 

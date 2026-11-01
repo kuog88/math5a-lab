@@ -3,6 +3,8 @@
 
 const TU = { hm: { B: '時', S: '分', R: 60 }, dh: { B: '日', S: '時', R: 24 } };
 const tStr = (b, s, u) => `${b ? `${b} ${u.B} ` : ''}${s || !b ? `${s} ${u.S}` : ''}`.trim();
+/* 列式用：b 大單位 s 小單位換成小單位的算式（例如 1 時 15 分 → (1 × 60 + 15)） */
+const tExp = (b, s, R = 60) => b ? (s ? `(${b} × ${R} + ${s})` : `${b} × ${R}`) : `${s}`;
 
 /* ===== 9-A 時間換換機：乘完要進位，除之前要換小單位 ===== */
 function u9A(st) {
@@ -67,11 +69,11 @@ function u9B(st) {
 /* ===== 9-C 時間應用挑戰 ===== */
 function u9C(st) {
   quiz(st, [
-    () => { const m = rand(25, 45); return { q: `小美每天練琴 ${m} 分鐘，一星期 7 天一共練幾分鐘？`, vis: '<span style="font-size:56px">🎹</span>', ans: m * 7, unit: '分', hint: `${m} × 7`, after: `${m} × 7 = ${m * 7}（分）= ${tStr(Math.floor(m * 7 / 60), m * 7 % 60, TU.hm)}` }; },
-    () => { const k = pick([3, 4, 5]), e = rand(15, 30), T = e * k; return { q: `一部影片長 ${tStr(Math.floor(T / 60), T % 60, TU.hm)}，分成 ${k} 段一樣長，每段幾分鐘？`, vis: '<span style="font-size:56px">🎬</span>', ans: e, unit: '分', hint: '先把時換成分，再平分。', after: `${T} ÷ ${k} = ${e}（分）` }; },
-    () => { const h = rand(2, 6), [m, k] = pick([[40, 3], [20, 3], [15, 4], [30, 2], [45, 4]]); return { q: `火車每天行駛 ${h} 時 ${m} 分，${k} 天一共行駛幾小時？`, vis: '<span style="font-size:56px">🚆</span>', ans: h * k + m * k / 60, unit: '時', hint: `時 × ${k}、分 × ${k}，分再換成時。`, after: `${h * k} 時 ${m * k} 分 = ${h * k + m * k / 60} 時` }; },
+    () => { const m = rand(25, 45); return { q: `小美每天練琴 ${m} 分鐘，一星期 7 天一共練幾分鐘？`, vis: '<span style="font-size:56px">🎹</span>', eq: `${m} × 7`, ans: m * 7, unit: '分', hint: `${m} × 7`, after: `${m} × 7 = ${m * 7}（分）= ${tStr(Math.floor(m * 7 / 60), m * 7 % 60, TU.hm)}` }; },
+    () => { const k = pick([3, 4, 5]), e = rand(15, 30), T = e * k; return { q: `一部影片長 ${tStr(Math.floor(T / 60), T % 60, TU.hm)}，分成 ${k} 段一樣長，每段幾分鐘？`, vis: '<span style="font-size:56px">🎬</span>', eq: `${tExp(Math.floor(T / 60), T % 60)} ÷ ${k}`, known: [60], ans: e, unit: '分', hint: '先把時換成分，再平分。', after: `${T} ÷ ${k} = ${e}（分）` }; },
+    () => { const h = rand(2, 6), [m, k] = pick([[40, 3], [20, 3], [15, 4], [30, 2], [45, 4]]); return { q: `火車每天行駛 ${h} 時 ${m} 分，${k} 天一共行駛幾小時？`, vis: '<span style="font-size:56px">🚆</span>', eq: `${h} × ${k} + ${m} × ${k} ÷ 60`, alt: [`(${h} × 60 + ${m}) × ${k} ÷ 60`, `(${h} + ${m} ÷ 60) × ${k}`], known: [60], ans: h * k + m * k / 60, unit: '時', hint: `時 × ${k}、分 × ${k}，分再換成時。`, after: `${h * k} 時 ${m * k} 分 = ${h * k + m * k / 60} 時` }; },
     () => { const h = pick([8, 9]), T = h * 7; return { q: `小明每天睡 ${h} 小時，一星期 7 天一共睡了多久？`, vis: '<span style="font-size:56px">😴</span>', opts: [{ h: tStr(Math.floor(T / 24), T % 24, TU.dh), ok: true }, { h: tStr(Math.floor(T / 10), T % 10, TU.dh), ok: false, hint: '1 日是 24 時，不是 10 時！' }, { h: tStr(Math.floor(T / 24) + 1, T % 24, TU.dh), ok: false, hint: `${T} 時 ÷ 24 = ? 再檢查一次。` }], hint: `${h} × 7 = ${T} 時，再換成幾日幾時。` }; },
-    () => { const k = pick([4, 5, 6]), e = pick([20, 30, 40]), T = e * k; return { q: `${tStr(Math.floor(T / 60), T % 60, TU.hm)} ÷ ${k} 是幾分？`, ans: e, unit: '分', hint: '先換成分，再除。', after: `${T} ÷ ${k} = ${e}（分）` }; },
+    () => { const k = pick([4, 5, 6]), e = pick([20, 30, 40]), T = e * k; return { q: `${tStr(Math.floor(T / 60), T % 60, TU.hm)} ÷ ${k} 是幾分？`, eq: `${tExp(Math.floor(T / 60), T % 60)} ÷ ${k}`, known: [60], ans: e, unit: '分', hint: '先換成分，再除。', after: `${T} ÷ ${k} = ${e}（分）` }; },
     () => { const h = rand(8, 10), m = rand(30, 55), n = 3, len = rand(20, 30), E = h * 60 + m + n * len; const f = t => `${Math.floor(t / 60)} 時 ${String(t % 60).padStart(2, '0')} 分`; return { q: `比賽從 ${h} 時 ${m} 分開始，一共比 ${n} 場，每場 ${len} 分鐘，中間不休息。幾時幾分結束？`, vis: '<span style="font-size:56px">🏓</span>', opts: [{ h: f(E), ok: true }, { h: f(E - 60), ok: false, hint: '分加起來超過 60 要進位 1 時！' }, { h: f(E + 10), ok: false, hint: `先算 ${n} × ${len} = ${n * len} 分，再加上去。` }], hint: `比賽一共 ${n} × ${len} = ${n * len} 分。` }; }
   ]);
 }
@@ -174,12 +176,12 @@ function u10B(st) {
 /* ===== 10-C 表面積挑戰 ===== */
 function u10C(st) {
   quiz(st, [
-    () => { const a = rand(3, 9); return { q: `邊長 ${a} 公分的正方體，表面積是多少平方公分？`, vis: '<span style="font-size:56px">🧊</span>', ans: 6 * a * a, unit: '平方公分', hint: '6 個一樣大的正方形：邊長 × 邊長 × 6。', after: `${a} × ${a} × 6 = ${6 * a * a}` }; },
-    () => { const l = rand(6, 12), w = rand(3, 5), h = rand(2, 8); return { q: `長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的長方體，表面積是多少平方公分？`, vis: CUBOID, ans: 2 * (l * w + w * h + l * h), unit: '平方公分', hint: '3 組相對的面各有 2 個：(長×寬 + 寬×高 + 長×高) × 2。', after: `(${l * w} + ${w * h} + ${l * h}) × 2 = ${2 * (l * w + w * h + l * h)}` }; },
-    () => { const l = rand(6, 12), w = rand(3, 5), h = rand(2, 8); return { q: `長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的長方體，所有的邊長加起來是幾公分？`, ans: 4 * (l + w + h), unit: '公分', hint: '長、寬、高各有 4 條。', after: `(${l} + ${w} + ${h}) × 4 = ${4 * (l + w + h)}` }; },
+    () => { const a = rand(3, 9); return { q: `邊長 ${a} 公分的正方體，表面積是多少平方公分？`, vis: '<span style="font-size:56px">🧊</span>', eq: `${a} × ${a} × 6`, known: [6], ans: 6 * a * a, unit: '平方公分', hint: '6 個一樣大的正方形：邊長 × 邊長 × 6。', after: `${a} × ${a} × 6 = ${6 * a * a}` }; },
+    () => { const l = rand(6, 12), w = rand(3, 5), h = rand(2, 8); return { q: `長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的長方體，表面積是多少平方公分？`, vis: CUBOID, eq: `(${l} × ${w} + ${w} × ${h} + ${l} × ${h}) × 2`, alt: [`${l} × ${w} × 2 + ${w} × ${h} × 2 + ${l} × ${h} × 2`], known: [2], ans: 2 * (l * w + w * h + l * h), unit: '平方公分', hint: '3 組相對的面各有 2 個：(長×寬 + 寬×高 + 長×高) × 2。', after: `(${l * w} + ${w * h} + ${l * h}) × 2 = ${2 * (l * w + w * h + l * h)}` }; },
+    () => { const l = rand(6, 12), w = rand(3, 5), h = rand(2, 8); return { q: `長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分的長方體，所有的邊長加起來是幾公分？`, eq: `(${l} + ${w} + ${h}) × 4`, alt: [`${l} × 4 + ${w} × 4 + ${h} × 4`], known: [4], ans: 4 * (l + w + h), unit: '公分', hint: '長、寬、高各有 4 條。', after: `(${l} + ${w} + ${h}) × 4 = ${4 * (l + w + h)}` }; },
     () => { const a = rand(2, 8); return { q: `一個正方體的表面積是 ${6 * a * a} 平方公分，它的邊長是幾公分？`, ans: a, unit: '公分', hint: `先算一個面：${6 * a * a} ÷ 6 = ${a * a}，什麼數自己乘自己是 ${a * a}？`, after: `${6 * a * a} ÷ 6 = ${a * a} = ${a} × ${a}` }; },
-    () => { const l = rand(8, 15), w = rand(5, 8), h = rand(3, 6); return { q: `做一個<b>沒有蓋子</b>的長方體紙盒，長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分，要用多少平方公分的紙板？`, vis: '<span style="font-size:56px">📦</span>', ans: l * w + 2 * (w * h + l * h), unit: '平方公分', hint: '沒有蓋子，只有 1 個底面，再加 4 個側面。', after: `${l * w} + (${w * h} + ${l * h}) × 2 = ${l * w + 2 * (w * h + l * h)}` }; },
-    () => { const a = rand(3, 9); return { q: `正方體所有的邊長加起來是 ${12 * a} 公分，一條邊是幾公分？`, ans: a, unit: '公分', hint: '正方體有 12 條一樣長的邊。', after: `${12 * a} ÷ 12 = ${a}` }; }
+    () => { const l = rand(8, 15), w = rand(5, 8), h = rand(3, 6); return { q: `做一個<b>沒有蓋子</b>的長方體紙盒，長 ${l} 公分、寬 ${w} 公分、高 ${h} 公分，要用多少平方公分的紙板？`, vis: '<span style="font-size:56px">📦</span>', eq: `${l} × ${w} + (${w} × ${h} + ${l} × ${h}) × 2`, alt: [`${l} × ${w} + ${w} × ${h} × 2 + ${l} × ${h} × 2`], known: [2], ans: l * w + 2 * (w * h + l * h), unit: '平方公分', hint: '沒有蓋子，只有 1 個底面，再加 4 個側面。', after: `${l * w} + (${w * h} + ${l * h}) × 2 = ${l * w + 2 * (w * h + l * h)}` }; },
+    () => { const a = rand(3, 9); return { q: `正方體所有的邊長加起來是 ${12 * a} 公分，一條邊是幾公分？`, eq: `${12 * a} ÷ 12`, known: [12], ans: a, unit: '公分', hint: '正方體有 12 條一樣長的邊。', after: `${12 * a} ÷ 12 = ${a}` }; }
   ]);
 }
 
