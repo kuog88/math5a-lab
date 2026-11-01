@@ -129,10 +129,10 @@ function u8A(st) {
 
 /* ===== 8-B 加減應用題（60 以內） ===== */
 function u8B(st) {
-  const addTwo = () => { const t1 = rand(1, 3), t2 = rand(1, 5 - t1), o1 = rand(1, 8), o2 = rand(0, 9 - o1), a = t1 * 10 + o1, b = t2 * 10 + o2; return { q: `花園裡有 ${a} 朵 🌻，又種了 ${b} 朵，<br>一共有幾朵？`, sp: `花園裡有 ${a} 朵向日葵，又種了 ${b} 朵，一共有幾朵？`, vis: '', opts: nearOpts(a + b, 1, 60, 4, [a + b - 10, a + b + 10]), hint: '十位和十位加，個位和個位加！', after: `${a} ＋ ${b} ＝ ${a + b}` }; };
-  const addOne = () => { const [a, b] = carryPair(); return { q: `🐝 第一群有 ${a} 隻蜜蜂，<br>第二群有 ${b} 隻，合起來有幾隻？`, sp: `第一群有 ${a} 隻蜜蜂，第二群有 ${b} 隻，合起來有幾隻？`, vis: '', opts: nearOpts(a + b, 1, 60, 4, [a + b - 10, a + b + 1]), hint: '個位滿 10 要進到十位喔！', after: `${a} ＋ ${b} ＝ ${a + b}` }; };
-  const subOne = () => { const [a, b] = borrowPair(); return { q: `籃子裡有 ${a} 顆 🍓，吃掉 ${b} 顆，<br>還剩幾顆？`, sp: `籃子裡有 ${a} 顆草莓，吃掉 ${b} 顆，還剩幾顆？`, vis: '', opts: nearOpts(a - b, 1, 60, 4, [a - b + 10, a - b - 1]), hint: '個位不夠減，要從十位拆 1 條喔！', after: `${a} − ${b} ＝ ${a - b}` }; };
-  const subTwo = () => { const t1 = rand(3, 5), o1 = rand(4, 9), t2 = rand(1, t1 - 1), o2 = rand(1, o1), a = t1 * 10 + o1, b = t2 * 10 + o2; return { q: `哥哥有 ${a} 張卡片，弟弟有 ${b} 張，<br>哥哥比弟弟多幾張？`, sp: `哥哥有 ${a} 張卡片，弟弟有 ${b} 張，哥哥比弟弟多幾張？`, vis: '', opts: nearOpts(a - b, 1, 60, 4, [a + b <= 60 ? a + b : a - b + 10]), hint: '比多幾張，要用減法！', after: `${a} − ${b} ＝ ${a - b}` }; };
+  const addTwo = () => { const t1 = rand(1, 3), t2 = rand(1, 5 - t1), o1 = rand(1, 8), o2 = rand(0, 9 - o1), a = t1 * 10 + o1, b = t2 * 10 + o2; return { q: `花園裡有 ${a} 朵 🌻，又種了 ${b} 朵，<br>一共有幾朵？`, sp: `花園裡有 ${a} 朵向日葵，又種了 ${b} 朵，一共有幾朵？`, vis: '', eq: [a, '+', b], icon: '🌻', unit: '朵', hint: '又種了，變多了，用加法 ＋' }; };
+  const addOne = () => { const [a, b] = carryPair(); return { q: `🐝 第一群有 ${a} 隻蜜蜂，<br>第二群有 ${b} 隻，合起來有幾隻？`, sp: `第一群有 ${a} 隻蜜蜂，第二群有 ${b} 隻，合起來有幾隻？`, vis: '', eq: [a, '+', b], icon: '🐝', unit: '隻', hint: '合起來，用加法 ＋' }; };
+  const subOne = () => { const [a, b] = borrowPair(); return { q: `籃子裡有 ${a} 顆 🍓，吃掉 ${b} 顆，<br>還剩幾顆？`, sp: `籃子裡有 ${a} 顆草莓，吃掉 ${b} 顆，還剩幾顆？`, vis: '', eq: [a, '−', b], icon: '🍓', unit: '顆', hint: '吃掉了，變少了，用減法 −' }; };
+  const subTwo = () => { const t1 = rand(3, 5), o1 = rand(4, 9), t2 = rand(1, t1 - 1), o2 = rand(1, o1), a = t1 * 10 + o1, b = t2 * 10 + o2; return { q: `哥哥有 ${a} 張卡片，弟弟有 ${b} 張，<br>哥哥比弟弟多幾張？`, sp: `哥哥有 ${a} 張卡片，弟弟有 ${b} 張，哥哥比弟弟多幾張？`, vis: '', eq: [a, '−', b], icon: '🃏', unit: '張', hint: '比多幾張，用減法 −' }; };
   quiz(st, [addOne, subOne, addTwo, subTwo, addOne]);
 }
 
@@ -211,8 +211,8 @@ function u9C(st) {
     () => ({ q: '喜歡哪一種水果的人<b>最多</b>？', vis: tbl, opts: fo.map(j => ({ h: name(j), ok: j === mx })), keep: true, hint: '找表格裡最大的數字！' }),
     () => ({ q: '喜歡哪一種水果的人<b>最少</b>？', vis: tbl, opts: fo.map(j => ({ h: name(j), ok: j === mn })), keep: true, hint: '找表格裡最小的數字！' }),
     () => ({ q: `喜歡${F[1][1]}的有幾人？`, vis: tbl, opts: numOpts(v[1], 1, 10, 4), hint: `找到${F[1][1]}那一格！` }),
-    () => ({ q: `喜歡${F[mx][1]}的比喜歡${F[mn][1]}的<b>多幾人</b>？`, vis: tbl, opts: nearOpts(v[mx] - v[mn], 1, 9, 4, [v[mx] + v[mn] <= 18 ? v[mx] + v[mn] : 1]), hint: '用減法算算看！', after: `${v[mx]} − ${v[mn]} ＝ ${v[mx] - v[mn]}` }),
-    () => ({ q: `喜歡${F[0][1]}和${F[2][1]}的<b>一共</b>有幾人？`, vis: tbl, pad: true, opts: numpadOpts(v[0] + v[2], 7, 18), hint: '用加法算算看！', after: `${v[0]} ＋ ${v[2]} ＝ ${v[0] + v[2]}` })
+    () => ({ q: `喜歡${F[mx][1]}的比喜歡${F[mn][1]}的<b>多幾人</b>？`, vis: tbl, eq: [v[mx], '−', v[mn]], nums: v, icon: '🙋', unit: '人', hint: '比多幾人，用減法 −' }),
+    () => ({ q: `喜歡${F[0][1]}和${F[2][1]}的<b>一共</b>有幾人？`, vis: tbl, eq: [v[0], '+', v[2]], nums: v, icon: '🙋', unit: '人', hint: '一共，合起來，用加法 ＋' })
   ];
   quiz(st, rounds);
 }

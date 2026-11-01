@@ -164,7 +164,7 @@ function u2B(st) {
   const cmpQ = () => {
     const a = rand(6, 9), d = rand(11 - a, 9);
     return { q: `小松鼠有 ${a} 顆橡果，<br>小兔子<b>比</b>小松鼠<b>多 ${d} 顆</b>。<br>小兔子有幾顆？`, sp: `小松鼠有 ${a} 顆橡果，小兔子比小松鼠多 ${d} 顆。小兔子有幾顆？`,
-      vis: '', opts: nearOpts(a + d, 1, 18, 4, [a - d > 0 ? a - d : a + d + 2, d]), hint: '比小松鼠多，所以小兔子的比較多喔！', after: `${a} ＋ ${d} ＝ ${a + d}` };
+      vis: `<div class="mrow"><span class="name">🐿️</span>${pics('🌰', a, true)}</div>`, eq: [a, '+', d], icon: '🌰', unit: '顆', hint: '比小松鼠多，所以小兔子的比較多，用加法 ＋' };
   };
   const dblQ = () => {
     const n = rand(5, 9), s = Math.random() < 0.5 ? 1 : -1;
@@ -242,7 +242,7 @@ function u3B(st) {
     const a = rand(5, 9), b = rand(2, a - 1);
     return { q: `🐛 毛毛蟲有 ${a} 個 📎 長，🐌 蝸牛有 ${b} 個 📎 長。<br>毛毛蟲比蝸牛長幾個 📎？`, sp: `毛毛蟲有 ${a} 個迴紋針長，蝸牛有 ${b} 個迴紋針長。毛毛蟲比蝸牛長幾個迴紋針？`,
       vis: `<div class="measure" style="width:100%">${unitRow('🐛', a, 44, '#e5f6ea', '📎')}${unitRow('🐌', b, 44, '#fff3c4', '📎')}</div>`,
-      opts: nearOpts(a - b, 1, 9, 3, [a + b > 9 ? a - b + 1 : a + b]), hint: '多出來的有幾個？', after: `${a} − ${b} ＝ ${a - b}` };
+      eq: [a, '−', b], icon: '📎', unit: '個', hint: '比長幾個，用減法 −' };
   };
   const diffUnit = () => {
     const n = rand(3, 5);
@@ -259,19 +259,19 @@ function u3C(st) {
   const join = () => {
     const a = rand(3, 8), b = rand(3, 9);
     return { q: `紅木條有 ${a} 格長，藍木條有 ${b} 格長，<br>接起來一共有幾格長？`, sp: `紅木條有 ${a} 格長，藍木條有 ${b} 格長，接起來一共有幾格長？`,
-      vis: `<div class="mrow">${cells(a, '#e2574c')}${cells(b, '#4fa3d9')}</div>`, pad: true, opts: numpadOpts(a + b, 6, 17), hint: '把兩段的格子合起來數！', after: `${a} ＋ ${b} ＝ ${a + b}` };
+      vis: `<div class="mrow">${cells(a, '#e2574c')}${cells(b, '#4fa3d9')}</div>`, eq: [a, '+', b], unit: '格', hint: '接起來，合在一起，用加法 ＋' };
   };
   const cut = () => {
     const a = rand(10, 15), b = rand(3, 7);
     return { q: `木條有 ${a} 格長，<b>剪掉</b> ${b} 格，<br>剩下幾格長？`, sp: `木條有 ${a} 格長，剪掉 ${b} 格，剩下幾格長？`,
       vis: `<div class="mrow">${cells(a - b, '#8b5a2b')}<span class="units cells" style="opacity:.35">${Array.from({ length: b }, () => '<i style="width:34px;background:#8b5a2b">✂️</i>').join('')}</span></div>`,
-      pad: true, opts: numpadOpts(a - b, 1, 12), hint: '剪掉了，要變少喔！', after: `${a} − ${b} ＝ ${a - b}` };
+      eq: [a, '−', b], unit: '格', hint: '剪掉了，變少，用減法 −' };
   };
   const part = () => {
     const t = rand(9, 14), a = rand(3, t - 3);
     return { q: `紅藍接起來的木條共 ${t} 格，紅色有 ${a} 格，<br>藍色有幾格？`, sp: `紅藍接起來的木條共 ${t} 格，紅色有 ${a} 格，藍色有幾格？`,
       vis: `<div class="mrow">${cells(a, '#e2574c')}<span class="units cells">${Array.from({ length: t - a }, () => '<i style="width:34px;background:#fff;border-style:dashed">?</i>').join('')}</span></div>`,
-      pad: true, opts: numpadOpts(t - a, 1, 12), hint: '全部減掉紅色的就是藍色的！', after: `${t} − ${a} ＝ ${t - a}` };
+      eq: [t, '−', a], unit: '格', hint: '全部拿走紅色的，就是藍色的，用減法 −' };
   };
   const which = () => {
     const goal = rand(9, 13), a = rand(4, 6), good = goal - a, ws = [good + 1, good - 2, good + 2].filter(v => v > 0);

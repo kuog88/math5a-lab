@@ -113,22 +113,98 @@ function numOpts(ans, lo = 0, hi = 10, k = 3) {
 function numpadOpts(ans, lo = 0, hi = 10) { const a = []; for (let v = lo; v <= hi; v++) a.push({ h: N(v), ok: v === ans }); return a; }
 
 /* 通用問答：rounds 為題目物件或產生題目的函式
-   題目物件 {q, sp, vis, opts:[{h,ok,hint}], keep, pad, hint, after} */
+   題目物件 {q, sp, vis, opts:[{h,ok,hint}], keep, pad, hint, after}；有 eq 時改用列式小幫手 */
 function quiz(st, rounds) {
   let i = 0;
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
-    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${r.pad ? 'numpad' : 'opts'}"></div>`;
-    api.say(r.q, r.sp);
-    const ops = $(r.pad ? '.numpad' : '.opts', st);
-    (r.keep || r.pad ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, () => {
+    const eqm = !!r.eq;
+    st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : r.pad ? 'numpad' : 'opts'}"></div>`;
+    api.say(r.q, eqm ? `${r.sp || r.q}。點數字和符號，列出算式！` : r.sp);
+    const next = () => {
       if (r.after) $('.qvis', st).insertAdjacentHTML('beforeend', `<div class="after">${r.after}</div>`);
       if (r.after) speak(r.after);
       i++; later(show, r.after ? 1900 : 1000);
-    }, r.hint)));
+    };
+    if (eqm) return eqBuild($('.eqwrap', st), r, next);
+    const ops = $(r.pad ? '.numpad' : '.opts', st);
+    (r.keep || r.pad ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, next, r.hint)));
   }
   show();
+}
+
+/* ---------- 列式小幫手（2026-11，一年級版） ----------
+   應用題只要把「算式」列對就過關，答案由電腦算，小朋友不用拿紙筆。
+   一年級只有一步：r.eq 寫 [a, op, b]（op 是 '+' 或 '−'）；r.alt 放其他也算對的列法。＋ 前後交換也算對。
+   題目裡的數字變成大按鈕（r.nums 可補上圖表裡才看得到的數字），r.icon 是按鈕上的小圖示，r.unit 是答案的單位。
+   一年級版只用點的：沒有數字鍵，符號只有 ＋ −。每個提示都會朗讀。 */
+const EQ_WHY = { '+': '合起來、又多了，用加法 ＋', '−': '拿走、用掉、還剩幾個、多幾個，用減法 −' };
+function eqBuild(box, r, onRight) {
+  const paths = [r.eq].concat(r.alt || []);
+  const plain = String(r.q || '').replace(/<[^>]+>/g, '');
+  const nums = [...new Set((plain.match(/\d+/g) || []).map(Number).concat(r.nums || [], paths.flatMap(p => [p[0], p[2]])))];
+  const ic = r.icon ? `<span class="eq-ic">${r.icon}</span>` : '';
+  const w = { a: '', op: '', b: '' };
+  let act = 'a', finished = false;
+  box.innerHTML = `<div class="eq-tip">✏️ 列出算式，電腦幫你算！</div>
+    <div class="eq-row"><button type="button" class="eq-slot" data-s="a"></button><button type="button" class="eq-slot op" data-s="op"></button><button type="button" class="eq-slot" data-s="b"></button>
+      <span class="eq-sign">=</span><span class="eq-slot res">?</span></div>
+    <div class="eq-chips">${nums.map(n => `<button type="button" class="eq-chip" data-n="${n}">${ic}${n}</button>`).join('')}</div>
+    <div class="eq-ops">${['+', '−'].map(k => `<button type="button" class="eq-key op" data-k="${k}">${k === '+' ? '＋' : '−'}</button>`).join('')}<button type="button" class="eq-key clr" data-k="clr" aria-label="清掉">🧹</button></div>
+    <div class="eq-msg"></div>
+    <div class="center"><button type="button" class="btn green eq-go">✔ 對嗎？</button></div>`;
+  const rowEl = $('.eq-row', box), msg = $('.eq-msg', box);
+  function draw() {
+    $$('.eq-slot[data-s]', box).forEach(s => {
+      const k = s.dataset.s, v = w[k];
+      s.textContent = v === '' ? (k === 'op' ? '○' : '□') : k === 'op' ? (v === '+' ? '＋' : '−') : v;
+      s.classList.toggle('filled', v !== '');
+      s.classList.toggle('act', !finished && act === k);
+    });
+  }
+  const advance = () => { act = ['a', 'op', 'b'].find(k => w[k] === '') || act; };
+  $$('.eq-slot[data-s]', box).forEach(s => s.onclick = () => { if (finished) return; act = s.dataset.s; sfx('tap'); draw(); });
+  $$('.eq-chip', box).forEach(c => c.onclick = () => {
+    if (finished) return;
+    if (act === 'op') act = w.a === '' ? 'a' : 'b';
+    w[act] = c.dataset.n; sfx('pop'); speak(c.dataset.n); advance(); draw();
+  });
+  $$('.eq-key', box).forEach(b => b.onclick = () => {
+    if (finished) return;
+    const k = b.dataset.k; sfx('tap');
+    if (k === 'clr') { w.a = w.op = w.b = ''; act = 'a'; msg.innerHTML = ''; }
+    else { w.op = k; speak(k === '+' ? '加' : '減'); act = 'op'; advance(); }
+    draw();
+  });
+  const same = (e) => {
+    const a = +w.a, b = +w.b;
+    return w.op === e[1] && ((a === e[0] && b === e[2]) || (e[1] === '+' && a === e[2] && b === e[0]));
+  };
+  function bad(text) {
+    rowEl.classList.remove('shake'); void rowEl.offsetWidth; rowEl.classList.add('shake');
+    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+  }
+  $('.eq-go', box).onclick = () => {
+    if (finished) return;
+    if (w.a === '' || w.op === '' || w.b === '') return bad('還有空格喔！要放兩個數字和一個符號。');
+    if (!paths.some(same)) {
+      const a = +w.a, b = +w.b;
+      if (!paths.some(e => e[1] === w.op)) return bad(r.hint || EQ_WHY[paths[0][1]]);
+      if (paths.some(e => e[1] === w.op && a === e[2] && b === e[0])) return bad('減法要把<b>大的數</b>放前面喔！');
+      return bad('符號對了！再看看是哪兩個數。');
+    }
+    // 列對了：電腦幫忙算
+    finished = true; act = null; draw();
+    const v = w.op === '+' ? +w.a + +w.b : +w.a - +w.b;
+    rowEl.classList.add('done');
+    const res = $('.res', box); res.textContent = v; res.classList.add('pop');
+    $('.eq-go', box).disabled = true;
+    msg.innerHTML = `✅ 列對了！答案是 <b class="eq-ans">${v}${r.unit ? ' ' + r.unit : ''}</b>`;
+    speak(`列對了！答案是 ${v} ${r.unit || ''}`);
+    api.ok(); later(onRight, 2300);
+  };
+  draw();
 }
 
 /* 散開的位置（百分比） */

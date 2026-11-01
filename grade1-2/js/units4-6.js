@@ -33,10 +33,10 @@ function u4A(st) {
 
 /* ===== 4-B 減法和比較：拿走、比較、合起來、比較少、用加還是減 ===== */
 function u4B(st) {
-  const take = () => { const [n, k] = subPair(); return { q: `樹上有 ${n} 顆 🍎，掉下來 ${k} 顆，<br>樹上還剩幾顆？`, sp: `樹上有 ${n} 顆蘋果，掉下來 ${k} 顆，樹上還剩幾顆？`, vis: '', opts: nearOpts(n - k, 1, 18, 4, [n + k > 18 ? n - k + 2 : n + k]), hint: '掉下來，要拿走喔！', after: `${n} − ${k} ＝ ${n - k}` }; };
-  const cmp = () => { const [n, k] = subPair(); return { q: `熊大有 ${n} 罐蜂蜜，熊二有 ${k} 罐。<br>熊大<b>比</b>熊二<b>多幾罐</b>？`, sp: `熊大有 ${n} 罐蜂蜜，熊二有 ${k} 罐。熊大比熊二多幾罐？`, vis: `<div class="mrow"><span class="name">熊大</span>${pics('🍯', n, true)}</div><div class="mrow"><span class="name">熊二</span>${pics('🍯', k, true)}</div>`, opts: nearOpts(n - k, 1, 18, 4, [n - k + 1]), hint: '一個對一個，看看多出幾罐！', after: `${n} − ${k} ＝ ${n - k}` }; };
-  const part = () => { const [n, k] = subPair(); return { q: `花園裡有紅花和黃花，一共 ${n} 朵，<br>紅花有 ${k} 朵，黃花有幾朵？`, sp: `花園裡有紅花和黃花，一共 ${n} 朵，紅花有 ${k} 朵，黃花有幾朵？`, vis: '🌹🌼', opts: nearOpts(n - k, 1, 18, 4, [n - k - 1]), hint: '一共的，拿走紅花，就是黃花！', after: `${n} − ${k} ＝ ${n - k}` }; };
-  const less = () => { const [n, k] = subPair(); return { q: `姊姊有 ${n} 張貼紙，<br>妹妹<b>比</b>姊姊<b>少 ${k} 張</b>。<br>妹妹有幾張？`, sp: `姊姊有 ${n} 張貼紙，妹妹比姊姊少 ${k} 張。妹妹有幾張？`, vis: '', opts: nearOpts(n - k, 1, 18, 4, [n - k + 1]), hint: '妹妹比較少，要用減法！', after: `${n} − ${k} ＝ ${n - k}` }; };
+  const take = () => { const [n, k] = subPair(); return { q: `樹上有 ${n} 顆 🍎，掉下來 ${k} 顆，<br>樹上還剩幾顆？`, sp: `樹上有 ${n} 顆蘋果，掉下來 ${k} 顆，樹上還剩幾顆？`, vis: pics('🍎', n, true), eq: [n, '−', k], icon: '🍎', unit: '顆', hint: '掉下來，變少了，用減法 −' }; };
+  const cmp = () => { const [n, k] = subPair(); return { q: `熊大有 ${n} 罐蜂蜜，熊二有 ${k} 罐。<br>熊大<b>比</b>熊二<b>多幾罐</b>？`, sp: `熊大有 ${n} 罐蜂蜜，熊二有 ${k} 罐。熊大比熊二多幾罐？`, vis: `<div class="mrow"><span class="name">熊大</span>${pics('🍯', n, true)}</div><div class="mrow"><span class="name">熊二</span>${pics('🍯', k, true)}</div>`, eq: [n, '−', k], icon: '🍯', unit: '罐', hint: '比多幾罐，用減法 −' }; };
+  const part = () => { const [n, k] = subPair(); return { q: `花園裡有紅花和黃花，一共 ${n} 朵，<br>紅花有 ${k} 朵，黃花有幾朵？`, sp: `花園裡有紅花和黃花，一共 ${n} 朵，紅花有 ${k} 朵，黃花有幾朵？`, vis: `${pics('🌹', k, true)}<span class="eq">＋</span><span style="font-size:60px">🌼❓</span>`, eq: [n, '−', k], icon: '🌸', unit: '朵', hint: '一共的，拿走紅花，就是黃花，用減法 −' }; };
+  const less = () => { const [n, k] = subPair(); return { q: `姊姊有 ${n} 張貼紙，<br>妹妹<b>比</b>姊姊<b>少 ${k} 張</b>。<br>妹妹有幾張？`, sp: `姊姊有 ${n} 張貼紙，妹妹比姊姊少 ${k} 張。妹妹有幾張？`, vis: `<div class="mrow"><span class="name">姊姊</span>${pics('⭐', n, true)}</div>`, eq: [n, '−', k], icon: '⭐', unit: '張', hint: '妹妹比較少，用減法 −' }; };
   const which = () => {
     const add = Math.random() < 0.5, a = rand(9, 14), b = rand(2, 5);
     const story = add ? `公車上有 ${a} 個人，到站又<b>上來</b> ${b} 個人。` : `公車上有 ${a} 個人，到站<b>下車</b> ${b} 個人。`;
