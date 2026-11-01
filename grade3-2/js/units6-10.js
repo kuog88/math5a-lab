@@ -27,7 +27,7 @@ function u6A(st) {
     $('#okb', st).onclick = () => {
       const s = tray.reduce((a, b) => a + b, 0);
       if (s === T) { $('#okb', st).disabled = true; api.ok(`對！${kgg(T)} ＝ ${T} 公克`); speak(`${kgg(T)}等於${T}公克`); r++; later(round, 1900); }
-      else api.bad(s > T ? `太重了！現在是 ${kgg(s)}` : `還不夠重！現在是 ${kgg(s)}`);
+      else api.bad(s > T ? `太重了！現在是 ${kgg(s)}` : `還不夠重！現在是 ${kgg(s)}`, kgg(s), txt);
     };
     draw();
   }
@@ -81,7 +81,7 @@ function u7A(st) {
     $$('.seg', st).forEach(s => s.onclick = () => { s.classList.toggle('on'); sfx('tap'); draw(); });
     $('#okb', st).onclick = () => {
       if (on === T.k) { $('#okb', st).disabled = true; const m = T.full ? `${F(T.n, T.n)} ＝ 1` : T.add ? `${F(T.add[0], T.n)} ＋ ${F(T.add[1], T.n)} ＝ ${F(T.k, T.n)}` : `${T.k} 個 ${F(1, T.n)} 是 ${F(T.k, T.n)}`; $('#ro', st).innerHTML = m; api.ok('答對了！'); speak(m); r++; later(round, 2000); }
-      else api.bad(T.add ? `分子加起來：${T.add[0]} ＋ ${T.add[1]}` : T.full ? '每一格都要塗滿喔！' : `要塗 ${T.k} 格喔！`);
+      else api.bad(T.add ? `分子加起來：${T.add[0]} ＋ ${T.add[1]}` : T.full ? '每一格都要塗滿喔！' : `要塗 ${T.k} 格喔！`, `塗了 ${on} 格（${on}/${T.n}）`, `${T.k} 格（${T.k}/${T.n}）`);
     };
     draw();
   }
@@ -142,6 +142,7 @@ function u8A(st) {
     function check() {
       const [x, y, z] = val;
       locked = true;
+      curQ = { q: `用數字卡 ${a}、${b}、${p} 排出${step === 2 ? '另一個' : '一個'}${op === '×' ? '乘法' : '除法'}算式`, c: op === '×' ? `${a} × ${b} ＝ ${p}` : step === 2 ? (firstDiv === a ? `${p} ÷ ${b} ＝ ${a}` : `${p} ÷ ${a} ＝ ${b}`) : `${p} ÷ ${a} ＝ ${b}（或 ${p} ÷ ${b} ＝ ${a}）` };
       const right = op === '×' ? x * y === z && z === p : y !== 0 && x === p && x / y === z && (step === 1 || y !== firstDiv);
       if (right) {
         slots.forEach(s => s.classList.add('right')); api.ok(`${x} ${op} ${y} ＝ ${z}`); speak(`${x}${op === '×' ? '乘以' : '除以'}${y}等於${z}`);
@@ -149,7 +150,7 @@ function u8A(st) {
         step++; if (step > 2) { step = 0; r++; firstDiv = null; }
         later(round, 1600);
       } else {
-        api.bad(step === 2 && x === p && y === firstDiv ? `換一個除數試試看！` : `${x} ${op} ${y} 不等於 ${z} 喔！`);
+        api.bad(step === 2 && x === p && y === firstDiv ? `換一個除數試試看！` : `${x} ${op} ${y} 不等於 ${z} 喔！`, `${x} ${op} ${y} ＝ ${z}`);
         later(() => { slots.forEach((s, si) => { if (from[si] != null) $(`.ncard[data-i="${from[si]}"]`, st).classList.remove('used'); val[si] = null; from[si] = null; s.textContent = ''; }); locked = false; }, 700);
       }
     }
@@ -195,7 +196,7 @@ function u9A(st) {
     $('#okb', st).onclick = () => {
       const n = $$('.seg.on', st).length;
       if (n === T) { $('#okb', st).disabled = true; api.ok(`${T} 個 0.1 是 ${d}`); speak(`${T}個零點一是${d}`); r++; later(round, 1700); }
-      else api.bad(`${d} 是 ${T} 個 0.1，要塗 ${T} 格！`);
+      else api.bad(`${d} 是 ${T} 個 0.1，要塗 ${T} 格！`, `塗了 ${n} 格（${r1(n / 10)}）`, `${T} 格（${d}）`);
     };
     draw();
   }
@@ -252,8 +253,8 @@ function u10A(st) {
     $$('.tally button', st).forEach(b => b.onclick = () => { const i = +b.dataset.i; val[i] = Math.max(0, val[i] + +b.dataset.d); $('#v' + i, st).textContent = val[i]; sfx('tap'); });
     $('#okb', st).onclick = () => {
       const bad = val.findIndex((v, i) => v !== cnt[i]);
-      if (bad >= 0) return api.bad(`${ks[bad][1]}的數量不對，再數一次！`);
-      sfx('ok');
+      if (bad >= 0) return api.bad(`${ks[bad][1]}的數量不對，再數一次！`, `${ks[bad][1]} 填 ${val[bad]} 隻`, `${ks[bad][1]} ${cnt[bad]} 隻`);
+      sfx('ok'); rep(true, '表格填對了');
       const mx = Math.max(...cnt), who = ks.filter((_, i) => cnt[i] === mx).map(k => k[1]);
       const tot = cnt.reduce((a, b) => a + b, 0);
       st.innerHTML = `${dots(r, 2)}<div class="qvis">${tableHTML(['動物', ...ks.map(k => k[0] + k[1])], [['數量（隻）', ...cnt]], '海洋觀測站動物統計表')}</div><div class="kwrap"></div>`;

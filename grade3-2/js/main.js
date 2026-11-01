@@ -32,9 +32,10 @@ function renderHub() {
 function openLevel(ui, mi) {
   runCleanup();
   const u = UNITS[ui];
-  cur = { ui, mi, miss: 0, done: false };
+  cur = { ui, mi, miss: 0, done: false }; curQ = null;
   $('#hub').hidden = true; $('#play').hidden = false; $('#homeBtn').hidden = false; $('#result').hidden = true;
   $('#lvTitle').innerHTML = `<span class="sem-mini">下學期</span><span class="u-no" style="background:${u.c}">第 ${u.no} 單元 ${u.name}</span><br>${MODE_TAG[mi]}：${u.modes[mi]}`;
+  window.KGReport && KGReport.level(`${u.no}-${'ABC'[mi]} ${MODE_TAG[mi]}：${u.modes[mi]}`, `第 ${u.no} 單元 ${u.name}`);
   const old = $('#stage'), st = old.cloneNode(false); old.replaceWith(st);
   window.scrollTo(0, 0);
   try { LEVELS[u.id][mi](st); } catch (e) { console.error(e); st.innerHTML = '<p>這一關出了點問題，請回基地再試一次。</p>'; }
@@ -46,6 +47,7 @@ window.onLevelDone = c => {
   const stars = c.miss === 0 ? 3 : c.miss <= 2 ? 2 : 1, k = keyOf(c.ui, c.mi);
   P[k] = Math.max(P[k] || 0, stars); saveP();
   sfx('win'); bubbles();
+  window.KGReport && KGReport.done({ stars });
   $('#rTitle').textContent = stars === 3 ? '探險大成功！' : stars === 2 ? '過關了！' : '完成任務！';
   $('#rStars').innerHTML = starHTML(stars);
   $('#rMsg').textContent = stars === 3 ? '全部一次就答對，拿到 3 個貝殼！' : `答錯 ${c.miss} 次，再潛一次可以撿到更多貝殼喔！`;

@@ -20,9 +20,10 @@ function u1A(st) {
     $('#each', st).onclick = () => { if (pile < k) { toast(`剩 ${pile} 顆，不夠每箱放 1 顆了！`); return; } box.forEach((_, i) => box[i]++); pile -= k; sfx('pop'); draw(); };
     $('#redo', st).onclick = () => { box.fill(0); pile = n; draw(); };
     $('#done', st).onclick = () => {
-      if (box.some(b => b !== box[0])) return api.bad('每個寶箱要一樣多才是平分喔！');
-      if (pile >= k) return api.bad(`還剩 ${pile} 顆，還可以每箱再放 1 顆！`);
-      sfx('ok');
+      const said = `每箱 ${box.join('、')} 顆，剩 ${pile} 顆`, want = `每箱 ${Math.floor(n / k)} 顆，剩 ${n % k} 顆`;
+      if (box.some(b => b !== box[0])) return api.bad('每個寶箱要一樣多才是平分喔！', said, want);
+      if (pile >= k) return api.bad(`還剩 ${pile} 顆，還可以每箱再放 1 顆！`, said, want);
+      sfx('ok'); rep(true, said, want);
       const q = Math.floor(n / k), rem = n % k;
       $('.center', st).innerHTML = '';
       api.say(`分好了！${n} ÷ ${k} ＝ ? … ?，每箱幾顆？剩下幾顆？`, `${n}除以${k}，每箱幾顆，剩下幾顆`);
@@ -81,10 +82,11 @@ function u2A(st) {
     api.say(r < 2 ? '找出規律，把正確的海洋生物<b>拖進</b>空格（也可以直接點）！' : '空格在中間喔！找出規律再拖進去。', '找出規律，把正確的海洋生物拖進空格');
     st.innerHTML = `${dots(r, types.length)}<div class="seq">${seq.map((s, i) => `<div class="cell${i === blank ? ' blank' : ''}">${i === blank ? '?' : s}</div>`).join('')}</div><div class="palette">${shuffle([...p.syms, p.spare]).map(s => `<button type="button" class="opt" data-s="${s}">${s}</button>`).join('')}</div>`;
     const hole = $('.blank', st); let done = false;
+    curQ = { q: `找出規律，空格要放什麼？ ${seq.map((s, i) => i === blank ? '？' : s).join(' ')}`, c: ans };
     $$('.palette .opt', st).forEach(b => draggable(b, [hole], hit => {
       if (done || !hit) return;
       if (b.dataset.s === ans) { done = true; hole.textContent = ans; hole.classList.remove('blank'); b.classList.add('right'); api.ok(`對！規律是 ${p.unit.join('')}`); r++; later(round, 1500); }
-      else { b.classList.add('wrong'); api.bad(`看看 ${p.unit.length} 個一組，一直重複喔！`); }
+      else { b.classList.add('wrong'); api.bad(`看看 ${p.unit.length} 個一組，一直重複喔！`, b.dataset.s); }
     }));
   }
   round();
@@ -145,11 +147,11 @@ function u3A(st) {
     $$('.clockctl [data-a]', st).forEach(b => b.onclick = () => { const a = b.dataset.a; sfx('tap'); if (a === 'h+') h = h % 12 + 1; if (a === 'h-') h = (h + 10) % 12 + 1; if (a === 'm+') m = (m + 5) % 60; if (a === 'm-') m = (m + 55) % 60; draw(); });
     $$('.ampm button', st).forEach(b => b.onclick = () => { pm = b.dataset.p === '1'; sfx('tap'); draw(); });
     $('#okb', st).onclick = () => {
-      const h24 = pm ? (h % 12) + 12 : h % 12;
+      const h24 = pm ? (h % 12) + 12 : h % 12, said = `${pm ? '下午' : '上午'} ${h} 時 ${pad2(m)} 分`, want = `${t24(H, M)}（${t12(H, M)}）`;
       if (h24 === H && m === M) { $('#okb', st).disabled = true; api.ok(`對！${t24(H, M)} 就是 ${t12(H, M)}`); speak(`${t24(H, M)}就是${t12(H, M)}`); r++; later(round, 2000); }
-      else if (m !== M) api.bad('長針（分針）的位置不對喔！');
-      else if (h % 12 !== H % 12) api.bad(H > 12 ? `${H} 時要減 12，是 ${H - 12} 時！` : '短針（時針）的位置不對喔！');
-      else api.bad(H >= 12 ? '超過 12 時是下午或晚上喔！' : '小於 12 時是上午喔！');
+      else if (m !== M) api.bad('長針（分針）的位置不對喔！', said, want);
+      else if (h % 12 !== H % 12) api.bad(H > 12 ? `${H} 時要減 12，是 ${H - 12} 時！` : '短針（時針）的位置不對喔！', said, want);
+      else api.bad(H >= 12 ? '超過 12 時是下午或晚上喔！' : '小於 12 時是上午喔！', said, want);
     };
     draw();
   }
@@ -268,13 +270,13 @@ function u5A(st) {
     $('#clr', st).onclick = () => g.clear();
     $('#okb', st).onclick = () => {
       if (T.a) {
-        if (!isRect(g.on, T.a, T.b)) return api.bad(`要塗成長 ${T.a} 格、寬 ${T.b} 格的長方形喔！`);
-        sfx('ok'); bt.innerHTML = '';
+        if (!isRect(g.on, T.a, T.b)) return api.bad(`要塗成長 ${T.a} 格、寬 ${T.b} 格的長方形喔！`, `塗了 ${g.on.size} 格，不是長 ${T.a}、寬 ${T.b} 的長方形`, `長 ${T.a} 格、寬 ${T.b} 格的長方形`);
+        sfx('ok'); rep(true, `長 ${T.a} 格、寬 ${T.b} 格的長方形`); bt.innerHTML = '';
         api.say(`很好！這個長方形的面積是幾平方公分？`);
         const kw = document.createElement('div'); kw.className = 'kwrap'; st.appendChild(kw);
         return keypad(kw, T.a * T.b, () => { toast(`${T.a} × ${T.b} ＝ ${T.a * T.b} 平方公分`); r++; later(round, 1800); }, `一排 ${T.a} 格，有 ${T.b} 排！`, '平方公分');
       }
-      if (g.on.size !== T.n) return api.bad(g.on.size > T.n ? `塗太多了，要 ${T.n} 格！` : `還不夠，要 ${T.n} 格！`);
+      if (g.on.size !== T.n) return api.bad(g.on.size > T.n ? `塗太多了，要 ${T.n} 格！` : `還不夠，要 ${T.n} 格！`, `塗了 ${g.on.size} 格`, `${T.n} 格`);
       $('#okb', st).disabled = true; api.ok(`對！${T.n} 個 1 平方公分就是 ${T.n} 平方公分`); r++; later(round, 1500);
     };
   }
