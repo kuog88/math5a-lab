@@ -15,7 +15,7 @@ function xquiz(st, rounds) {
       x.innerHTML = `<div class="xpl-ex">📖 詳解：${r.ex}</div>${r.trap ? `<div class="xpl-trap">⚠️ 小心陷阱：${r.trap}</div>` : ''}<div class="center"><button class="btn mint xpl-next" type="button">${last ? '完成 🎉' : '下一題 ➜'}</button></div>`;
       x.hidden = false;
       speak('詳解。' + r.ex + (r.trap ? '小心陷阱。' + r.trap : ''));
-      $('.xpl-next', x).onclick = () => { i++; show(); };
+      $('.xpl-next', x).onclick = () => { i++; show(); calmStage(); };
       x.scrollIntoView && x.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     };
     if (r.eq) return eqBuild($('.eqwrap', st), r, done); // 列式小幫手
