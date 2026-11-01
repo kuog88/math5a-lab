@@ -69,15 +69,21 @@ function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clea
 function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
-let cur = null, lastSay = '';
+let cur = null, lastSay = '', lastQ = '';
+/* 家長報表：curQ 是目前的題目和正確答案（quiz、eqBuild 會設定；其他關卡用貓頭鷹說的話當題目） */
+let curQ = null;
+const repTxt = s => s === undefined ? s : String(s).replace(/<span class="frac">(?:<b class="fw">([^<]*)<\/b>)?<span class="fnd"><span>([^<]*)<\/span><span>([^<]*)<\/span><\/span><\/span>/g, (m, w, n, d) => ` ${w ? w + '又' : ''}${n}/${d} `);
+function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: repTxt(curQ ? curQ.q : lastQ), a: repTxt(a), c: repTxt(c !== undefined ? c : curQ ? curQ.c : '') }); }
+/* 選項的文字（圖形選項用 o.t 說明） */
+const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const api = {
   say(html, sp) {
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
-    lastSay = sp || html; speak(lastSay);
+    lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); },
-  bad(msg) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); },
+  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
 
@@ -88,7 +94,7 @@ const N = v => `<span class="num">${v}</span>`;
 /* 選項按鈕：答對呼叫 onRight，答錯扣分並提示 */
 function optBtn(o, onRight, hint) {
   const b = document.createElement('button');
-  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button';
+  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button'; b._o = o;
   b.onclick = () => {
     if (b.disabled) return;
     if (o.ok) {
@@ -97,7 +103,8 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！');
+      const right = $$('.opt', b.parentNode).map(x => x._o).find(x => x && x.ok);
+      api.bad(o.hint || hint || '再想想看！', optText(o), right ? optText(right) : undefined);
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -127,7 +134,7 @@ function keypad(box, ans, onRight, hint, unit = '') {
       if (v === '' || v === '.') return;
       if (Math.abs(parseFloat(v) - ans) < 1e-9) { done = true; show.parentNode.classList.add('right'); api.ok(); onRight(); return; }
       show.parentNode.classList.remove('wrong'); void show.offsetWidth; show.parentNode.classList.add('wrong');
-      api.bad(hint || '再算算看！'); if (hint) speak(hint); v = '';
+      api.bad(hint || '再算算看！', v + (unit ? ' ' + unit : ''), ans + (unit ? ' ' + unit : '')); if (hint) speak(hint); v = '';
     } else if (k === '.') { if (!v.includes('.') && v.length < 8) v = (v || '0') + '.'; }
     else if (v.length < 9) v = (v === '0' ? '' : v) + k;
     show.textContent = v;
@@ -143,6 +150,8 @@ function quiz(st, rounds) {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
+    const okOpt = (r.opts || []).find(o => o.ok);
+    curQ = { q: r.q, c: eqm ? '' : typed ? r.ans + (r.unit ? ' ' + r.unit : '') : optText(okOpt) };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : r.pad ? 'numpad' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
@@ -296,6 +305,8 @@ function eqBuild(box, r, onRight) {
   const paths = [r.eq, ...(r.alt || [])].map(e => eqParse(eqTok(eqStr(e))));
   if (paths.some(p => !p)) console.error('列式小幫手：算式寫錯了', r.eq, r.alt);
   const nums = eqNums(r);
+  // 家長報表：正確算式和答案
+  if (paths[0]) { const v0 = eqVal(paths[0]); curQ = { q: r.q, c: `${Array.isArray(r.eq) ? eqStr(r.eq).slice(1, -1) : r.eq} = ${r.rem && v0[1] !== 1 ? `${r.rem[0]} …… ${r.rem[1]}` : qFmt(v0)}${r.eqRound ? `，答案 ${r.ans}` : ''}${r.unit && (!r.rem || v0[1] === 1 || r.eqRound) ? ' ' + r.unit : ''}` }; }
   const S = { paths: paths.filter(Boolean), allowed: new Set([...nums, ...(r.known || []).map(String)].map(qLit).filter(Boolean).map(qKey).concat(paths.filter(Boolean).flatMap(eqLeaves))) };
   const rows = [];
   let finished = false;
@@ -373,7 +384,7 @@ function eqBuild(box, r, onRight) {
     if (j.bad) {
       const text = MSG[j.bad](j);
       w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
-      msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+      msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, ''), w.T.map(t => t.s).join(' ') || '（還沒列）'); speak(text);
       return;
     }
     const v = j.final || j.step, res = $('.eq-res', w.el), txt = show(v, !!j.final);

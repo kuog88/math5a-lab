@@ -34,7 +34,7 @@ function u1A(st) {
       if (v === n) { api.ok(`對！${comma(n)}`); speak(`答對了，${numCN(n)}`); r++; later(round, 2000); }
       else {
         const a = String(n).padStart(8, '0'), b = String(v).padStart(8, '0'), k = [...a].findIndex((c, i) => c !== b[i]);
-        api.bad(`${PLACES[k]}位不對喔！再聽一次。`); speak(`${PLACES[k]}位不對喔，${numCN(n)}`);
+        api.bad(`${PLACES[k]}位不對喔！再聽一次。`, `撥成 ${comma(v)}`, comma(n)); speak(`${PLACES[k]}位不對喔，${numCN(n)}`);
       }
     };
     draw();
@@ -185,7 +185,7 @@ function u3A(st) {
     $('#p5', st).onclick = () => { a = Math.min(180, a + 5); sfx('tap'); draw(); };
     $('#okb', st).onclick = () => {
       if (a === t) { api.ok(`對！這是 ${t}° 的角`); speak(`對，這是 ${t} 度的角`); r++; later(round, 1800); }
-      else api.bad(`現在是 ${a}°，${a > t ? '太大了' : '太小了'}！${flip ? '從左邊的 0 開始看外圈。' : '從右邊的 0 開始看內圈。'}`);
+      else api.bad(`現在是 ${a}°，${a > t ? '太大了' : '太小了'}！${flip ? '從左邊的 0 開始看外圈。' : '從右邊的 0 開始看內圈。'}`, `${a}°`, `${t}°`);
     };
   }
   round();

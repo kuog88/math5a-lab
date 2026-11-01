@@ -31,7 +31,7 @@ function u7A(st) {
       const h = ks.length ? Math.max(...rs) - Math.min(...rs) + 1 : 0, w = ks.length ? Math.max(...cs) - Math.min(...cs) + 1 : 0;
       const ok = ks.length === h * w && ((h === tr && w === tc) || (h === tc && w === tr));
       if (ok) { api.ok(`對！第 4 個有 ${tr * tc} 個點`); speak(`對，第 4 個是 ${tr} 乘 ${tc}，有 ${tr * tc} 個點`); r++; later(round, 2200); }
-      else api.bad(`看看每一個比前一個多了一列還是一行？第 4 個應該排成 ${tr} 列！`);
+      else api.bad(`看看每一個比前一個多了一列還是一行？第 4 個應該排成 ${tr} 列！`, `點了 ${ks.length} 個點`, `排成 ${tr} 列 ${tc} 行，共 ${tr * tc} 個點`);
     };
   }
   round();
@@ -114,9 +114,10 @@ function u8A(st) {
       if (i < 0) { api.ok(`${exprText(exprs[r])} = ${ans}`); speak(`答案是 ${ans}`); r++; return later(round, 2200); }
       $('#ex', st).innerHTML = t.map((x, k) => '+−×÷'.includes(x) && typeof x === 'string' && x.length === 1 ? `<button type="button" class="opk" data-k="${k}">${x}</button>` : `<span>${x}</span>`).join('');
       api.say('點一下<b>要先算</b>的符號！', '點一下要先算的符號');
+      curQ = { q: `${t.join(' ')}　要先算哪一步？`, c: `先算 ${t[i - 1]} ${t[i]} ${t[i + 1]}` };
       $$('.opk', st).forEach(b => b.onclick = () => {
         const k = +b.dataset.k;
-        if (k !== i) { b.classList.add('wrong'); return api.bad(ruleHint(t)); }
+        if (k !== i) { b.classList.add('wrong'); return api.bad(ruleHint(t), `先算 ${t[k - 1]} ${t[k]} ${t[k + 1]}`); }
         const v = OPS[t[k]](t[k - 1], t[k + 1]);
         lg.insertAdjacentHTML('beforeend', `<div>${t[k - 1]} ${t[k]} ${t[k + 1]} = ${v}</div>`);
         sfx('ok'); t.splice(k - 1, 3, v);
@@ -164,7 +165,7 @@ function u9A(st) {
     $('#clr', st).onclick = () => { on.clear(); draw(); };
     $('#okb', st).onclick = () => {
       if (on.size === n) { api.ok(`對！${v} 是 ${n} 個 0.01`); speak(`對，${v} 是 ${Math.floor(n / 10)} 個 0.1 和 ${n % 10} 個 0.01`); r++; later(round, 2200); }
-      else api.bad(`${v} 是 ${n} 個 0.01，現在塗了 ${on.size} 格！`);
+      else api.bad(`${v} 是 ${n} 個 0.01，現在塗了 ${on.size} 格！`, `塗了 ${on.size} 格`, `塗 ${n} 格（${v}）`);
     };
     draw();
   }
@@ -223,7 +224,7 @@ function u10A(st) {
     $('#p1', st).onclick = () => { m = Math.min(2000, m + 50); sfx('tap'); draw(); };
     $('#okb', st).onclick = () => {
       if (m === t) { api.ok(`對！${kmText(t)} = ${t} 公尺`); speak(`對，${kmText(t)}就是 ${t} 公尺`); r++; later(round, 2000); }
-      else api.bad(`現在在 ${kmText(m)}，${m > t ? '跑過頭了' : '還沒到'}！`);
+      else api.bad(`現在在 ${kmText(m)}，${m > t ? '跑過頭了' : '還沒到'}！`, `停在 ${kmText(m)}`, kmText(t));
     };
     draw();
   }

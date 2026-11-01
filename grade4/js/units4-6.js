@@ -113,7 +113,7 @@ function u5A(st) {
       if (hit.dataset.k === el.dataset.k) {
         sfx('pop'); el.dataset.lock = 1; el.classList.add('in'); hit.appendChild(el); left--;
         if (!left) { api.ok('全部分好了！'); r++; later(round, 1500); }
-      } else api.bad('不對喔！' + R.hint[hit.dataset.k]);
+      } else api.bad('不對喔！' + R.hint[hit.dataset.k], `把三角形放進「${$('h4', hit).textContent}」`, `「${$('h4', bins.find(b => b.dataset.k === el.dataset.k)).textContent}」`);
     }));
   }
   round();
@@ -166,7 +166,7 @@ function u6A(st) {
     }));
     $('#ro', st).innerHTML = `塗了 0 個 ${F(1, d)}`;
     $('#okb', st).onclick = () => {
-      if (on.size !== n) return api.bad(`${fracText(n, d)}是 ${n} 個${fracText(1, d)}，現在塗了 ${on.size} 個！`);
+      if (on.size !== n) return api.bad(`${fracText(n, d)}是 ${n} 個${fracText(1, d)}，現在塗了 ${on.size} 個！`, `塗了 ${on.size} 格`, `塗 ${n} 格（${n}/${d}）`);
       const w = Math.floor(n / d), m = n % d;
       const say = n < d ? `${fracText(n, d)}比 1 小，是真分數` : m ? `${fracText(n, d)}是假分數，等於 ${fracText(m, d, w)}` : `${fracText(n, d)}是假分數，等於 ${w}`;
       $('#ro', st).innerHTML = n < d ? `${F(n, d)} 是真分數` : `${F(n, d)} ＝ ${m ? F(m, d, w) : `<b class="big">${w}</b>`}`;
