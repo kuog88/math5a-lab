@@ -56,7 +56,7 @@ function u5A(st) {
       if (!miss && !extra) {
         $$('button', st).forEach(b => b.disabled = true);
         api.ok('完成！沿著對稱軸對摺，兩邊會完全疊在一起。'); speak('沿著對稱軸對摺，兩邊完全重合，這就是線對稱圖形'); r++; later(round, 2600);
-      } else api.bad(`還有 ${miss} 格沒塗、${extra} 格塗錯了。每一格到對稱軸的距離要一樣遠！`);
+      } else api.bad(`還有 ${miss} 格沒塗、${extra} 格塗錯了。每一格到對稱軸的距離要一樣遠！`, `${miss} 格沒塗、${extra} 格塗錯`, `塗出和另一半對稱的 ${want.size} 格`);
     };
     draw();
   }
@@ -76,7 +76,7 @@ const SHAPES = {
 };
 function u5B(st) {
   quiz(st, [
-    { q: '下面哪一個<b>不是</b>線對稱圖形？', opts: [{ h: SHAPES.par, ok: true }, { h: SHAPES.iso, ok: false, hint: '等腰三角形從頂點往下對摺，兩邊會重合。' }, { h: SHAPES.rect, ok: false, hint: '長方形左右對摺、上下對摺都會重合。' }, { h: SHAPES.kite, ok: false, hint: '箏形沿著直的那條對角線對摺會重合。' }], hint: '找一個怎麼摺都沒辦法完全重合的圖形。' },
+    { q: '下面哪一個<b>不是</b>線對稱圖形？', opts: [{ h: SHAPES.par, ok: true, t: '平行四邊形' }, { h: SHAPES.iso, ok: false, t: '等腰三角形', hint: '等腰三角形從頂點往下對摺，兩邊會重合。' }, { h: SHAPES.rect, ok: false, t: '長方形', hint: '長方形左右對摺、上下對摺都會重合。' }, { h: SHAPES.kite, ok: false, t: '箏形', hint: '箏形沿著直的那條對角線對摺會重合。' }], hint: '找一個怎麼摺都沒辦法完全重合的圖形。' },
     () => { const [k, n, name] = pick([['sq', 4, '正方形'], ['rect', 2, '長方形'], ['tri', 3, '正三角形'], ['iso', 1, '等腰三角形']]); return { q: `${name}有幾條對稱軸？`, vis: SHAPES[k], opts: numOpts(n, [0, 1, 2, 3, 4, 6].filter(x => x !== n).slice(0, 3), '條'), hint: '想一想：有幾種摺法能讓兩邊完全重合？' }; },
     { q: '圓有幾條對稱軸？', vis: SHAPES.cir, opts: [{ h: '無數條', ok: true }, { h: '1 條', ok: false, hint: '通過圓心的直線都可以對摺喔！' }, { h: '4 條', ok: false, hint: '不只 4 條，通過圓心的每一條直線都是。' }], keep: true },
     { q: '線對稱圖形上的兩個<b>對稱點</b>，連起來的線和對稱軸是什麼關係？', opts: [{ h: '互相垂直', ok: true }, { h: '互相平行', ok: false, hint: '對稱點連線會「穿過」對稱軸，不會平行。' }, { h: '沒有關係', ok: false, hint: '對摺時對稱點會疊在一起，連線一定和對稱軸垂直。' }], keep: true },
@@ -118,7 +118,7 @@ function u6A(st) {
       <div class="lbl" style="text-align:center">選一把尺：每格是</div><div class="btns">${cand.map(k => `<button type="button" class="btn ghost" data-k="${k}">${fr(1, k)}</button>`).join('')}</div><div class="kwrap"></div>`;
     $$('[data-k]', st).forEach(btn => btn.onclick = () => {
       const D = +btn.dataset.k;
-      if (D % b || D % d) { btn.disabled = true; return api.bad(`用 ${fr(1, D)} 的尺量 ${D % b ? fr(1, b) : fr(1, d)}，量不剛好！分母要是 ${b} 和 ${d} 的公倍數。`); }
+      if (D % b || D % d) { btn.disabled = true; return api.bad(`用 ${fr(1, D)} 的尺量 ${D % b ? fr(1, b) : fr(1, d)}，量不剛好！分母要是 ${b} 和 ${d} 的公倍數。`, `選每格 ${fr(1, D)} 的尺`, `每格 ${fr(1, L)} 的尺（${b} 和 ${d} 的公倍數）`); }
       $$('[data-k]', st).forEach(z => z.disabled = true); sfx('ok');
       const X = a * D / b, Y = c * D / d;
       $('#bars', st).innerHTML = `${fbar(X, D)}${fbar(Y, D, 'b')}<div class="flabel">${fr(X, D)} ${op} ${fr(Y, D)} = ？</div>`;

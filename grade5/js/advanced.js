@@ -8,6 +8,7 @@ function xquiz(st, rounds) {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
+    setQ(r);
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : 'opts'}"></div><div class="xpl" hidden></div>`;
     api.say(r.q, r.sp);
     const done = () => {
@@ -237,7 +238,7 @@ const X5 = [
   },
   {
     q: '下面哪一個圖形有<b>兩條</b>對稱軸？', sp: '下面哪一個圖形有兩條對稱軸？',
-    opts: [xo(letterSVG('M14 10 V90 M66 10 V90 M14 50 H66'), true), xo(letterSVG('M8 12 H72 M40 12 V92'), false), xo(letterSVG('M66 12 H16 V88 H66 M16 50 H66'), false), xo(letterSVG('M14 92 V10 L66 90 V8'), false)],
+    opts: [{ ...xo(letterSVG('M14 10 V90 M66 10 V90 M14 50 H66'), true), t: 'H' }, { ...xo(letterSVG('M8 12 H72 M40 12 V92'), false), t: 'T' }, { ...xo(letterSVG('M66 12 H16 V88 H66 M16 50 H66'), false), t: 'E' }, { ...xo(letterSVG('M14 92 V10 L66 90 V8'), false), t: 'N' }],
     hint: '每一個都試試看直的對摺、橫的對摺。',
     ex: 'H 直的對摺、橫的對摺都會重合，有 <b>2 條</b>對稱軸。T 只有直的 1 條，E 只有橫的 1 條，N 一條也沒有。',
     trap: 'N 轉半圈後看起來一樣，但不管怎麼對摺都不會重合，所以不是線對稱圖形。'
@@ -417,7 +418,7 @@ const NET_TIAN = [[0, 0], [1, 0], [0, 1], [1, 1], [2, 1], [3, 1]];
 const X10 = [
   {
     q: '下面哪一個展開圖<b>不能</b>摺成正方體？', sp: '下面哪一個展開圖不能摺成正方體？',
-    opts: [xo(miniNet(NET_TIAN), true), xo(miniNet(NETS[0]), false), xo(miniNet(NETS[3]), false), xo(miniNet(NETS[4]), false)],
+    opts: [{ ...xo(miniNet(NET_TIAN), true), t: '有「田」字形的展開圖' }, { ...xo(miniNet(NETS[0]), false), t: '可以摺成正方體的展開圖（一）' }, { ...xo(miniNet(NETS[3]), false), t: '可以摺成正方體的展開圖（二）' }, { ...xo(miniNet(NETS[4]), false), t: '可以摺成正方體的展開圖（三）' }],
     hint: '想像摺起來：有沒有兩個面疊在一起？',
     ex: '有「田」字形（2 × 2 四個正方形擠在一起）的那一個，摺起來會有兩個面疊在一起，還缺一個面，所以<b>不能</b>摺成正方體。另外三個都可以。',
     trap: '6 個正方形連在一起，不一定能摺成正方體。看到「田」字形就一定摺不起來；階梯形的反而可以。'

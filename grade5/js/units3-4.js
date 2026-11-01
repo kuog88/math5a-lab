@@ -52,7 +52,11 @@ function u3A(st) {
           $$('button', st).forEach(x => x.disabled = true);
           const m = can ? `${s1} + ${s2} = ${s1 + s2}，比最長的 ${L} 長，可以圍成三角形！` : `${s1} + ${s2} = ${s1 + s2}，沒有比最長的 ${L} 長，圍不成三角形！`;
           api.ok(m); speak(m); r++; later(round, 3000);
-        } else api.bad(R.want ? '這根圍不起來喔！兩根短的加起來要比最長的還長。' : '這根可以圍成三角形喔！要找一根讓兩短邊加起來不比最長邊長的。');
+        } else {
+          const lo = Math.abs(a - b) + 1, hi = a + b - 1;
+          api.bad(R.want ? '這根圍不起來喔！兩根短的加起來要比最長的還長。' : '這根可以圍成三角形喔！要找一根讓兩短邊加起來不比最長邊長的。', `選 ${c} 公分`,
+            R.want ? `選 ${lo} 到 ${hi} 公分其中一根` : [lo > 1 ? `${lo - 1} 公分以下` : '', hi < 13 ? `${hi + 1} 公分以上` : ''].filter(Boolean).join(' 或 ') + '的木棒');
+        }
       };
     } else {
       const n = R.n, need = []; for (let k = 2; k <= n - 2; k++) need.push(k);
@@ -84,7 +88,7 @@ function u3A(st) {
 const shp = pts => `<svg viewBox="0 0 120 100" width="110" height="92"><polygon points="${pts}" fill="#d6ecff" stroke="#4a3b5c" stroke-width="4"/></svg>`;
 function u3B(st) {
   quiz(st, [
-    { q: '下面哪一個是<b>正多邊形</b>？', opts: [{ h: shp('25,15 95,15 95,85 25,85'), ok: true }, { h: shp('5,25 115,25 115,75 5,75'), ok: false, hint: '長方形的邊不是都一樣長。' }, { h: shp('60,5 88,50 60,95 32,50'), ok: false, hint: '菱形的邊都一樣長，但角不是都一樣大。正多邊形要「邊都相等、角也都相等」。' }], hint: '正多邊形：每條邊都一樣長，每個角都一樣大。' },
+    { q: '下面哪一個是<b>正多邊形</b>？', opts: [{ h: shp('25,15 95,15 95,85 25,85'), ok: true, t: '正方形' }, { h: shp('5,25 115,25 115,75 5,75'), ok: false, t: '長方形', hint: '長方形的邊不是都一樣長。' }, { h: shp('60,5 88,50 60,95 32,50'), ok: false, t: '菱形', hint: '菱形的邊都一樣長，但角不是都一樣大。正多邊形要「邊都相等、角也都相等」。' }], hint: '正多邊形：每條邊都一樣長，每個角都一樣大。' },
     () => { const ok = pick([[4, 5, 7], [5, 6, 9], [3, 5, 6]]), eq = pick([[2, 5, 7], [3, 6, 9], [4, 4, 8]]), sh = pick([[2, 3, 8], [3, 4, 9], [2, 4, 10]]); return { q: '三根木棒的長度如下（公分），哪一組<b>可以</b>圍成三角形？', opts: [{ h: ok.join('、'), ok: true }, { h: eq.join('、'), ok: false, hint: `${eq[0]} + ${eq[1]} = ${eq[2]}，剛好一樣長，會躺平，圍不起來。` }, { h: sh.join('、'), ok: false, hint: `${sh[0]} + ${sh[1]} 比 ${sh[2]} 短，接不起來。` }], hint: '兩短邊的和要大於最長邊。' }; },
     { q: '三角形的三個內角加起來是幾度？', opts: [{ h: '180°', ok: true }, { h: '360°', ok: false, hint: '360° 是四邊形的內角和喔！' }, { h: '90°', ok: false, hint: '90° 只是一個直角。' }], keep: true, hint: '把三個角撕下來拼在一起，會拼成一條直線。' },
     () => { const n = rand(6, 9); return { q: `從${PNAME[n]}的一個頂點畫出所有對角線，可以分成幾個三角形？`, vis: polySVG(n, Array.from({ length: n - 3 }, (_, i) => i + 2)), opts: numOpts(n - 2, [n, n - 1, n - 3], '個'), hint: '數一數圖上的三角形！是「邊數 − 2」個。' }; },
@@ -134,7 +138,7 @@ function u4A(st) {
           $$('button', st).forEach(b => b.disabled = true);
           const m = R.t === 'x' ? `分子、分母同乘以 ${goal / d0}：${fr(n0, d0)} = ${fr(n, d)}（擴分）` : `分子、分母同除以 ${d0 / d}：${fr(n0, d0)} = ${fr(n, d)}（約分）`;
           api.ok(m); speak(m); r++; later(round, 2800);
-        } else api.bad(R.t === 'x' ? `現在分母是 ${d}，要變成 ${goal}！` : (gcd(n, d) > 1 ? `${fr(n, d)} 還可以再約喔！` : `分母變成 ${d} 了，${fr(n0, d0)} 的最簡分數分母比較小喔！`));
+        } else api.bad(R.t === 'x' ? `現在分母是 ${d}，要變成 ${goal}！` : (gcd(n, d) > 1 ? `${fr(n, d)} 還可以再約喔！` : `分母變成 ${d} 了，${fr(n0, d0)} 的最簡分數分母比較小喔！`), `變成 ${fr(n, d)}`, R.t === 'x' ? fr(n0 * goal / d0, goal) : fr(...red(n0, d0)));
       };
     };
     draw();

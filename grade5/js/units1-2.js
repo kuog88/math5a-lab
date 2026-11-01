@@ -96,8 +96,8 @@ function u1A(st) {
         $('#okB', st).disabled = true;
         api.ok('折線圖畫好了！看線往上、往下，就知道變化的情形。');
         speak('畫得很好！折線往上表示增加，往下表示減少。'); r++; later(round, 2600);
-      } else if (vals[k] === null) api.bad(`${S.c.xs[k]} 還沒有畫點喔！`);
-      else api.bad(`${S.c.xs[k]} 的${S.name}是 ${S.v[k]} ${S.unit}，點要對齊 ${S.v[k]} 的格線！`);
+      } else if (vals[k] === null) api.bad(`${S.c.xs[k]} 還沒有畫點喔！`, `${S.c.xs[k]} 沒有畫點`, `${S.c.xs[k]} 畫在 ${S.v[k]} ${S.unit}`);
+      else api.bad(`${S.c.xs[k]} 的${S.name}是 ${S.v[k]} ${S.unit}，點要對齊 ${S.v[k]} 的格線！`, `${S.c.xs[k]} 畫在 ${vals[k]} ${S.unit}`, `${S.c.xs[k]} 畫在 ${S.v[k]} ${S.unit}`);
     };
     draw();
   }

@@ -35,13 +35,16 @@ function u9A(st) {
         sfx('pop'); draw();
       };
       $('#okB', st).onclick = () => {
+        // 家長報表：孩子現在換成的樣子、正確要換成的樣子
+        const now = `換成 ${tStr(B, S, u)}`, tot = R.B * u.R + R.S, kb = Math.floor(R.B / R.k) * R.k;
+        const want = R.op === '×' ? `換成 ${tStr(Math.floor((B * u.R + S) / u.R), (B * u.R + S) % u.R, u)}` : `換成 ${tStr(kb, tot - kb * u.R, u)} 再平分`;
         if (R.op === '×') {
-          if (S >= u.R) { draw('S'); return api.bad(`${S} ${u.S}還超過 ${u.R} ${u.S}，再換一次！`); }
+          if (S >= u.R) { draw('S'); return api.bad(`${S} ${u.S}還超過 ${u.R} ${u.S}，再換一次！`, now, want); }
           $$('button', st).forEach(b => b.disabled = true);
           const m = `${tStr(R.b, R.s, u)} × ${R.k} = ${tStr(B, S, u)}`; api.ok(m); speak(m);
         } else {
-          if (B % R.k) { draw('B'); return api.bad(`${B} ${u.B}還不能平分成 ${R.k} 份，再把 1 ${u.B}換成 ${u.R} ${u.S}！`); }
-          if (S % R.k) { draw('S'); return api.bad(`換太多了！${S} ${u.S}不能平分成 ${R.k} 份。`); }
+          if (B % R.k) { draw('B'); return api.bad(`${B} ${u.B}還不能平分成 ${R.k} 份，再把 1 ${u.B}換成 ${u.R} ${u.S}！`, now, want); }
+          if (S % R.k) { draw('S'); return api.bad(`換太多了！${S} ${u.S}不能平分成 ${R.k} 份。`, now, want); }
           $$('button', st).forEach(b => b.disabled = true);
           const m = `${tStr(R.B, R.S, u)} ÷ ${R.k} = ${tStr(B / R.k, S / R.k, u)}`;
           $('.tbox', st).insertAdjacentHTML('afterend', `<div class="after">每一份：${tStr(B / R.k, S / R.k, u)}</div>`); api.ok(m); speak(m);
@@ -131,10 +134,11 @@ function u10A(st) {
         $('#okB', st).onclick = () => {
           if (on.size < 6) return toast(`要選 6 格，現在只有 ${on.size} 格。`);
           const cells = [...on].map(s => s.split(',').map(Number)), F = foldNet(cells);
-          if (!F.connected) return api.bad('6 個正方形要邊和邊連在一起！');
-          if (!F.ok) return api.bad('摺起來有兩個面疊在一起，還會缺一個面，摺不成正方體！');
+          const goal = first ? '另一種不一樣的正方體展開圖' : '可以摺成正方體的展開圖';
+          if (!F.connected) return api.bad('6 個正方形要邊和邊連在一起！', '6 格沒有連在一起', goal);
+          if (!F.ok) return api.bad('摺起來有兩個面疊在一起，還會缺一個面，摺不成正方體！', '摺不成正方體的排法', goal);
           const c = netCanon(cells);
-          if (first && c === first) return api.bad('這個和剛才的展開圖轉一轉、翻一翻是一樣的，換一種！');
+          if (first && c === first) return api.bad('這個和剛才的展開圖轉一轉、翻一翻是一樣的，換一種！', '和剛才一樣的展開圖', goal);
           first = c; $$('button', st).forEach(b => b.disabled = true);
           api.ok('可以摺成正方體！'); speak('可以摺成正方體，6 個面都不重複'); r++; later(round, 2400);
         };
@@ -148,7 +152,7 @@ function u10A(st) {
       $$('.nc', st).forEach(c => c.addEventListener('click', () => {
         const k = c.dataset.k; if (!on.has(k) || k === star) return;
         if (k === opp) { c.setAttribute('fill', '#b6f0d6'); api.ok('答對了！相對的面不會相鄰。'); speak('答對了，相對的兩個面不會連在一起'); r++; later(round, 2400); }
-        else { c.setAttribute('fill', '#ffb3b3'); api.bad('這一面和 ⭐ 相鄰（摺起來會連在一起），不是相對的面！'); }
+        else { c.setAttribute('fill', '#ffb3b3'); api.bad('這一面和 ⭐ 相鄰（摺起來會連在一起），不是相對的面！', '點了和 ⭐ 相鄰的面', '和 ⭐ 不相鄰、在正對面的那一面'); }
       }));
     }
   }

@@ -44,6 +44,7 @@ function u7A(st) {
     const log = [tkStr(tk)];
     api.say('點一下<b>現在應該先算</b>的運算符號！記得：先算括號，再算乘除，最後算加減；同一級的由左往右。');
     const draw = () => {
+      curQ = { q: `${tkStr(tk)}　現在應該先算哪一個？`, c: allowedOps(tk).map(k => `先算 ${tk[k - 1]} ${tk[k]} ${tk[k + 1]}`).join(' 或 ') };
       st.innerHTML = `${dots(r, ex.length)}<div class="expr">${tk.map((t, i) => isOp(t) ? `<button type="button" class="op" data-i="${i}">${t}</button>` : `<span class="tk${i === nw ? ' nw' : ''}">${t}</span>`).join('')}</div><div class="steps">${log.map((s, i) => (i ? '= ' : '') + s).join('<br>')}</div>`;
       $$('.op', st).forEach(b => b.onclick = () => {
         const i = +b.dataset.i, ok = allowedOps(tk);
@@ -51,7 +52,7 @@ function u7A(st) {
           b.classList.add('wrong');
           const p = tk.indexOf('(');
           const inP = p >= 0 && i > p && i < tk.indexOf(')');
-          return api.bad(p >= 0 && !inP ? '有括號，要先算括號裡面的！' : !hiOp(tk[i]) && ok.some(k => hiOp(tk[k])) ? '先乘除，後加減！' : '同一級的運算，要由左往右算！');
+          return api.bad(p >= 0 && !inP ? '有括號，要先算括號裡面的！' : !hiOp(tk[i]) && ok.some(k => hiOp(tk[k])) ? '先乘除，後加減！' : '同一級的運算，要由左往右算！', `先算 ${tk[i - 1]} ${tk[i]} ${tk[i + 1]}`);
         }
         sfx('pop'); const s = stepAt(tk, i); tk = s.t; nw = s.at; log.push(tkStr(tk)); draw();
         if (tk.length === 1) { $$('.op', st).forEach(x => x.disabled = true); api.ok(`答案是 ${tk[0]}！`); speak(`答案是 ${tk[0]}`); r++; later(round, 2400); }
