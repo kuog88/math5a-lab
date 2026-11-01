@@ -1,17 +1,17 @@
 'use strict';
 /* 第 7 單元 兩步驟的計算 ／ 第 8 單元 分東西 ／ 第 9 單元 單位分數 ／ 第 10 單元 面的大小與立體 */
 
-/* ===== 兩步驟題目產生器：回傳 {q, s1(第一步算式), v1, s2, v2, w1(錯的第一步)} ===== */
+/* ===== 兩步驟題目產生器：回傳 {q, s1(第一步算式), v1, s2, v2, w1(錯的第一步), e/alt(列式小幫手用)} ===== */
 function twoStep(type) {
   const a = rand(3, 9), b = rand(3, 9);
   if (type === 'mulAdd') { const c = rand(2, 9), p = a * b;
-    return { q: `每箱有 <b>${a}</b> 塊磚，搬來 <b>${b}</b> 箱，另外還有 <b>${c}</b> 塊散的磚。一共有幾塊磚？`, s1: `${a} × ${b} ＝ ${p}`, s2: `${p} ＋ ${c} ＝ ${p + c}`, v2: p + c, w1: [`${a} ＋ ${b} ＝ ${a + b}`, `${b} ＋ ${c} ＝ ${b + c}`], trapAns: [a + b + c, a * (b + c)] }; }
+    return { q: `每箱有 <b>${a}</b> 塊磚，搬來 <b>${b}</b> 箱，另外還有 <b>${c}</b> 塊散的磚。一共有幾塊磚？`, s1: `${a} × ${b} ＝ ${p}`, s2: `${p} ＋ ${c} ＝ ${p + c}`, v2: p + c, w1: [`${a} ＋ ${b} ＝ ${a + b}`, `${b} ＋ ${c} ＝ ${b + c}`], trapAns: [a + b + c, a * (b + c)], v1: p, e: [[a, '×', b], ['R', '+', c]], hint: '先算每箱一樣多的磚（×），再加上散的磚（＋）。' }; }
   if (type === 'mulSub') { const p = a * b, c = rand(2, Math.min(9, p - 1));
-    return { q: `每包有 <b>${a}</b> 根釘子，買了 <b>${b}</b> 包，用掉 <b>${c}</b> 根。還剩幾根？`, s1: `${a} × ${b} ＝ ${p}`, s2: `${p} − ${c} ＝ ${p - c}`, v2: p - c, w1: [`${a} ＋ ${b} ＝ ${a + b}`, `${a} ＋ ${c} ＝ ${a + c}`], trapAns: [p + c, p] }; }
+    return { q: `每包有 <b>${a}</b> 根釘子，買了 <b>${b}</b> 包，用掉 <b>${c}</b> 根。還剩幾根？`, s1: `${a} × ${b} ＝ ${p}`, s2: `${p} − ${c} ＝ ${p - c}`, v2: p - c, w1: [`${a} ＋ ${b} ＝ ${a + b}`, `${a} ＋ ${c} ＝ ${a + c}`], trapAns: [p + c, p], v1: p, e: [[a, '×', b], ['R', '−', c]], hint: '先算買來的釘子（×），再減掉用掉的（−）。' }; }
   if (type === 'addMul') { const x = rand(2, 5), c = rand(2, 9 - x) || 2, y = x + c;
-    return { q: `每排原來有 <b>${x}</b> 位工人，每排又來了 <b>${c}</b> 位，一共有 <b>${b}</b> 排。現在一共有幾位工人？`, s1: `${x} ＋ ${c} ＝ ${y}`, s2: `${y} × ${b} ＝ ${y * b}`, v2: y * b, w1: [`${x} × ${b} ＝ ${x * b}`, `${c} × ${b} ＝ ${c * b}`], trapAns: [x * b + c, y + b] }; }
+    return { q: `每排原來有 <b>${x}</b> 位工人，每排又來了 <b>${c}</b> 位，一共有 <b>${b}</b> 排。現在一共有幾位工人？`, s1: `${x} ＋ ${c} ＝ ${y}`, s2: `${y} × ${b} ＝ ${y * b}`, v2: y * b, w1: [`${x} × ${b} ＝ ${x * b}`, `${c} × ${b} ＝ ${c * b}`], trapAns: [x * b + c, y + b], v1: y, e: [[x, '+', c], ['R', '×', b]], alt: [[[x, '×', b], [c, '×', b], ['R1', '+', 'R2']]], hint: '先算現在每排有幾位（＋），再算幾排（×）。' }; }
   const x = rand(5, 9), c = rand(1, x - 2), y = x - c; // subMul
-  return { q: `每盒原來有 <b>${x}</b> 顆螺絲，每盒都拿走 <b>${c}</b> 顆，一共有 <b>${b}</b> 盒。現在還有幾顆？`, s1: `${x} − ${c} ＝ ${y}`, s2: `${y} × ${b} ＝ ${y * b}`, v2: y * b, w1: [`${x} × ${b} ＝ ${x * b}`, `${c} × ${b} ＝ ${c * b}`], trapAns: [x * b - c, x * b] };
+  return { q: `每盒原來有 <b>${x}</b> 顆螺絲，每盒都拿走 <b>${c}</b> 顆，一共有 <b>${b}</b> 盒。現在還有幾顆？`, s1: `${x} − ${c} ＝ ${y}`, s2: `${y} × ${b} ＝ ${y * b}`, v2: y * b, w1: [`${x} × ${b} ＝ ${x * b}`, `${c} × ${b} ＝ ${c * b}`], trapAns: [x * b - c, x * b], v1: y, e: [[x, '−', c], ['R', '×', b]], alt: [[[x, '×', b], [c, '×', b], ['R1', '−', 'R2']]], hint: '先算現在每盒剩幾顆（−），再算幾盒（×）。' };
 }
 const TYPES2 = ['mulAdd', 'mulSub', 'addMul', 'subMul'];
 
@@ -23,11 +23,12 @@ function u7A(st) {
     if (r >= types.length) return api.finish();
     const t = twoStep(types[r]);
     api.say(`${t.q}<br><small>第一步：先算什麼？</small>`, toSpeech(t.q) + '。第一步，先算什麼？');
-    st.innerHTML = `${dots(r, types.length)}<div class="qvis"><div class="price">🚚 ${t.q}</div></div><div class="lbl center">① 第一步的算式</div><div class="opts"></div><div class="step2"></div>`;
+    st.innerHTML = `${dots(r, types.length)}<div class="qvis"><div class="price txt">🚚 ${t.q}</div></div><div class="lbl center">① 第一步的算式</div><div class="opts"></div><div class="step2"></div>`;
     shuffle([{ h: t.s1, ok: true }, ...t.w1.map(h => ({ h, ok: false }))]).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
       api.say(`第一步：${t.s1}<br>② 第二步，答案是多少？`, `第一步，${t.s1}。第二步，答案是多少？`);
-      const box = $('.step2', st); box.innerHTML = '<div class="lbl center">② 第二步，算出答案</div><div class="kpx"></div>';
-      keypad($('.kpx', st), t.v2, () => { $('.step2', st).insertAdjacentHTML('beforeend', `<div class="after">${t.s1}，${t.s2}</div>`); speak(`${t.s1}，${t.s2}`); r++; later(round, 2200); }, { hint: '用第一步的答案，再算第二步。' });
+      const box = $('.step2', st); box.innerHTML = '<div class="lbl center">② 第二步，用第一步的答案列算式</div><div class="eqwrap"></div>';
+      const e2 = t.e[1].map(v => v === 'R' ? t.v1 : v);
+      eqBuild($('.eqwrap', st), { q: t.q, nums: [t.v1], eq: e2, hint: `第一步算出 ${t.v1}，第二步要${{ '+': '加', '−': '減', '×': '乘' }[e2[1]]}。` }, () => { $('.step2', st).insertAdjacentHTML('beforeend', `<div class="after">${t.s1}，${t.s2}</div>`); speak(`${t.s1}，${t.s2}`); r++; later(round, 2200); });
     }, '想一想：題目裡哪兩個數要先一起算？')));
   }
   round();
@@ -42,24 +43,24 @@ function u7B(st) {
 /* ===== 7-C 兩步驟挑戰 ===== */
 function u7C(st) {
   const money = () => { const p = rand(4, 9), n = rand(3, 6), cost = p * n, have = pick([50, 60, 80, 100].filter(h => h > cost));
-    return { q: `一枝筆 <b>${p}</b> 元，買 <b>${n}</b> 枝，付 <b>${have}</b> 元，要找回幾元？`, vis: `<div class="price">✏️ ${p} 元 × ${n} 枝　👛 ${have} 元</div>`, ans: have - cost, unit: '元', hint: '先算買筆要花幾元，再算找回幾元。', after: `${p} × ${n} ＝ ${cost}，${have} − ${cost} ＝ ${have - cost}` }; };
-  quiz(st, [...shuffle(TYPES2).map(ty => () => { const t = twoStep(ty); return { q: t.q, vis: '<div class="price">🚚 兩步驟</div>', ans: t.v2, hint: v => t.trapAns.includes(v) ? '小心！這是只算一步或算錯順序的答案。' : '先算第一步，再算第二步。', after: `${t.s1}，${t.s2}` }; }), money]);
+    return { q: `一枝筆 <b>${p}</b> 元，買 <b>${n}</b> 枝，付 <b>${have}</b> 元，要找回幾元？`, vis: `<div class="price">✏️ ${p} 元 × ${n} 枝　👛 ${have} 元</div>`, eq: [[p, '×', n], [have, '−', 'R']], unit: '元', hint: '先算買筆要花幾元（×），再算找回幾元（−）。', after: `${p} × ${n} ＝ ${cost}，${have} − ${cost} ＝ ${have - cost}` }; };
+  quiz(st, [...shuffle(TYPES2).map(ty => () => { const t = twoStep(ty); return { q: t.q, vis: '<div class="price">🚚 兩步驟</div>', eq: t.e, alt: t.alt, hint: t.hint, after: `${t.s1}，${t.s2}` }; }), money]);
 }
 
 /* ===== 7-D 進階挑戰 ===== */
 function u7D(st) {
   adv(st, [
-    { q: '每包有 <b>6</b> 顆糖，買了 <b>4</b> 包，吃掉 <b>5</b> 顆。還剩幾顆？', sp: '每包有 6 顆糖，買了 4 包，吃掉 5 顆。還剩幾顆？', vis: '<div class="price">🍬 6 顆 × 4 包，吃掉 5 顆</div>', opts: mkOpts(19, [29, 15, 24]),
+    { q: '每包有 <b>6</b> 顆糖，買了 <b>4</b> 包，吃掉 <b>5</b> 顆。還剩幾顆？', sp: '每包有 6 顆糖，買了 4 包，吃掉 5 顆。還剩幾顆？', vis: '<div class="price">🍬 6 顆 × 4 包，吃掉 5 顆</div>', eq: [[6, '×', 4], ['R', '−', 5]], unit: '顆', hint: '先算買來幾顆（×），再減掉吃掉的（−）。',
       ex: '第一步：6 × 4 ＝ 24（顆）。第二步：24 − 5 ＝ <b>19</b>（顆）。', trap: '不能只算 6×4＝24 就停下來，還要減掉吃掉的 5 顆；也不是加 5。' },
     { q: '每排原來有 <b>3</b> 人，每排又來了 <b>2</b> 人，一共有 <b>5</b> 排。現在一共有幾人？', sp: '每排原來有 3 人，每排又來了 2 人，一共有 5 排。現在一共有幾人？',
       vis: `<svg viewBox="0 0 300 160">${[0, 1, 2, 3, 4].map(r => [0, 1, 2, 3, 4].map(c => `<circle cx="${30 + c * 50}" cy="${20 + r * 30}" r="11" fill="${c < 3 ? '#3f7cac' : '#ff7a1a'}"/>`).join('')).join('')}<text x="290" y="85" font-size="16" text-anchor="end">🟠 新來的</text></svg>`,
-      opts: mkOpts(25, [17, 13, 30]),
+      eq: [[3, '+', 2], ['R', '×', 5]], alt: [[[3, '×', 5], [2, '×', 5], ['R1', '+', 'R2']]], unit: '人', hint: '先算現在每排有幾人（＋），再算 5 排（×）。',
       ex: '每排現在有 3 ＋ 2 ＝ 5 人，5 排是 5 × 5 ＝ <b>25</b> 人。', trap: '是「每排」都來 2 人，一共來了 10 人，不是只來 2 人，所以不是 3×5＋2＝17。' },
-    { q: '每盒原來有 <b>9</b> 個蛋，每盒都破了 <b>2</b> 個，一共 <b>6</b> 盒。好的蛋還有幾個？', sp: '每盒原來有 9 個蛋，每盒都破了 2 個，一共 6 盒。好的蛋還有幾個？', vis: '<div class="price">🥚 每盒 9 個，每盒破 2 個，6 盒</div>', opts: mkOpts(42, [52, 54, 48]),
+    { q: '每盒原來有 <b>9</b> 個蛋，每盒都破了 <b>2</b> 個，一共 <b>6</b> 盒。好的蛋還有幾個？', sp: '每盒原來有 9 個蛋，每盒都破了 2 個，一共 6 盒。好的蛋還有幾個？', vis: '<div class="price">🥚 每盒 9 個，每盒破 2 個，6 盒</div>', eq: [[9, '−', 2], ['R', '×', 6]], alt: [[[9, '×', 6], [2, '×', 6], ['R1', '−', 'R2']]], unit: '個', hint: '先算每盒好的蛋（−），再算 6 盒（×）。',
       ex: '每盒好的蛋：9 − 2 ＝ 7 個，6 盒：7 × 6 ＝ <b>42</b> 個。', trap: '每盒都破 2 個，6 盒共破 12 個；9×6−2＝52 只減了 2 個，是錯的。' },
-    { q: '小華有 <b>50</b> 元，買了 <b>3</b> 枝 <b>8</b> 元的筆，還剩幾元？', sp: '小華有 50 元，買了 3 枝 8 元的筆，還剩幾元？', vis: '<div class="price">👛 50 元　✏️ 8 元 × 3 枝</div>', opts: mkOpts(26, [34, 42, 24]),
+    { q: '小華有 <b>50</b> 元，買了 <b>3</b> 枝 <b>8</b> 元的筆，還剩幾元？', sp: '小華有 50 元，買了 3 枝 8 元的筆，還剩幾元？', vis: '<div class="price">👛 50 元　✏️ 8 元 × 3 枝</div>', eq: [[8, '×', 3], [50, '−', 'R']], unit: '元', hint: '先算 3 枝筆要幾元（×），再算還剩幾元（−）。',
       ex: '筆的錢：8 × 3 ＝ 24 元。剩下：50 − 24 ＝ <b>26</b> 元。', trap: '50 − 8 ＝ 42 只算了 1 枝筆；50 − 24 要退位，個位 10 − 4 ＝ 6，十位 4 − 2 ＝ 2。' },
-    { q: '每箱有 <b>10</b> 瓶水，搬來 <b>7</b> 箱，還有 <b>6</b> 瓶沒裝箱。一共有幾瓶水？', sp: '每箱有 10 瓶水，搬來 7 箱，還有 6 瓶沒裝箱。一共有幾瓶水？', vis: '<div class="price">📦 10 瓶 × 7 箱 ＋ 6 瓶</div>', opts: mkOpts(76, [706, 23, 70]),
+    { q: '每箱有 <b>10</b> 瓶水，搬來 <b>7</b> 箱，還有 <b>6</b> 瓶沒裝箱。一共有幾瓶水？', sp: '每箱有 10 瓶水，搬來 7 箱，還有 6 瓶沒裝箱。一共有幾瓶水？', vis: '<div class="price">📦 10 瓶 × 7 箱 ＋ 6 瓶</div>', eq: [[10, '×', 7], ['R', '+', 6]], unit: '瓶', hint: '先算 7 箱有幾瓶（×），再加上沒裝箱的（＋）。',
       ex: '10 × 7 ＝ 70 瓶，70 ＋ 6 ＝ <b>76</b> 瓶。', trap: '7 個十和 6 個一是 76，不是 706；也不是 10＋7＋6。' }
   ]);
 }

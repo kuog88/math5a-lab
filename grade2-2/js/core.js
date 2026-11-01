@@ -147,7 +147,7 @@ function keypad(box, ans, onRight, opt = {}) {
 }
 
 /* 通用問答：rounds 為題目物件或產生題目的函式
-   題目物件 {q, sp, vis, opts:[{h,ok,hint}] 或 ans(數字，用小鍵盤), unit, keep, hint, after} */
+   題目物件 {q, sp, vis, opts:[{h,ok,hint}] 或 ans(數字，用小鍵盤), unit, keep, hint, after}；有 eq 時改用列式小幫手 */
 function quiz(st, rounds) {
   let i = 0;
   function show() {
@@ -160,7 +160,8 @@ function quiz(st, rounds) {
       if (r.after) { $('.qvis', st).insertAdjacentHTML('beforeend', `<div class="after">${r.after}</div>`); speak(r.after); }
       i++; later(show, r.after ? 2000 : 1000);
     };
-    if (r.ans !== undefined) { ops.className = ''; keypad(ops, r.ans, next, { unit: r.unit, hint: r.hint }); }
+    if (r.eq) { ops.className = 'eqwrap'; eqBuild(ops, r, next); }
+    else if (r.ans !== undefined) { ops.className = ''; keypad(ops, r.ans, next, { unit: r.unit, hint: r.hint }); }
     else (r.keep ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, next, r.hint)));
   }
   show();
@@ -185,10 +186,140 @@ function adv(st, qs) {
       $('[data-a="next"]', st).onclick = () => { i++; show(); };
       $('.exp', st).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
-    if (r.ans !== undefined) { ops.className = ''; keypad(ops, r.ans, done, { unit: r.unit, hint: r.hint || '再算一次，小心陷阱！' }); }
+    if (r.eq) { ops.className = 'eqwrap'; eqBuild(ops, r, done); }
+    else if (r.ans !== undefined) { ops.className = ''; keypad(ops, r.ans, done, { unit: r.unit, hint: r.hint || '再算一次，小心陷阱！' }); }
     else (r.keep ? r.opts : shuffle(r.opts)).forEach(o => ops.appendChild(optBtn(o, done, r.hint || '再想想，小心陷阱！')));
   }
   show();
+}
+
+/* ---------- 列式小幫手（2026-11，二年級下學期版） ----------
+   應用題只要把「算式」列對就過關，答案由電腦算，小朋友不用拿紙筆。
+   r.eq：一步題寫 [a, op, b]；兩步以上寫 [[a, op, b], ['R', op, c], ...]，
+         'R' 是上一步的答案，'R1'、'R2' 是第 1、2 步的答案。
+   r.alt：其他也算對的列法（格式同 eq，可放好幾個）。＋ 和 × 前後交換也算對。
+   r.nums：題目文字以外可以點的數字；r.extra：題目沒寫但可以用的數（如含頭尾的 1）。
+   r.chips：[[值, '按鈕文字'], ...]，有它就只用這些按鈕（例如公尺公分先換成公分）。
+   r.fmt：答案的顯示方式（值 → 文字）；r.numHint：用到題目沒有的數時的提示。
+   符號鍵只放 ＋ − 和這題用得到的 ×（二下沒有 ÷）。 */
+const EQ_WHY = {
+  '+': '合起來、又多了，用加法 ＋',
+  '−': '拿走、用掉、還剩幾個、相差幾個，用減法 −',
+  '×': '每一份一樣多，有好幾份，用乘法 ×'
+};
+function eqCalc(a, op, b) { return op === '+' ? a + b : op === '−' ? a - b : a * b; }
+function eqPaths(r) {
+  const norm = e => Array.isArray(e[0]) ? e : [e];
+  return [norm(r.eq)].concat((r.alt || []).map(norm));
+}
+/* 幾個數連加的所有列法（一個一個加，或兩兩先加再合起來） */
+function sumPaths(list) {
+  const out = [], seen = new Set(), add = p => { const k = JSON.stringify(p); if (!seen.has(k)) { seen.add(k); out.push(p); } };
+  const perms = a => a.length < 2 ? [a] : a.flatMap((x, i) => perms(a.slice(0, i).concat(a.slice(i + 1))).map(p => [x, ...p]));
+  perms(list).forEach(p => {
+    add([[p[0], '+', p[1]], ...p.slice(2).map(x => ['R', '+', x])]);
+    if (p.length === 4) add([[p[0], '+', p[1]], [p[2], '+', p[3]], ['R1', '+', 'R2']]);
+  });
+  return out;
+}
+function eqBuild(box, r, onRight) {
+  let paths = eqPaths(r), rows = [], results = [], act = null, finished = false;
+  const plain = String(r.q || '').replace(/<[^>]+>/g, '');
+  const chips = r.chips ? r.chips.map(c => Array.isArray(c) ? c : [c, String(c)])
+    : [...new Set((plain.match(/\d+/g) || []).map(Number).concat(r.nums || []))].map(n => [n, String(n)]);
+  const nums = chips.map(c => c[0]);
+  const used = new Set(paths.flat().map(s => s[1]));
+  const ops = ['+', '−', '×'].filter(o => o !== '×' || used.has(o));
+  const hint = typeof r.hint === 'string' ? r.hint : '';
+  const fmt = v => r.fmt ? r.fmt(v) : `${v}${r.unit ? ' ' + r.unit : ''}`;
+  box.innerHTML = `<div class="eq-tip">✏️ 列出算式，電腦幫你算！</div>
+    <div class="eq-chips">${chips.map(([n, h]) => `<button type="button" class="eq-chip" data-n="${n}">${h}</button>`).join('')}</div>
+    <div class="eq-rows"></div>
+    <div class="eq-ops">${ops.map(k => `<button type="button" class="eq-key op" data-k="${k}">${k}</button>`).join('')}</div>
+    <div class="eq-pad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '🧹'].map(k => `<button type="button" class="eq-key" data-k="${k}">${k}</button>`).join('')}</div>
+    <div class="eq-msg"></div>
+    <div class="center"><button type="button" class="btn green eq-go">✔ 對嗎？</button></div>`;
+  const rowsBox = $('.eq-rows', box), msg = $('.eq-msg', box);
+  function addRow() {
+    const i = rows.length, multi = i > 0 || Math.min(...paths.map(p => p.length)) > 1;
+    const prev = i === 1 ? `<button type="button" class="eq-chip sm" data-n="${results[0]}">用上一步的 ${results[0]}</button>`
+      : results.map((v, k) => `<button type="button" class="eq-chip sm" data-n="${v}">第 ${k + 1} 步的 ${v}</button>`).join('');
+    const el = document.createElement('div'); el.className = 'eq-row';
+    el.innerHTML = `${multi ? `<div class="eq-step">第 ${i + 1} 步${prev}</div>` : ''}
+      <button type="button" class="eq-slot" data-s="a"></button><button type="button" class="eq-slot op" data-s="op"></button><button type="button" class="eq-slot" data-s="b"></button>
+      <span class="eq-sign">=</span><span class="eq-slot res">?</span>`;
+    rowsBox.appendChild(el);
+    const row = { el, a: '', op: '', b: '' }; rows.push(row);
+    $$('.eq-slot[data-s]', el).forEach(s => s.onclick = () => { if (row.done || finished) return; act = { r: i, k: s.dataset.s }; sfx('tap'); draw(); });
+    $$('.eq-chip', el).forEach(c => c.onclick = () => putNum(c.dataset.n));
+    act = { r: i, k: 'a' }; draw();
+  }
+  function draw() {
+    rows.forEach((row, i) => $$('.eq-slot[data-s]', row.el).forEach(s => {
+      const k = s.dataset.s, v = row[k];
+      s.textContent = v === '' ? (k === 'op' ? '○' : '□') : v;
+      s.classList.toggle('filled', v !== '');
+      s.classList.toggle('act', !row.done && !!act && act.r === i && act.k === k);
+    }));
+  }
+  const row = () => rows[act.r];
+  const advance = () => { const nx = ['a', 'op', 'b'].find(k => row()[k] === ''); if (nx) act.k = nx; };
+  function putNum(n) {
+    if (finished || !act || row().done) return;
+    if (act.k === 'op') act.k = row().a === '' ? 'a' : 'b';
+    row()[act.k] = String(n); sfx('pop'); advance(); draw();
+  }
+  $$('.eq-chips .eq-chip', box).forEach(c => c.onclick = () => putNum(c.dataset.n));
+  $$('.eq-key', box).forEach(b => b.onclick = () => {
+    if (finished || !act || row().done) return;
+    const k = b.dataset.k, w = row(); sfx('tap');
+    if (ops.includes(k)) { w.op = k; act.k = 'op'; advance(); }
+    else if (k === '⌫') { if (act.k === 'op') w.op = ''; else w[act.k] = w[act.k].slice(0, -1); }
+    else if (k === '🧹') { w.a = w.op = w.b = ''; act.k = 'a'; }
+    else { if (act.k === 'op') act.k = w.a === '' ? 'a' : 'b'; if (w[act.k].length < 4) w[act.k] = (w[act.k] === '0' ? '' : w[act.k]) + k; }
+    draw();
+  });
+  const val = v => v === 'R' ? results[results.length - 1] : /^R\d$/.test(v) ? results[+v[1] - 1] : v;
+  const expect = (p, i) => p[i] ? p[i].map(val) : null;
+  function same(w, e) {
+    const a = +w.a, b = +w.b, sw = e[1] === '+' || e[1] === '×';
+    return w.op === e[1] && ((a === e[0] && b === e[2]) || (sw && a === e[2] && b === e[0]));
+  }
+  function bad(text) {
+    const w = rows[rows.length - 1];
+    w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
+    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+  }
+  $('.eq-go', box).onclick = () => {
+    if (finished) return;
+    const i = rows.length - 1, w = rows[i];
+    if (w.a === '' || w.op === '' || w.b === '') return bad('還有空格喔！要放兩個數字和一個符號。');
+    const cand = paths.map(p => expect(p, i)).filter(Boolean);
+    const ok = paths.filter(p => p[i] && same(w, expect(p, i)));
+    if (!ok.length) {
+      const a = +w.a, b = +w.b;
+      if (!cand.some(e => e[1] === w.op)) return bad(hint || EQ_WHY[cand[0][1]]);
+      if (w.op === '−' && cand.some(e => e[1] === '−' && a === e[2] && b === e[0])) return bad('減法要把<b>大的數</b>放前面喔！');
+      const known = nums.concat(results, r.extra || []);
+      if (![a, b].every(v => known.includes(v))) return bad(r.numHint || '有一個數字題目裡沒有喔！再看一次題目。');
+      return bad(`符號對了！再看看是哪兩個數。${hint}`);
+    }
+    // 這一步列對了：電腦幫忙算
+    paths = ok; w.done = true; w.el.classList.add('done'); act = null; draw();
+    const v = eqCalc(+w.a, w.op, +w.b);
+    results.push(v);
+    const res = $('.res', w.el); res.textContent = v; res.classList.add('pop');
+    sfx('ok');
+    if (!ok.some(p => p.length === rows.length)) {
+      msg.innerHTML = `✅ 對了！是 <b>${v}</b>。再列下一步。`;
+      speak(`對了，是 ${v}。再列下一步`); addRow(); return;
+    }
+    finished = true; $('.eq-go', box).disabled = true;
+    msg.innerHTML = `✅ 列對了！答案是 <b class="eq-ans">${fmt(v)}</b>`;
+    speak(`列對了！答案是 ${fmt(v)}`);
+    api.ok(); later(onRight, 1200);
+  };
+  addRow();
 }
 
 /* ---------- 畫圖 ---------- */

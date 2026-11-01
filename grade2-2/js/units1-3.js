@@ -180,14 +180,14 @@ function u2A(st) {
 /* ===== 2-B 加減應用題（加減互逆） ===== */
 function u2B(st) {
   const T = [
-    () => { const a = rand(150, 480), b = rand(120, 450); return { q: `工地有 <b>${a}</b> 塊磚，又運來 <b>${b}</b> 塊，現在有幾塊？`, ans: a + b, eq: `${a} + ${b} ＝ ${a + b}` }; },
-    () => { const b = rand(120, 350), c = rand(b + 120, 950); return { q: `倉庫原來有一些釘子，又買了 <b>${b}</b> 根，現在有 <b>${c}</b> 根。原來有幾根？`, ans: c - b, eq: `${c} − ${b} ＝ ${c - b}` }; },
-    () => { const a = rand(500, 950), c = rand(110, a - 120); return { q: `有 <b>${a}</b> 包水泥，用掉一些後，還剩 <b>${c}</b> 包。用掉幾包？`, ans: a - c, eq: `${a} − ${c} ＝ ${a - c}` }; },
-    () => { const b = rand(120, 400), c = rand(110, 450); return { q: `一捆電線剪掉 <b>${b}</b> 公分，還剩 <b>${c}</b> 公分。原來有幾公分？`, ans: b + c, eq: `${b} + ${c} ＝ ${b + c}`, unit: '公分' }; },
-    () => { const a = rand(400, 900), b = rand(110, 300); return { q: `大卡車載了 <b>${a}</b> 箱，小卡車比大卡車<b>少</b> <b>${b}</b> 箱。小卡車載幾箱？`, ans: a - b, eq: `${a} − ${b} ＝ ${a - b}` }; },
-    () => { const a = rand(200, 500), b = rand(110, 400); return { q: `紅隊搬了 <b>${a}</b> 塊磚，藍隊比紅隊<b>多</b>搬 <b>${b}</b> 塊。藍隊搬了幾塊？`, ans: a + b, eq: `${a} + ${b} ＝ ${a + b}` }; }
+    () => { const a = rand(150, 480), b = rand(120, 450); return { q: `工地有 <b>${a}</b> 塊磚，又運來 <b>${b}</b> 塊，現在有幾塊？`, ans: a + b, e: [a, '+', b], hint: '又運來，是合起來，用加法 ＋', eq: `${a} + ${b} ＝ ${a + b}` }; },
+    () => { const b = rand(120, 350), c = rand(b + 120, 950); return { q: `倉庫原來有一些釘子，又買了 <b>${b}</b> 根，現在有 <b>${c}</b> 根。原來有幾根？`, ans: c - b, e: [c, '−', b], hint: '現在的 ＝ 原來的 ＋ 又買的，所以原來的 ＝ 現在的 − 又買的，用減法 −', eq: `${c} − ${b} ＝ ${c - b}` }; },
+    () => { const a = rand(500, 950), c = rand(110, a - 120); return { q: `有 <b>${a}</b> 包水泥，用掉一些後，還剩 <b>${c}</b> 包。用掉幾包？`, ans: a - c, e: [a, '−', c], hint: '用掉的 ＝ 原來的 − 還剩的，用減法 −', eq: `${a} − ${c} ＝ ${a - c}` }; },
+    () => { const b = rand(120, 400), c = rand(110, 450); return { q: `一捆電線剪掉 <b>${b}</b> 公分，還剩 <b>${c}</b> 公分。原來有幾公分？`, ans: b + c, e: [b, '+', c], hint: '原來的 ＝ 剪掉的 ＋ 還剩的，用加法 ＋', eq: `${b} + ${c} ＝ ${b + c}`, unit: '公分' }; },
+    () => { const a = rand(400, 900), b = rand(110, 300); return { q: `大卡車載了 <b>${a}</b> 箱，小卡車比大卡車<b>少</b> <b>${b}</b> 箱。小卡車載幾箱？`, ans: a - b, e: [a, '−', b], hint: '小卡車比較少，用減法 −', eq: `${a} − ${b} ＝ ${a - b}` }; },
+    () => { const a = rand(200, 500), b = rand(110, 400); return { q: `紅隊搬了 <b>${a}</b> 塊磚，藍隊比紅隊<b>多</b>搬 <b>${b}</b> 塊。藍隊搬了幾塊？`, ans: a + b, e: [a, '+', b], hint: '藍隊比較多，用加法 ＋', eq: `${a} + ${b} ＝ ${a + b}` }; }
   ];
-  quiz(st, shuffle(T).slice(0, 5).map(f => () => { const t = f(); return { q: t.q, vis: '<div class="price">🚧 工地應用題</div>', ans: t.ans, unit: t.unit, hint: '想一想：要算「合起來」還是「拿走、相差」？', after: t.eq }; }));
+  quiz(st, shuffle(T).slice(0, 5).map(f => () => { const t = f(); return { q: t.q, vis: '<div class="price">🚧 工地應用題</div>', eq: t.e, unit: t.unit, hint: t.hint, after: t.eq }; }));
 }
 
 /* ===== 2-C 估算夠不夠 ===== */
@@ -212,7 +212,7 @@ function u2C(st) {
   };
   const chain = () => {
     const a = rand(110, 300), b = rand(110, 300), c = rand(110, 300);
-    return { q: `三台卡車分別載了 <b>${a}</b>、<b>${b}</b>、<b>${c}</b> 塊磚，一共載了幾塊？`, vis: '<div class="price">🚚🚚🚚</div>', ans: a + b + c, hint: '先算前兩個，再加第三個。', after: `${a} + ${b} ＝ ${a + b}，${a + b} + ${c} ＝ ${a + b + c}` };
+    return { q: `三台卡車分別載了 <b>${a}</b>、<b>${b}</b>、<b>${c}</b> 塊磚，一共載了幾塊？`, vis: '<div class="price">🚚🚚🚚</div>', eq: sumPaths([a, b, c])[0], alt: sumPaths([a, b, c]).slice(1), hint: '一共載了幾塊，是合起來，用加法 ＋', after: `${a} + ${b} ＝ ${a + b}，${a + b} + ${c} ＝ ${a + b + c}` };
   };
   quiz(st, [estQ, subEst, enough, enough, chain]);
 }
@@ -223,14 +223,14 @@ function u2D(st) {
     { q: '用直式算：<b>503 − 278</b> ＝ ？', sp: '用直式算 503 減 278 等於多少？', vis: vertHTML(503, '−', 278), opts: mkOpts(225, [335, 375, 235]),
       ex: '個位 3 不夠減 8，要向十位借，但十位是 0，所以先向百位借 1 個百（＝10 個十），十位變 10，再借 1 個十給個位：<br>個位 13−8＝5，十位 9−7＝2，百位 4−2＝2，答案 <b>225</b>。',
       trap: '十位是 0 時要連續退位，百位要記得減 1；直接用 8−3＝5 是錯的。' },
-    { q: '一盒彩色筆用掉 <b>156</b> 枝，還剩 <b>287</b> 枝。原來有幾枝？', sp: '一盒彩色筆用掉 156 枝，還剩 287 枝。原來有幾枝？', vis: '<div class="price">🖍️ 原來 □ 枝</div>', opts: mkOpts(443, [131, 433, 343]),
+    { q: '一盒彩色筆用掉 <b>156</b> 枝，還剩 <b>287</b> 枝。原來有幾枝？', sp: '一盒彩色筆用掉 156 枝，還剩 287 枝。原來有幾枝？', vis: '<div class="price">🖍️ 原來 □ 枝</div>', eq: [156, '+', 287], unit: '枝', hint: '問的是「原來」：原來的 ＝ 用掉的 ＋ 還剩的，用加法 ＋',
       ex: '原來的 ＝ 用掉的 ＋ 剩下的：156 ＋ 287 ＝ <b>443</b> 枝。',
       trap: '看到「用掉」不一定要用減法！問的是「原來」，要把用掉的加回去。' },
     { q: '哥哥有 <b>465</b> 張貼紙，比弟弟<b>多</b> <b>128</b> 張。弟弟有幾張？', sp: '哥哥有 465 張貼紙，比弟弟多 128 張。弟弟有幾張？',
       vis: `<svg viewBox="0 0 460 110"><text x="0" y="30" font-size="20" font-weight="900">哥哥</text><rect x="60" y="10" width="380" height="28" fill="#ff7a1a"/><text x="250" y="31" font-size="18" text-anchor="middle" fill="#fff" font-weight="900">465</text>
         <text x="0" y="84" font-size="20" font-weight="900">弟弟</text><rect x="60" y="64" width="275" height="28" fill="#3f7cac"/><text x="197" y="85" font-size="18" text-anchor="middle" fill="#fff" font-weight="900">？</text>
         <line x1="335" y1="56" x2="440" y2="56" stroke="#c8553d" stroke-width="3"/><text x="387" y="84" font-size="18" text-anchor="middle" fill="#c8553d" font-weight="900">多 128</text></svg>`,
-      opts: mkOpts(337, [593, 347, 343]),
+      eq: [465, '−', 128], unit: '張', hint: '哥哥比弟弟多，弟弟比較少，用減法 −',
       ex: '哥哥比弟弟多，表示弟弟比較少：465 − 128 ＝ <b>337</b> 張。',
       trap: '題目有「多」字，但問的是比較少的弟弟，要用減法，不是 465＋128。' },
     { q: '<b>900 − 365 − 235</b> ＝ ？', sp: '900 減 365 再減 235 等於多少？', vis: '<div class="eq">900 − 365 − 235 ＝ ？</div>', opts: mkOpts(300, [400, 310, 200]),
@@ -294,11 +294,16 @@ function u3B(st) {
 }
 
 /* ===== 3-C 長度加減、長度的關係 ===== */
+/* 長度應用題的列式：幾公尺幾公分先換成公分當按鈕，答案再換回幾公尺幾公分 */
+function cmEq(x, op, y) {
+  return { eq: [x, op, y], chips: [[x, `${x} 公分`], [y, `${y} 公分`]], numHint: '先把公尺換成公分：1 公尺 ＝ 100 公分。',
+    fmt: v => `${v} 公分 ＝ ${mcm(Math.floor(v / 100), v % 100)}` };
+}
 function u3C(st) {
   const addQ = () => { const a = rand(1, 3), b = rand(20, 80), c = rand(1, 2), d = rand(30, 90), t = a * 100 + b + c * 100 + d; const m = Math.floor(t / 100), cc = t % 100;
-    return { q: `一段水管長 <b>${mcm(a, b)}</b>，再接上 <b>${mcm(c, d)}</b>，接起來共長多少？`, opts: mkOpts(mcm(m, cc), [b + d >= 100 ? mcm(a + c, cc) : mcm(m, cc >= 90 ? cc - 10 : cc + 10), mcm(m - 1, cc), mcm(m + 1, cc)].filter(x => x !== mcm(m, cc))), hint: '公分加起來超過 100，要換成 1 公尺。', after: `${a * 100 + b} ＋ ${c * 100 + d} ＝ ${t} 公分 ＝ ${mcm(m, cc)}` }; };
+    return { q: `一段水管長 <b>${mcm(a, b)}</b>，再接上 <b>${mcm(c, d)}</b>，接起來共長多少？`, ...cmEq(a * 100 + b, '+', c * 100 + d), hint: '接起來是合起來，用加法 ＋', after: `${a * 100 + b} ＋ ${c * 100 + d} ＝ ${t} 公分 ＝ ${mcm(m, cc)}` }; };
   const subQ = () => { const a = rand(3, 5), b = rand(10, 40), c = rand(1, 2), d = rand(50, 90), t = a * 100 + b - c * 100 - d; const m = Math.floor(t / 100), cc = t % 100;
-    return { q: `一條繩子長 <b>${mcm(a, b)}</b>，剪掉 <b>${mcm(c, d)}</b>，還剩多長？`, opts: mkOpts(mcm(m, cc), [mcm(m + 1, cc), mcm(a - c, d - b), mcm(m, (cc + 20) % 100)].filter(x => x !== mcm(m, cc))), hint: '公分不夠減，要拿 1 公尺換成 100 公分。', after: `${a * 100 + b} − ${c * 100 + d} ＝ ${t} 公分 ＝ ${mcm(m, cc)}` }; };
+    return { q: `一條繩子長 <b>${mcm(a, b)}</b>，剪掉 <b>${mcm(c, d)}</b>，還剩多長？`, ...cmEq(a * 100 + b, '−', c * 100 + d), hint: '剪掉以後還剩多長，用減法 −', after: `${a * 100 + b} − ${c * 100 + d} ＝ ${t} 公分 ＝ ${mcm(m, cc)}` }; };
   const transQ = () => { const nm = shuffle(['紅色鋼筋', '藍色鋼筋', '黃色鋼筋']); // nm[0] > nm[1] > nm[2]
     const askLong = Math.random() < 0.5;
     return { q: `${nm[0]}比${nm[1]}長，${nm[1]}比${nm[2]}長。哪一條<b>最${askLong ? '長' : '短'}</b>？`, vis: '<div class="price">🤔 ＞ ＞</div>', opts: mkOpts(askLong ? nm[0] : nm[2], [nm[1], askLong ? nm[2] : nm[0]]), hint: '把三條排一排：最長的在前面。', after: `${nm[0]} ＞ ${nm[1]} ＞ ${nm[2]}` }; };
@@ -318,7 +323,7 @@ function u3D(st) {
       ex: '公分：35 ＋ 80 ＝ 115 公分 ＝ 1 公尺 15 公分。<br>公尺：2 ＋ 1 ＋ 1 ＝ 4 公尺。答案是 <b>4 公尺 15 公分</b>。', trap: '115 公分超過 100，要進位成 1 公尺，公尺要多加 1。' },
     { q: '一條 <b>5 公尺</b>長的繩子，剪掉 <b>1 公尺 40 公分</b>，還剩多長？', sp: '一條 5 公尺長的繩子，剪掉 1 公尺 40 公分，還剩多長？',
       vis: `<svg viewBox="0 0 520 70"><rect x="10" y="20" width="500" height="22" rx="6" fill="#ffc400" stroke="#2e3438" stroke-width="3"/><rect x="370" y="20" width="140" height="22" rx="6" fill="#ddd" stroke="#2e3438" stroke-width="3" stroke-dasharray="6 4"/><text x="440" y="66" text-anchor="middle" font-size="18" font-weight="900">剪掉 1 公尺 40 公分</text><text x="190" y="66" text-anchor="middle" font-size="18" font-weight="900">剩下 ？</text><text x="260" y="15" text-anchor="middle" font-size="16">全長 5 公尺</text></svg>`,
-      opts: mkOpts('3 公尺 60 公分', ['4 公尺 40 公分', '4 公尺 60 公分', '3 公尺 40 公分']),
+      ...cmEq(500, '−', 140), hint: '剪掉以後還剩多長，用減法 −',
       ex: '5 公尺 ＝ 500 公分，1 公尺 40 公分 ＝ 140 公分。500 − 140 ＝ 360 公分 ＝ <b>3 公尺 60 公分</b>。', trap: '0 公分不夠減 40 公分，要把 1 公尺換成 100 公分，所以公尺剩 4−1＝3，不是 4。' },
     { q: '甲比乙長，丙比甲長。三條繩子中，<b>最短</b>的是哪一條？', sp: '甲比乙長，丙比甲長。三條繩子中，最短的是哪一條？', vis: '<div class="price">甲 ＞ 乙　　丙 ＞ 甲</div>',
       opts: mkOpts('乙', ['甲', '丙']), keep: true,

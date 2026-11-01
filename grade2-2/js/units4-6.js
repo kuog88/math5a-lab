@@ -57,7 +57,7 @@ function u4B(st) {
 function u4C(st) {
   const span = () => { const m = rand(3, 10), a = rand(2, 10), b = a + rand(5, 12); const v = b - a + 1; const first = rand(0, 6);
     return { q: `工人從 ${m} 月 <b>${a}</b> 日開始做，做到 ${m} 月 <b>${b}</b> 日（這兩天都有做），一共做了幾天？`, sp: `工人從 ${m} 月 ${a} 日開始做，做到 ${m} 月 ${b} 日，這兩天都有做，一共做了幾天？`,
-      vis: calHTML(`${m} 月`, first, MDAYS[m - 1], { hl: Array.from({ length: v }, (_, k) => a + k) }), ans: v, unit: '天', hint: v => v === b - a ? '開始的那一天也要算進去喔！' : '在月曆上一格一格數。', after: `${a} 日到 ${b} 日，數一數共 ${v} 天` }; };
+      vis: calHTML(`${m} 月`, first, MDAYS[m - 1], { hl: Array.from({ length: v }, (_, k) => a + k) }), eq: [[b, '−', a], ['R', '+', 1]], alt: [[[b, '+', 1], ['R', '−', a]]], extra: [1], unit: '天', hint: `${b} − ${a} 是相差幾天，開始的那一天也要算，最後再 ＋ 1。`, after: `${b} − ${a} ＝ ${b - a}，開始那天也要算：${b - a} ＋ 1 ＝ ${v} 天` }; };
   const cross = () => { const m = pick([3, 5, 7, 8, 10]), start = rand(27, 30), len = 7; const left = MDAYS[m - 1] - start + 1, endD = len - left;
     return { q: `工程第 1 天是 ${m} 月 <b>${start}</b> 日，連續做 <b>7 天</b>，最後一天是幾月幾日？`, sp: `工程第 1 天是 ${m} 月 ${start} 日，連續做 7 天，最後一天是幾月幾日？`,
       vis: `<div class="price">${m} 月有 ${MDAYS[m - 1]} 天</div>`, opts: mkOpts(`${m + 1} 月 ${endD} 日`, [`${m + 1} 月 ${endD + 1} 日`, `${m} 月 ${start + 7 > 31 ? 31 : start + 6} 日`, `${m + 1} 月 ${endD - 1 || 7} 日`]), hint: `${m} 月最後一天是 ${MDAYS[m - 1]} 日，接著就是下個月 1 日。`, after: `${m} 月 ${start} 日數到 ${MDAYS[m - 1]} 日是 ${left} 天，再數 ${endD} 天到 ${m + 1} 月 ${endD} 日` }; };
@@ -130,7 +130,7 @@ function arrHTML(r, c) { return `<span class="array" style="grid-template-column
 function u5C(st) {
   const swap = () => { const a = rand(3, 9), b = rand(2, 9); return { q: `<b>□ × ${a} ＝ ${a} × ${b}</b>，□ 是多少？`, vis: `${arrHTML(a, b)}<span class="lbl">橫著看、直著看，一樣多</span>`, opts: mkOpts(b, [a, a * b, b + 1].filter(v => v !== b)), hint: '兩個數交換，答案一樣。', after: `${b} × ${a} ＝ ${a} × ${b} ＝ ${a * b}` }; };
   const same = () => { const a = rand(3, 8), b = rand(4, 9); return { q: `<b>${a} × ${b}</b> 和 <b>${b} × ${a}</b> 的答案一樣嗎？`, vis: arrHTML(a, b), opts: [{ h: '一樣', ok: true }, { h: `${a} × ${b} 比較大`, ok: false }, { h: `${b} × ${a} 比較大`, ok: false }], keep: true, hint: '看看點點圖，轉個方向，點點數量一樣。', after: `${a} × ${b} ＝ ${b} × ${a} ＝ ${a * b}` }; };
-  const teen = () => { const a = rand(2, 4), t = rand(11, 15), v = a * t; return { q: `每排放 <b>${a}</b> 根鋼管，排了 <b>${t}</b> 排，一共有幾根？<br><small>${a} × ${t} ＝ ${t} × ${a}，可以用 ${Array(a).fill(t).join(' ＋ ')} 算</small>`, sp: `每排放 ${a} 根鋼管，排了 ${t} 排，一共有幾根？`, vis: arrHTML(t, a), ans: v, hint: `把 ${a} 個 ${t} 加起來。`, after: `${Array(a).fill(t).join(' ＋ ')} ＝ ${v}，${a} × ${t} ＝ ${v}` }; };
+  const teen = () => { const a = rand(2, 4), t = rand(11, 15), v = a * t; return { q: `每排放 <b>${a}</b> 根鋼管，排了 <b>${t}</b> 排，一共有幾根？<br><small>${a} × ${t} ＝ ${t} × ${a}，可以用 ${Array(a).fill(t).join(' ＋ ')} 算</small>`, sp: `每排放 ${a} 根鋼管，排了 ${t} 排，一共有幾根？`, vis: arrHTML(t, a), eq: [a, '×', t], alt: sumPaths(Array(a).fill(t)), hint: `每排一樣多，有好幾排，用乘法 ×；也可以把 ${a} 個 ${t} 加起來。`, after: `${Array(a).fill(t).join(' ＋ ')} ＝ ${v}，${a} × ${t} ＝ ${v}` }; };
   quiz(st, [same, swap, teen, swap, teen]);
 }
 
@@ -199,7 +199,7 @@ function u6B(st) {
 
 /* ===== 6-C 用積木當單位 ===== */
 function u6C(st) {
-  const diffQ = () => { const a = rand(6, 12), b = rand(3, a - 2); return { q: `🔨 鐵鎚和 <b>${a}</b> 個積木一樣重，🔧 扳手和 <b>${b}</b> 個積木一樣重。鐵鎚比扳手重幾個積木？`, sp: `鐵鎚和 ${a} 個積木一樣重，扳手和 ${b} 個積木一樣重。鐵鎚比扳手重幾個積木？`, vis: `<div class="scale-wrap">${balanceSVG('🔨', `🟨×${a}`, 0)}</div><div class="scale-wrap">${balanceSVG('🔧', `🟨×${b}`, 0)}</div>`, ans: a - b, unit: '個積木', hint: '用減法算相差幾個。', after: `${a} − ${b} ＝ ${a - b} 個積木` }; };
+  const diffQ = () => { const a = rand(6, 12), b = rand(3, a - 2); return { q: `🔨 鐵鎚和 <b>${a}</b> 個積木一樣重，🔧 扳手和 <b>${b}</b> 個積木一樣重。鐵鎚比扳手重幾個積木？`, sp: `鐵鎚和 ${a} 個積木一樣重，扳手和 ${b} 個積木一樣重。鐵鎚比扳手重幾個積木？`, vis: `<div class="scale-wrap">${balanceSVG('🔨', `🟨×${a}`, 0)}</div><div class="scale-wrap">${balanceSVG('🔧', `🟨×${b}`, 0)}</div>`, eq: [a, '−', b], unit: '個積木', hint: '重幾個積木是相差，用減法 −', after: `${a} − ${b} ＝ ${a - b} 個積木` }; };
   const whichQ = () => { const a = rand(4, 9), b = a + rand(1, 4); return { q: `🧤 手套重 <b>${a}</b> 個迴紋針，⛑️ 安全帽重 <b>${b}</b> 個迴紋針。哪一個比較重？`, vis: '<div class="price">📎 用迴紋針當單位</div>', opts: mkOpts('⛑️ 安全帽', ['🧤 手套', '一樣重']), keep: true, hint: '同一種單位，數量多的比較重。', after: `${b} 個比 ${a} 個多，安全帽比較重` }; };
   const unitQ = () => ({ q: '小明說：「書重 8 個<b>迴紋針</b>」；小華說：「盒子重 5 個<b>積木</b>」。可以直接說書比較重嗎？', vis: '<div class="price">📎 × 8　　🟨 × 5</div>', opts: mkOpts('不可以，單位不一樣', ['可以，8 比 5 大', '可以，盒子比較重']), keep: true, hint: '迴紋針和積木一樣重嗎？', after: '要用同樣的單位，才能比數量' });
   quiz(st, [diffQ, whichQ, unitQ, diffQ, whichQ]);
@@ -215,7 +215,7 @@ function u6D(st) {
       opts: mkOpts('C', ['A', 'B']), keep: true,
       ex: 'C ＞ A，A ＞ B，所以 C ＞ A ＞ B，<b>C</b> 最重。', trap: '第一句先講 A 比 B 重，但 C 又比 A 重，最重的是 C。' },
     { q: '西瓜和 <b>12</b> 個積木一樣重，鳳梨和 <b>9</b> 個積木一樣重。西瓜比鳳梨重幾個積木？', sp: '西瓜和 12 個積木一樣重，鳳梨和 9 個積木一樣重。西瓜比鳳梨重幾個積木？',
-      vis: `<div class="scale-wrap">${balanceSVG('🍉', '🟨×12', 0)}</div><div class="scale-wrap">${balanceSVG('🍍', '🟨×9', 0)}</div>`, opts: mkOpts(3, [21, 12, 9]),
+      vis: `<div class="scale-wrap">${balanceSVG('🍉', '🟨×12', 0)}</div><div class="scale-wrap">${balanceSVG('🍍', '🟨×9', 0)}</div>`, eq: [12, '−', 9], unit: '個積木', hint: '問「重幾個」是相差，用減法 −',
       ex: '12 − 9 ＝ <b>3</b>，西瓜比鳳梨重 3 個積木。', trap: '問「重幾個」是相差，用減法；不是把 12 和 9 加起來。' },
     { q: '小美用迴紋針量，書包重 <b>20 個迴紋針</b>；小明用積木量<b>同一個書包</b>，重 <b>5 個積木</b>。下面哪一句是對的？', sp: '小美用迴紋針量，書包重 20 個迴紋針；小明用積木量同一個書包，重 5 個積木。下面哪一句是對的？',
       vis: '<div class="price">🎒 ＝ 📎 × 20　　🎒 ＝ 🟨 × 5</div>',
