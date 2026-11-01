@@ -35,14 +35,14 @@ function u1A(st) {
       if (a === 'o+' && o < 19) o++;
       if (a === 't-' && t > 0) t--;
       if (a === 'o-' && o > 0) o--;
-      if (a === 'tie') { o -= 10; t++; api.ok('10 根綁成 1 捆！'); }
+      if (a === 'tie') { o -= 10; t++; sfx('ok'); toast('10 根綁成 1 捆！'); }
       if (a === 'ok') {
         if (o >= 10) { toast('有 10 根以上，先綁成一捆吧！'); speak('有 10 根以上，先綁成一捆吧！'); return; }
         if (t * 10 + o === n) {
           api.ok(`${t} 個十和 ${o} 個一，就是 ${n}！`); speak(`${t} 個十和 ${o} 個一，就是 ${n}`);
           r++; later(round, 1800); return;
         }
-        api.bad(`現在是 ${t * 10 + o} 喔！十位要 ${Math.floor(n / 10)}，個位要 ${n % 10}。`);
+        api.bad(`現在是 ${t * 10 + o} 喔！十位要 ${Math.floor(n / 10)}，個位要 ${n % 10}。`, `${t} 捆 ${o} 根（${t * 10 + o}）`, `${Math.floor(n / 10)} 捆 ${n % 10} 根（${n}）`);
       }
       draw();
     });
@@ -137,6 +137,7 @@ function u2A(st) {
       if (L === 10) {
         api.say(`湊成 10 了！10 和 ${R} 合起來是多少？`, `湊成 10 了！10 和 ${R} 合起來是多少？`);
         $$('.right i.on', fr).forEach(i => i.onclick = null);
+        curQ = { q: `${a} ＋ ${b} ＝ ？（湊成 10 了，10 和 ${R} 合起來是多少？）`, c: String(a + b) };
         nearOpts(a + b, 10, 18, 4, [a + b - 10, a + b + 1]).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
           $('.box', st).textContent = a + b; speak(`${a} 加 ${b} 等於 ${a + b}`); r++; later(round, 1800);
         }, `10 再多 ${R} 是多少呢？`)));
@@ -209,10 +210,10 @@ function u3A(st) {
       if (a === 'ok') {
         if (k === L) {
           const nm = name.split(' ')[1];
-          api.say(`對了！${nm}有 <b class="big">${L}</b> 個迴紋針那麼長！`, `對了！${nm}有 ${L} 個迴紋針那麼長！`); sfx('ok');
+          api.say(`對了！${nm}有 <b class="big">${L}</b> 個迴紋針那麼長！`, `對了！${nm}有 ${L} 個迴紋針那麼長！`); sfx('ok'); rep(true, `${k} 個迴紋針`, `${L} 個迴紋針`);
           r++; later(round, 2200); return;
         }
-        api.bad(k < L ? '還不夠長喔！' : '太長了喔！');
+        api.bad(k < L ? '還不夠長喔！' : '太長了喔！', `${k} 個迴紋針`, `${L} 個迴紋針`);
       }
       draw();
     });

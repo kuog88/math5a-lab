@@ -23,6 +23,7 @@ function u4A(st) {
     });
     function ask() {
       api.say(`拿走 ${k} 罐了，還剩下幾罐？`, `拿走 ${k} 罐了，還剩下幾罐？`);
+      curQ = { q: `有 ${n} 罐蜂蜜，拿走 ${k} 罐，還剩下幾罐？（${n} − ${k}）`, c: String(n - k) };
       nearOpts(n - k, 1, 12, 4, [n - k + 1, k]).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
         $('.box', st).textContent = n - k; speak(`${n} 減 ${k} 等於 ${n - k}`); r++; later(round, 1800);
       }, '數數看還沒拿走的有幾罐！')));
@@ -104,9 +105,10 @@ function u5A(st) {
     $('[data-a="clr"]', st).onclick = () => { on.clear(); $$('.play button', st).forEach(b => b.classList.remove('on')); };
     $('[data-a="ok"]', st).onclick = () => {
       const mine = [...on].map(s => s.split(',').map(Number));
+      curQ = { q: `照樣子在格子上拼出一樣的圖形（${tgt.length} 格）`, c: `和樣子一模一樣的 ${tgt.length} 格` };
       if (mine.length === tgt.length && keyCells(mine) === keyCells(tgt)) { api.ok('一模一樣！'); speak('一模一樣！'); r++; later(round, 1300); }
-      else if (mine.length === tgt.length && sameShape(mine, tgt)) api.bad('形狀對了，但是方向要和左邊一樣喔！');
-      else api.bad(mine.length !== tgt.length ? `左邊有 ${tgt.length} 格，你點了 ${mine.length} 格喔！` : '再看看左邊的樣子！');
+      else if (mine.length === tgt.length && sameShape(mine, tgt)) api.bad('形狀對了，但是方向要和左邊一樣喔！', '形狀對但方向不一樣');
+      else api.bad(mine.length !== tgt.length ? `左邊有 ${tgt.length} 格，你點了 ${mine.length} 格喔！` : '再看看左邊的樣子！', `點了 ${mine.length} 格${mine.length === tgt.length ? '，形狀不一樣' : ''}`);
     };
   }
   round();
@@ -126,7 +128,7 @@ function u5B(st) {
   const stampFor = { cube: 'square', box: 'rect', cyl: 'circle', prism: 'tri' };
   const stamp = type => () => ({
     q: '用積木<b>橘色的那一面</b>蓋印章，<br>會蓋出哪一個形狀？', sp: '用積木橘色的那一面蓋印章，會蓋出哪一個形狀？', vis: solidSVG(type),
-    opts: ['square', 'rect', 'circle', 'tri'].map(t => ({ h: `<span class="optsvg">${shapeSVG(t, '#f28c38')}</span>`, ok: t === stampFor[type] })),
+    opts: ['square', 'rect', 'circle', 'tri'].map(t => ({ h: `<span class="optsvg">${shapeSVG(t, '#f28c38')}</span>`, t: SHAPE_NAME[t], ok: t === stampFor[type] })),
     hint: '看看橘色那一面是什麼形狀！', after: `蓋出來是${SHAPE_NAME[stampFor[type]]}`
   });
   const turn = () => {
@@ -134,7 +136,7 @@ function u5B(st) {
     const vs = variants(tgt).filter(v => keyCells(v) !== keyCells(tgt)), right = pick(vs.length ? vs : [tgt]);
     const wrong = ks.slice(1).filter(k => POLY[k].length === tgt.length && !sameShape(POLY[k], tgt)).slice(0, 2).map(k => pick(variants(POLY[k])));
     return { q: '哪一個和左邊的圖形<b>一樣</b>？<br><small>（可以轉一轉、翻一翻）</small>', sp: '哪一個和左邊的圖形一樣？可以轉一轉、翻一翻。', vis: cellSVG(tgt, '#4fa3d9', 32),
-      opts: [{ h: cellSVG(right, '#7cc47f'), ok: true }, ...wrong.map(w => ({ h: cellSVG(w, '#7cc47f') }))], hint: '在心裡把它轉一轉、翻一翻看看！' };
+      opts: [{ h: cellSVG(right, '#7cc47f'), t: '轉一轉、翻一翻後一樣的圖形', ok: true }, ...wrong.map(w => ({ h: cellSVG(w, '#7cc47f'), t: '形狀不一樣的圖形' }))], hint: '在心裡把它轉一轉、翻一翻看看！' };
   };
   const count = () => {
     const k = pick(['P', 'U', 'F', 'V', 'L', 'T']), cs = POLY[k];

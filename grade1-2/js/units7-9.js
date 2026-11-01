@@ -27,8 +27,9 @@ function u7A(st) {
     $$('.purse .money-btn', st).forEach(b => b.onclick = () => { if (tray.length < 20) { tray.push(+b.dataset.v); sfx('pop'); speak(b.dataset.v + '元'); draw(); } });
     $('[data-a="pay"]', st).onclick = () => {
       const s = sum(tray);
+      curQ = { q: `${nm}賣 ${p} 元，付剛好的錢`, c: `${p} 元` };
       if (s === p) { api.ok(`剛好 ${p} 元，謝謝光臨！`); speak(`剛好 ${p} 元，謝謝光臨！`); r++; later(round, 1800); }
-      else api.bad(s > p ? `你放了 ${s} 元，太多了喔！點盤子裡的錢可以拿回來。` : `你放了 ${s} 元，還不夠喔！`);
+      else api.bad(s > p ? `你放了 ${s} 元，太多了喔！點盤子裡的錢可以拿回來。` : `你放了 ${s} 元，還不夠喔！`, `${s} 元`);
     };
     draw();
   }
@@ -99,6 +100,7 @@ function u8A(st) {
       bt.innerHTML = '';
       const ans = op === '+' ? a + b : a - b;
       api.say(`現在有 ${Math.floor(ans / 10)} 條和 ${ans % 10} 個，是多少？`, `現在有 ${Math.floor(ans / 10)} 條和 ${ans % 10} 個，是多少？`);
+      curQ = { q: `${a} ${op === '+' ? '＋' : '−'} ${b} ＝ ？（現在有 ${Math.floor(ans / 10)} 條和 ${ans % 10} 個）`, c: String(ans) };
       nearOpts(ans, 1, 60, 4, op === '+' ? [ans - 10, ans + 1] : [ans + 10, ans - 1]).forEach(x => $('.opts', st).appendChild(optBtn(x, () => {
         $('.box', st).textContent = ans; speak(`${a} ${op === '+' ? '加' : '減'} ${b} 等於 ${ans}`); r++; later(round, 1800);
       }, '1 條是 10 個，先數條，再數個！')));
@@ -164,7 +166,9 @@ function u9A(st) {
   $$('.bin', st).forEach(bn => bn.onclick = () => {
     if (i >= queue.length) return;
     const k = +bn.dataset.b, [b, e] = queue[i];
-    if (k !== b) { api.bad(`${e} 不是${BINS[k].n}喔！`); return; }
+    curQ = { q: `${e} 要放進哪一個回收桶？`, c: BINS[b].n };
+    if (k !== b) { api.bad(`${e} 不是${BINS[k].n}喔！`, BINS[k].n); return; }
+    rep(true, BINS[k].n); curQ = null;
     got[b].push(e); bn.insertAdjacentHTML('beforeend', `<span>${e}</span>`); sfx('pop'); i++;
     if (i < queue.length) show(); else { $('.big-item', st).textContent = '👍'; later(counting, 700); }
   });
