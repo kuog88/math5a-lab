@@ -129,7 +129,7 @@ function u5B(st) {
 function arrHTML(r, c) { return `<span class="array" style="grid-template-columns:repeat(${c},26px)">${'<i></i>'.repeat(r * c)}</span>`; }
 function u5C(st) {
   const swap = () => { const a = rand(3, 9), b = rand(2, 9); return { q: `<b>□ × ${a} ＝ ${a} × ${b}</b>，□ 是多少？`, vis: `${arrHTML(a, b)}<span class="lbl">橫著看、直著看，一樣多</span>`, opts: mkOpts(b, [a, a * b, b + 1].filter(v => v !== b)), hint: '兩個數交換，答案一樣。', after: `${b} × ${a} ＝ ${a} × ${b} ＝ ${a * b}` }; };
-  const same = () => { const a = rand(3, 8), b = rand(4, 9); return { q: `<b>${a} × ${b}</b> 和 <b>${b} × ${a}</b> 的答案一樣嗎？`, vis: arrHTML(a, b), opts: [{ h: '一樣', ok: true }, { h: `${a} × ${b} 比較大`, ok: false }, { h: `${b} × ${a} 比較大`, ok: false }], keep: true, hint: '看看點點圖，轉個方向，點點數量一樣。', after: `${a} × ${b} ＝ ${b} × ${a} ＝ ${a * b}` }; };
+  const same = () => { const a = rand(3, 8); let b = rand(4, 9); if (b === a) b = a + 1; return { q: `<b>${a} × ${b}</b> 和 <b>${b} × ${a}</b> 的答案一樣嗎？`, vis: arrHTML(a, b), opts: [{ h: '一樣', ok: true }, { h: `${a} × ${b} 比較大`, ok: false }, { h: `${b} × ${a} 比較大`, ok: false }], keep: true, hint: '看看點點圖，轉個方向，點點數量一樣。', after: `${a} × ${b} ＝ ${b} × ${a} ＝ ${a * b}` }; };
   const teen = () => { const a = rand(2, 4), t = rand(11, 15), v = a * t; return { q: `每排放 <b>${a}</b> 根鋼管，排了 <b>${t}</b> 排，一共有幾根？<br><small>${a} × ${t} ＝ ${t} × ${a}，可以用 ${Array(a).fill(t).join(' ＋ ')} 算</small>`, sp: `每排放 ${a} 根鋼管，排了 ${t} 排，一共有幾根？`, vis: arrHTML(t, a), eq: [a, '×', t], alt: sumPaths(Array(a).fill(t)), hint: `每排一樣多，有好幾排，用乘法 ×；也可以把 ${a} 個 ${t} 加起來。`, after: `${Array(a).fill(t).join(' ＋ ')} ＝ ${v}，${a} × ${t} ＝ ${v}` }; };
   quiz(st, [same, swap, teen, swap, teen]);
 }

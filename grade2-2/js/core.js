@@ -74,8 +74,18 @@ function confetti() {
   }
 }
 let cleanups = [];
-function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); return id; }
-function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
+function later(fn, ms) { const id = setTimeout(() => { okLock = 0; fn(); }, ms); cleanups.push(() => clearTimeout(id)); return id; }
+/* 答對後鎖住舞台：api.ok() 之後到下一個 later() 執行（或 api.say() 出下一題）之前，
+   答對那一刻已經在舞台上的東西點了都不算，避免「好了／確定」連點兩下一次跳兩題（最多鎖 4 秒）。
+   答對後才出現的按鈕（詳解的「下一題」、接著填的小鍵盤）不受影響。 */
+let okLock = 0, okOld = new WeakSet();
+function lockStage() { okLock = Date.now(); okOld = new WeakSet(); const s = document.getElementById('stage'); if (s) s.querySelectorAll('*').forEach(el => okOld.add(el)); }
+['click', 'pointerdown'].forEach(t => document.addEventListener(t, e => {
+  if (!okLock || !okOld.has(e.target)) return;
+  if (Date.now() - okLock > 4000) { okLock = 0; return; }
+  e.stopPropagation(); e.preventDefault();
+}, true));
+function runCleanup() { okLock = 0; cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
 let cur = null, lastSay = '', lastQ = '';
@@ -89,11 +99,12 @@ const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
 const ansText = r => r.eq ? eqAns(r) : r.ans !== undefined ? `${r.ans}${r.unit ? ' ' + r.unit : ''}` : optText((r.opts || []).find(o => o.ok));
 const api = {
   say(html, sp) {
+    okLock = 0;
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
     lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  ok(msg) { lockStage(); sfx('ok'); if (msg) toast(msg); rep(true); },
   bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
@@ -124,6 +135,9 @@ function optBtn(o, onRight, hint) {
 /* 用正確答案和幾個錯誤答案做選項 */
 function mkOpts(ans, wrongs, fmt = v => typeof v === 'number' ? N(v) : v) {
   const vals = [ans]; wrongs.forEach(w => { if (!vals.includes(w)) vals.push(w); });
+  // 錯的答案重複（或太少）時，數字題補附近的數，保證選項不重複、至少 2 個
+  const want = Math.max(2, Math.min(4, wrongs.length + 1));
+  if (typeof ans === 'number') for (let d = 1; vals.length < want && d < 100; d++) [ans + d, ans - d].forEach(v => { if (v >= 0 && vals.length < want && !vals.includes(v)) vals.push(v); });
   return vals.map(v => ({ h: fmt(v), ok: v === ans }));
 }
 function nearOpts(ans, lo, hi, k = 4, extra = []) {

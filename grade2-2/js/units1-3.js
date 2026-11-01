@@ -80,9 +80,9 @@ function u1B(st) {
   };
   const seqQ = () => {
     const by = pick([1, 10, 100]);
-    const s = by === 100 ? rand(1, 5) * 100 + rand(0, 9) * 10 : by === 10 ? rand(2, 8) * 100 + rand(5, 6) * 10 + rand(0, 9) : rand(2, 9) * 100 + 97;
+    const s = by === 100 ? rand(1, 5) * 100 + rand(0, 9) * 10 : by === 10 ? rand(2, 8) * 100 + rand(5, 6) * 10 + rand(0, 9) : Math.min(rand(2, 9) * 100 + 97, 996); // 答案最多 1000
     const seq = [s, s + by, s + 2 * by, s + 3 * by], ans = s + 4 * by;
-    return { q: `${by} 個一數，下一個是多少？`, vis: `<div class="seq-row">${seq.map(v => `<span class="price">${v}</span>`).join(' ➜ ')} ➜ <span class="box">？</span></div>`, opts: mkOpts(ans, [ans + by, ans - 1 + (by === 1 ? 2 : 0), s + 3 * by + (by === 100 ? 10 : 100)].filter(v => v !== ans && v <= 1000)), hint: `每次多 ${by} 喔！` };
+    return { q: `${by} 個一數，下一個是多少？`, vis: `<div class="seq-row">${seq.map(v => `<span class="price">${v}</span>`).join(' ➜ ')} ➜ <span class="box">？</span></div>`, opts: mkOpts(ans, [ans + by, ans - by, by === 1 ? ans - 10 : ans + 1, by === 100 ? ans - 10 : ans + 10, ans - 100].filter(v => v !== ans && v > 0 && v <= 1000).slice(0, 3)), hint: `每次多 ${by} 喔！` };
   };
   const digitQ = () => {
     let n = rand(102, 987); const pos = pick(['百', '十', '個']);

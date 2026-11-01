@@ -36,7 +36,8 @@ function u7A(st) {
 
 /* ===== 7-B 先算哪一步 ===== */
 function u7B(st) {
-  quiz(st, shuffle(TYPES2.concat([pick(TYPES2)])).map(ty => () => { const t = twoStep(ty);
+  quiz(st, shuffle(TYPES2.concat([pick(TYPES2)])).map(ty => () => { let t = twoStep(ty), g = 0;
+    while (new Set([t.s1, ...t.w1]).size < t.w1.length + 1 && g++ < 50) t = twoStep(ty); // 三個選項要不一樣
     return { q: `${t.q}<br><b>第一步</b>要先算哪一個？`, sp: toSpeech(t.q) + '。第一步要先算哪一個？', vis: '<div class="price">🤔 先算哪一步？</div>', opts: [{ h: t.s1, ok: true }, ...t.w1.map(h => ({ h, ok: false }))], hint: '先找出「每一份一樣多」的地方。', after: `${t.s1}，再 ${t.s2}` }; }));
 }
 
