@@ -33,8 +33,8 @@ function u1A(st) {
       if (a === 'h-' && h > 0) h--;
       if (a === 't-' && t > 0) t--;
       if (a === 'o-' && o > 0) o--;
-      if (a === 'to') { o -= 10; t++; api.ok('10 個一換成 1 個十！'); }
-      if (a === 'tt') { t -= 10; h++; api.ok('10 個十換成 1 個百！'); }
+      if (a === 'to') { o -= 10; t++; sfx('ok'); toast('10 個一換成 1 個十！'); }
+      if (a === 'tt') { t -= 10; h++; sfx('ok'); toast('10 個十換成 1 個百！'); }
       if (a === 'ok') {
         if (o >= 10 || t >= 10) { toast('有 10 個以上，先換一換吧！'); speak('有 10 個以上，先換一換吧！'); return; }
         const v = h * 100 + t * 10 + o;
@@ -42,7 +42,7 @@ function u1A(st) {
           const msg = n === 1000 ? '10 個百就是 1000！' : `${h} 個百、${t} 個十、${o} 個一，就是 ${n}！`;
           api.ok(msg); speak(msg); r++; later(round, 1900); return;
         }
-        api.bad(`現在是 ${v} 喔！${n === 1000 ? '1000 是 10 個百。' : `百位要 ${Math.floor(n / 100)}，十位要 ${Math.floor(n / 10) % 10}，個位要 ${n % 10}。`}`);
+        api.bad(`現在是 ${v} 喔！${n === 1000 ? '1000 是 10 個百。' : `百位要 ${Math.floor(n / 100)}，十位要 ${Math.floor(n / 10) % 10}，個位要 ${n % 10}。`}`, `${h} 個百、${t} 個十、${o} 個一（${v}）`, String(n));
       }
       draw();
     });
@@ -116,7 +116,7 @@ function u1C(st) {
     $('[data-a="ok"]', st).onclick = () => {
       const s = sum();
       if (s === price) { api.ok(`剛好 ${price} 元！`); speak(`剛好 ${price} 元`); r++; later(round, 1600); }
-      else api.bad(s > price ? `付了 ${s} 元，太多了，要剛好 ${price} 元。` : `付了 ${s} 元，還不夠喔！`);
+      else api.bad(s > price ? `付了 ${s} 元，太多了，要剛好 ${price} 元。` : `付了 ${s} 元，還不夠喔！`, `${s} 元`, `${price} 元`);
     };
   }
   round();
@@ -269,7 +269,7 @@ function u3A(st) {
       if (a === 'c-') { if (c > 0) c -= 10; else if (m > 0) { m--; c = 90; } }
       if (a === 'ok') {
         if (m * 100 + c === gv) { api.ok(`${mcm(gm, gc)} ＝ ${gv} 公分！`); speak(`${mcm(gm, gc)} 等於 ${gv} 公分`); r++; later(round, 1800); return; }
-        api.bad(`現在是 ${mcm(m, c)}，${m * 100 + c > gv ? '太長了' : '還不夠長'}！`);
+        api.bad(`現在是 ${mcm(m, c)}，${m * 100 + c > gv ? '太長了' : '還不夠長'}！`, mcm(m, c), mcm(gm, gc));
       }
       draw();
     });

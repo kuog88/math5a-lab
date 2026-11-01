@@ -21,7 +21,7 @@ function u7A(st) {
   let r = 0;
   function round() {
     if (r >= types.length) return api.finish();
-    const t = twoStep(types[r]);
+    const t = twoStep(types[r]); curQ = null;
     api.say(`${t.q}<br><small>第一步：先算什麼？</small>`, toSpeech(t.q) + '。第一步，先算什麼？');
     st.innerHTML = `${dots(r, types.length)}<div class="qvis"><div class="price txt">🚚 ${t.q}</div></div><div class="lbl center">① 第一步的算式</div><div class="opts"></div><div class="step2"></div>`;
     shuffle([{ h: t.s1, ok: true }, ...t.w1.map(h => ({ h, ok: false }))]).forEach(o => $('.opts', st).appendChild(optBtn(o, () => {
@@ -85,7 +85,7 @@ function u8A(st) {
         cnt[i]++; left--; sfx('tap'); draw();
         if (!left) {
           if (cnt.every(v => v === R.e)) { api.ok(`每人分到 ${R.e} 個！`); speak(`平分好了，每人分到 ${R.e} 個，${R.e} 乘 ${R.k} 等於 ${total}`); $('.pile', st).insertAdjacentHTML('afterend', `<div class="after">每人 ${R.e} 個：${R.e} × ${R.k} ＝ ${total}</div>`); r++; later(round, 2300); }
-          else api.bad('每個人分到的不一樣多，這樣不是平分喔！按「全部拿回來」再分一次。');
+          else api.bad('每個人分到的不一樣多，這樣不是平分喔！按「全部拿回來」再分一次。', `每人分到 ${cnt.join('、')} 個`, `每人 ${R.e} 個`);
         }
       });
       $('[data-a="reset"]', st).onclick = () => { cnt.fill(0); left = total; draw(); };
@@ -165,8 +165,8 @@ function u9A(st) {
       if (a === '+' && parts < 10) { parts++; shade = -1; }
       if (a === '-' && parts > 1) { parts--; shade = -1; }
       if (a === 'ok') {
-        if (parts !== n) return api.bad(`${F(1, n)} 是平分成 ${n} 份，現在是 ${parts} 份喔！`);
-        if (shade < 0) return api.bad('還沒有塗色，點一塊塗起來。');
+        if (parts !== n) return api.bad(`${F(1, n)} 是平分成 ${n} 份，現在是 ${parts} 份喔！`, `平分成 ${parts} 份`, `平分成 ${n} 份，塗 1 份`);
+        if (shade < 0) return api.bad('還沒有塗色，點一塊塗起來。', `平分成 ${parts} 份，沒有塗色`, `平分成 ${n} 份，塗 1 份`);
         api.ok(`平分成 ${n} 份，塗 1 份，就是 ${F(1, n)}`); speak(`平分成 ${n} 份，其中 1 份就是 ${n} 分之 1`); r++; later(round, 1900); return;
       }
       draw();
@@ -210,7 +210,7 @@ function u9D(st) {
       opts: mkOpts('哥哥', ['妹妹', '一樣多']), keep: true,
       ex: `${F(1, 3)} 是切成 3 份的 1 份，${F(1, 4)} 是切成 4 份的 1 份，3 份的每份比較大，所以<b>哥哥</b>吃得多。`, trap: '4 比 3 大，但四分之一比三分之一小。' },
     { q: `下面哪一個圖的塗色部分是 ${F(1, 3)}？`, sp: '下面哪一個圖的塗色部分是 3 分之 1？',
-      opts: [{ h: fracSVG('circle', 3, [0]), ok: true }, { h: fracSVG('rect', 3, [0], { unequal: true }), ok: false }, { h: fracSVG('rect', 4, [0]), ok: false }, { h: fracSVG('circle', 3, [0, 1]), ok: false }],
+      opts: [{ h: fracSVG('circle', 3, [0]), t: '圓平分成 3 份，塗 1 份', ok: true }, { h: fracSVG('rect', 3, [0], { unequal: true }), t: '長方形分成 3 份但不一樣大，塗 1 份', ok: false }, { h: fracSVG('rect', 4, [0]), t: '長方形平分成 4 份，塗 1 份', ok: false }, { h: fracSVG('circle', 3, [0, 1]), t: '圓平分成 3 份，塗 2 份', ok: false }],
       ex: `要平分成 3 份、塗 1 份：<b>第一種圓形</b>才對。長方形沒有平分；4 份塗 1 份是 ${F(1, 4)}；3 份塗 2 份不是三分之一。`, trap: '三個條件都要對：平分、分成 3 份、只塗 1 份。' }
   ]);
 }

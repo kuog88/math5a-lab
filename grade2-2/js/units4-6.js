@@ -23,7 +23,7 @@ function u4A(st) {
       if (!miss.length && !extra.length) {
         $$('.mcard', st).forEach(b => b.classList.toggle('right', on.has(+b.dataset.m)));
         api.ok(`答對了：${t.ans.join('、')} 月`); speak(`答對了，${t.ans.join('、')} 月`); r++; later(r < 2 ? monthRound : calRound, 1900);
-      } else api.bad(extra.length ? `${extra[0]} 月有 ${MDAYS[extra[0] - 1]} 天喔！` : `還有月份沒點到喔！`);
+      } else api.bad(extra.length ? `${extra[0]} 月有 ${MDAYS[extra[0] - 1]} 天喔！` : `還有月份沒點到喔！`, on.size ? [...on].sort((x, y) => x - y).join('、') + ' 月' : '沒有點', t.ans.join('、') + ' 月');
     };
   }
   function calRound() {
@@ -33,7 +33,7 @@ function u4A(st) {
     $$('.cal td.tap', st).forEach(td => td.onclick = () => {
       const v = +td.dataset.d;
       if (v === target) { td.classList.add('hl'); api.ok(`1 星期有 7 天，${d} ＋ ${after} ＝ ${target}`); speak(`1 星期有 7 天，${m} 月 ${target} 日`); later(() => api.finish(), 1800); }
-      else api.bad(`1 星期是 7 天，往下一排就是 7 天後喔！`);
+      else api.bad(`1 星期是 7 天，往下一排就是 7 天後喔！`, `${v} 日`, `${target} 日`);
     });
   }
   monthRound();
@@ -106,7 +106,7 @@ function u5A(st) {
       if (a === '-' && k > 0) k--;
       if (a === 'ok') {
         if (k === n) { api.ok(`${per} × ${n} ＝ ${target}`); speak(`${per} 乘 ${n} 等於 ${target}，需要 ${n} 盒`); r++; later(round, 1800); return; }
-        api.bad(per * k > target ? '太多盒了！' : '還不夠喔！');
+        api.bad(per * k > target ? '太多盒了！' : '還不夠喔！', `${k} 盒`, `${n} 盒`);
       }
       draw();
     });
@@ -173,7 +173,7 @@ function u6A(st) {
       if (a === '-' && k > 0) k--;
       if (a === 'ok') {
         if (k === w) { api.ok(`${nm}和 ${w} 個積木一樣重！`); speak(`${nm}和 ${w} 個積木一樣重`); r++; later(round, 1800); return; }
-        api.bad(k < w ? `左邊比較低，表示${nm}比較重，再放積木。` : '右邊比較低，積木太多了！');
+        api.bad(k < w ? `左邊比較低，表示${nm}比較重，再放積木。` : '右邊比較低，積木太多了！', `${k} 個積木`, `${w} 個積木`);
       }
       draw();
     });

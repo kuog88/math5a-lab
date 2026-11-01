@@ -78,15 +78,23 @@ function later(fn, ms) { const id = setTimeout(fn, ms); cleanups.push(() => clea
 function runCleanup() { cleanups.forEach(f => { try { f(); } catch (e) {} }); cleanups = []; try { speechSynthesis.cancel(); } catch (e) {} }
 
 /* ---------- 關卡 API ---------- */
-let cur = null, lastSay = '';
+let cur = null, lastSay = '', lastQ = '';
+/* 家長報表：curQ 是目前的題目和正確答案（quiz、adv、eqBuild 會設定；其他關卡用海狸工頭說的話當題目） */
+let curQ = null;
+const repTxt = s => String(s === undefined || s === null ? '' : s).replace(/<span class="frac"><i>(\d+)<\/i><i>(\d+)<\/i><\/span>/g, ' $1/$2 ');
+function rep(ok, a, c) { window.KGReport && KGReport.answer(ok, { q: repTxt(curQ ? curQ.q : lastQ), a: a === undefined ? a : repTxt(a), c: repTxt(c !== undefined ? c : curQ ? curQ.c : '') }); }
+/* 選項的文字（圖形選項用 o.t 說明） */
+const optText = o => o ? o.t || (/<svg/i.test(o.h) ? '（圖）' : o.h) : '';
+/* 題目物件的正確答案文字 */
+const ansText = r => r.eq ? eqAns(r) : r.ans !== undefined ? `${r.ans}${r.unit ? ' ' + r.unit : ''}` : optText((r.opts || []).find(o => o.ok));
 const api = {
   say(html, sp) {
     const b = $('#bubble'); b.innerHTML = html;
     const w = $('#bubbleWrap'); w.classList.remove('pulse'); void w.offsetWidth; w.classList.add('pulse');
-    lastSay = sp || html; speak(lastSay);
+    lastSay = sp || html; lastQ = html; speak(lastSay);
   },
-  ok(msg) { sfx('ok'); if (msg) toast(msg); },
-  bad(msg) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); },
+  ok(msg) { sfx('ok'); if (msg) toast(msg); rep(true); },
+  bad(msg, a, c) { if (cur) cur.miss++; sfx('bad'); toast(msg || '再想想看！'); rep(false, a, c); },
   finish() { if (cur && !cur.done) { cur.done = true; window.onLevelDone && window.onLevelDone(cur); } }
 };
 
@@ -97,7 +105,7 @@ const F = (a, b) => `<span class="frac"><i>${a}</i><i>${b}</i></span>`;
 /* 選項按鈕：答對呼叫 onRight，答錯扣分並提示 */
 function optBtn(o, onRight, hint) {
   const b = document.createElement('button');
-  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button';
+  b.className = 'opt'; b.innerHTML = o.h; b.type = 'button'; b._o = o;
   b.onclick = () => {
     if (b.disabled) return;
     if (o.ok) {
@@ -106,7 +114,8 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！');
+      const right = $$('.opt', b.parentNode).map(x => x._o).find(x => x && x.ok);
+      api.bad(o.hint || hint || '再想想看！', optText(o), right ? optText(right) : undefined);
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -139,7 +148,7 @@ function keypad(box, ans, onRight, opt = {}) {
     else if (d === 'ok') {
       if (!v) return;
       if (+v === ans) { box.dataset.lock = 1; show.style.borderColor = 'var(--grass)'; show.style.color = 'var(--grass-d)'; api.ok(); onRight(); return; }
-      api.bad(typeof opt.hint === 'function' ? opt.hint(+v) : (opt.hint || `不是 ${v} 喔，再算一次！`)); v = '';
+      api.bad(typeof opt.hint === 'function' ? opt.hint(+v) : (opt.hint || `不是 ${v} 喔，再算一次！`), `${v}${opt.unit ? ' ' + opt.unit : ''}`, `${ans}${opt.unit ? ' ' + opt.unit : ''}`); v = '';
     } else if (v.length < max) { v = (v === '0' ? '' : v) + d; sfx('tap'); }
     draw();
   });
@@ -153,6 +162,7 @@ function quiz(st, rounds) {
   function show() {
     if (i >= rounds.length) { api.finish(); return; }
     let r = rounds[i]; if (typeof r === 'function') r = r();
+    curQ = { q: r.q, c: ansText(r) };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="opts"></div>`;
     api.say(r.q, r.sp);
     const ops = $('.opts', st);
@@ -174,6 +184,7 @@ function adv(st, qs) {
   function show() {
     if (i >= qs.length) { api.finish(); return; }
     const r = typeof qs[i] === 'function' ? qs[i]() : qs[i];
+    curQ = { q: r.q, c: ansText(r) };
     st.innerHTML = `${dots(i, qs.length)}<div class="center"><span class="adv-badge">🎯 進階挑戰 第 ${i + 1} 題／共 ${qs.length} 題</span></div>
       <div class="qvis">${r.vis || ''}</div><div class="opts"></div><div class="exp-wrap"></div>`;
     api.say(r.q, r.sp);
@@ -222,8 +233,16 @@ function sumPaths(list) {
   });
   return out;
 }
+/* 正確算式（第一種列法）和答案，給家長報表 */
+function eqAns(r) {
+  const res = [], val = v => v === 'R' ? res[res.length - 1] : /^R\d$/.test(v) ? res[+v[1] - 1] : v;
+  const s = eqPaths(r)[0].map(e => { const [a, op, b] = e.map(val), v = eqCalc(a, op, b); res.push(v); return `${a} ${op} ${b} = ${v}`; }).join('，');
+  const v = res[res.length - 1];
+  return r.fmt ? `${s}（${r.fmt(v)}）` : s + (r.unit ? ' ' + r.unit : '');
+}
 function eqBuild(box, r, onRight) {
   let paths = eqPaths(r), rows = [], results = [], act = null, finished = false;
+  curQ = { q: r.q, c: eqAns(r) };
   const plain = String(r.q || '').replace(/<[^>]+>/g, '');
   const chips = r.chips ? r.chips.map(c => Array.isArray(c) ? c : [c, String(c)])
     : [...new Set((plain.match(/\d+/g) || []).map(Number).concat(r.nums || []))].map(n => [n, String(n)]);
@@ -288,7 +307,9 @@ function eqBuild(box, r, onRight) {
   function bad(text) {
     const w = rows[rows.length - 1];
     w.el.classList.remove('shake'); void w.el.offsetWidth; w.el.classList.add('shake');
-    msg.innerHTML = '💡 ' + text; api.bad(text.replace(/<[^>]+>/g, '')); speak(text);
+    msg.innerHTML = '💡 ' + text;
+    api.bad(text.replace(/<[^>]+>/g, ''), rows.map((x, k) => `${x.a || '□'} ${x.op || '○'} ${x.b || '□'}${x.done ? ' = ' + results[k] : ''}`).join('，'));
+    speak(text);
   }
   $('.eq-go', box).onclick = () => {
     if (finished) return;
