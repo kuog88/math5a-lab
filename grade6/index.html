@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>六年級數學樂園</title>
-<link rel="stylesheet" href="style.css?v=20261101m">
+<link rel="stylesheet" href="style.css?v=20261102x">
 </head>
 <body>
 <div class="deco" aria-hidden="true"></div>
@@ -22,6 +22,7 @@
       <div><button class="reset-link" id="resetBtn">清除星星重新開始</button></div>
     </div>
     <div class="grid" id="unitGrid"></div>
+    <div class="exam-sec"><div id="exam-box"></div></div>
   </section>
 
   <!-- 關卡 -->
@@ -55,12 +56,17 @@
 <div class="toast" id="toast"></div>
 <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-<script src="js/core.js?v=20261101m"></script>
-<script src="js/units1-2.js?v=20261101m"></script>
-<script src="js/units3-4.js?v=20261101m"></script>
-<script src="js/units5-6.js?v=20261101m"></script>
-<script src="js/units7-8.js?v=20261101m"></script>
-<script src="js/main.js?v=20261101m"></script>
+<script src="js/core.js?v=20261102x"></script>
+<script src="js/units1-2.js?v=20261102x"></script>
+<script src="js/units3-4.js?v=20261102x"></script>
+<script src="js/units5-6.js?v=20261102x"></script>
+<script src="js/units7-8.js?v=20261102x"></script>
+<script src="js/main.js?v=20261102x"></script>
+<script src="js/exam-bank.js?v=20261102x"></script>
+<script src="https://kuog88.github.io/kg-exam.js" defer></script>
+<script>
+window.addEventListener('load', function m() { if (window.KGExam) KGExam.mount(document.getElementById('exam-box'), EXAM_BANK); else setTimeout(m, 200); });
+</script>
 <script src="https://kuog88.github.io/home-button.js" defer></script>
 <script src="https://kuog88.github.io/bgm.js" defer></script>
 </body>
