@@ -252,3 +252,6 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
   .cells i{width:18px!important}
   .tbl{font-size:20px}.tbl th,.tbl td{padding:6px 5px;min-width:0}
 }
+
+/* 📝 月考測驗卷區塊（遊戲關卡之外的正式試卷） */
+.exam-sec{margin:28px auto 8px;max-width:980px;background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 0 rgba(0,0,0,.12);overflow:hidden}
