@@ -245,3 +245,6 @@ b{color:#0a6f8f}
   .vtable{font-size:18px}
   .vtable td,.vtable th{padding:4px 5px;min-width:40px}
 }
+
+/* 📝 月考測驗卷區塊（遊戲關卡之外的正式試卷） */
+.exam-sec{margin:28px auto 8px;max-width:980px;background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 0 rgba(0,0,0,.12);overflow:hidden}
