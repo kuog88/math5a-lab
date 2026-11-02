@@ -241,3 +241,6 @@ b{color:var(--terra)}
   .eq-key.fn{font-size:15px}
   .eq-msg{font-size:17px}
 }
+
+/* 📝 月考測驗卷區塊（遊戲關卡之外的正式試卷） */
+.exam-sec{margin:28px auto 8px;max-width:980px;background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 0 rgba(0,0,0,.12);overflow:hidden}
