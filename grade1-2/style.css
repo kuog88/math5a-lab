@@ -255,3 +255,6 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 
 /* 📝 月考測驗卷區塊（遊戲關卡之外的正式試卷） */
 .exam-sec{margin:28px auto 8px;max-width:980px;background:#fff;border-radius:16px;padding:16px 14px;box-shadow:0 6px 0 rgba(0,0,0,.12);overflow:hidden}
+
+/* 2026-11 三版本：一個單元有兩組關卡時的小標題 */
+.u-sub{margin:10px 0 6px;font-size:17px;font-weight:900;color:var(--c);border-top:2px dashed var(--c);padding-top:8px}
