@@ -441,3 +441,33 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 
 /* 📝 月考測驗卷區塊（內容由 kg-exam.js 畫） */
 .exam-sec{margin:26px 0 10px;background:#fff;border-radius:24px;border:4px solid var(--line);box-shadow:var(--shadow);padding:16px;max-width:100%;overflow:hidden}
+/* 三版本：一個單元卡片裡有兩組關卡時的小標題 */
+.u-sub{margin:10px 0 6px;font-size:17px;font-weight:900;color:var(--c);border-top:2px dashed var(--c);padding-top:8px}
+/* 三版本補充單元（extra.js）：錢、方格、砝碼、表格、規律 */
+.xmoney{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;max-width:100%}
+.xmg{display:inline-flex;flex-wrap:wrap;gap:4px;align-items:center}
+.xmg b{font-size:20px;color:var(--ink)}
+.xm.bill{width:84px;height:auto}
+.opt .xmoney{max-width:300px}
+.xgrid{max-width:100%;height:auto;touch-action:none;user-select:none}
+.xgrid rect.c{fill:#fff;stroke:#d9d0e3;stroke-width:1.5;cursor:pointer}
+.xgrid rect.c.on{fill:var(--mint)}
+.xweights{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.xwbtn{border:0;border-radius:12px 12px 6px 6px;background:linear-gradient(#a98bff,#7a5cc4);color:#fff;font-weight:900;font-size:17px;padding:10px 12px;cursor:pointer;box-shadow:0 4px 0 #5a3f9c}
+.xtray{min-height:60px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:flex-end;padding:8px;border-bottom:8px solid var(--purple);border-radius:6px;margin:10px auto;max-width:520px}
+.xtray .xwbtn{font-size:15px;padding:6px 8px}
+.xtable{border-collapse:collapse;margin:0 auto;font-size:20px;background:#fff}
+.xtable td,.xtable th{border:2px solid #d9d0e3;padding:6px 10px;min-width:48px;text-align:center}
+.xtable th{background:#f6f2ff}
+.xtable td.q{color:var(--pink);font-weight:900}
+.xseq{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;font-size:30px}
+.xcell{min-width:56px;height:56px;padding:0 8px;border-radius:14px;background:#fff;border:3px solid var(--line);display:grid;place-items:center;font-size:24px;font-weight:900}
+.xcell.blank{border:3px dashed var(--pink);color:var(--pink)}
+.xscatter{position:relative;height:200px;background:linear-gradient(#fff8dd,#ffe7c2);border-radius:16px;margin-bottom:12px;overflow:hidden}
+.xscatter span{position:absolute;font-size:30px;transform:translate(-50%,-50%);cursor:pointer;transition:opacity .2s}
+.xscatter span.done{opacity:.25}
+.xtally{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.xtally .t{background:#fff;border:2px solid var(--line);border-radius:14px;padding:8px 12px;text-align:center;font-size:19px;font-weight:900}
+.xtally .t .v{display:block;font-size:26px;color:var(--purple);min-width:40px}
+.xtally .t button{width:44px;height:40px;border-radius:10px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:900;cursor:pointer}
+@media (max-width:480px){.xtable{font-size:15px}.xtable td,.xtable th{padding:4px 4px;min-width:32px}.xcell{min-width:42px;height:44px;font-size:19px}.xm.bill{width:66px}}

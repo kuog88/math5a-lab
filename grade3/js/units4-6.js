@@ -73,7 +73,8 @@ function u4C(st) {
     () => { let a, b; do { a = rand(52, 98); b = rand(13, 48); } while (a % 10 >= b % 10); const d = a - b; return { q: `${cmText(a)} − ${cmText(b)} = ？`, opts: opt3(d, [d + 10, d - 10, d + 2]), hint: '毫米不夠減，借 1 公分當 10 毫米！', after: `= ${cmText(d)}` }; },
     () => { const c = rand(15, 85); return { q: `1 公尺 − ${c} 公分 = 幾公分？`, eq: [100, '−', c], ans: 100 - c, unit: '公分', hint: '1 公尺 = 100 公分', after: `100 − ${c} = ${100 - c}（公分）` }; },
     () => { const m = rand(1, 3), c = rand(5, 95); return { q: `${m} 公尺 ${c} 公分是幾公分？`, ans: m * 100 + c, unit: '公分', hint: `${m} 公尺是 ${m * 100} 公分`, after: `${m * 100} + ${c} = ${m * 100 + c}（公分）` }; },
-    () => { const a = rand(3, 6), m = rand(2, 8), n = rand(2, 4), L = (a * 10 + m) * n; return { q: `一段緞帶長 ${a} 公分 ${m} 毫米，${n} 段接起來一共長幾毫米？`, vis: '<span style="font-size:56px">🎀</span>', eq: [a * 10 + m, '×', n], ans: L, unit: '毫米', hint: `一段是 ${a * 10 + m} 毫米，有 ${n} 段一樣長。`, after: `${a * 10 + m} × ${n} = ${L}（毫米）= ${cmText(L)}` }; },
+    // 康軒的毫米在乘法之前：只出 2、3 段，連加也算對
+    () => { const kang = window.KGVer && KGVer.cur(BOOK).version === 'kang', a = rand(3, 6), m = rand(2, 8), n = kang ? rand(2, 3) : rand(2, 4), L = (a * 10 + m) * n, x = a * 10 + m; return { q: `一段緞帶長 ${a} 公分 ${m} 毫米，${n} 段接起來一共長幾毫米？`, vis: '<span style="font-size:56px">🎀</span>', eq: [a * 10 + m, '×', n], alt: n === 2 ? [[x, '+', x]] : n === 3 ? [[[x, '+', x], ['R', '+', x]]] : [], ans: L, unit: '毫米', hint: `一段是 ${a * 10 + m} 毫米，有 ${n} 段一樣長。`, after: `${a * 10 + m} × ${n} = ${L}（毫米）= ${cmText(L)}` }; },
     () => { const a = rand(8, 15), b = rand(2, 6), m = rand(1, 9); return { q: `一根吸管長 ${a} 公分，剪掉 ${b} 公分 ${m} 毫米，還剩幾毫米？`, vis: '<span style="font-size:56px">🥤</span>', eq: [a * 10, '−', b * 10 + m], ans: a * 10 - b * 10 - m, unit: '毫米', hint: `${a} 公分 = ${a * 10} 毫米，${b} 公分 ${m} 毫米 = ${b * 10 + m} 毫米`, after: `${a * 10} − ${b * 10 + m} = ${a * 10 - b * 10 - m}（毫米）` }; }
   ];
   quiz(st, rounds);

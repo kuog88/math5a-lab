@@ -115,7 +115,7 @@ function optBtn(o, onRight, hint) {
       api.ok(); onRight();
     } else {
       b.classList.add('wrong'); b.disabled = true;
-      api.bad(o.hint || hint || '再想想看！', o.h);
+      api.bad(o.hint || hint || '再想想看！', o.t || o.h); // o.t：圖形選項（錢、表格）給家長報表看的文字
       if (o.hint || hint) speak(o.hint || hint);
     }
   };
@@ -163,7 +163,7 @@ function quiz(st, rounds) {
     let r = rounds[i]; if (typeof r === 'function') r = r();
     const eqm = !!r.eq, typed = !eqm && r.ans !== undefined;
     const okOpt = (r.opts || []).find(o => o.ok);
-    curQ = { q: r.q, c: eqm ? eqText(eqPaths(r)[0]) + ' = ' + r.ans + (r.unit ? ' ' + r.unit : '') : typed ? r.ans + (r.unit ? ' ' + r.unit : '') : okOpt ? okOpt.h : '' };
+    curQ = { q: r.q, c: eqm ? eqText(eqPaths(r)[0]) + ' = ' + r.ans + (r.unit ? ' ' + r.unit : '') : typed ? r.ans + (r.unit ? ' ' + r.unit : '') : okOpt ? okOpt.t || okOpt.h : '' };
     st.innerHTML = `${dots(i, rounds.length)}<div class="qvis">${r.vis || ''}</div><div class="${eqm ? 'eqwrap' : typed ? 'kwrap' : r.pad ? 'numpad' : 'opts'}"></div>`;
     api.say(r.q, r.sp);
     const next = () => {
