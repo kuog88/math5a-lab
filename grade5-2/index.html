@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>五年級下學期・沙漠金字塔尋寶隊｜數學</title>
-<link rel="stylesheet" href="style.css?v=20261102x">
+<link rel="stylesheet" href="style.css?v=20261103v">
 </head>
 <body>
 <div class="desert" aria-hidden="true"><div class="sun"></div><div class="pyr p1"></div><div class="pyr p2"></div><div class="pyr p3"></div><div class="dune d1"></div><div class="dune d2"></div></div>
@@ -18,10 +18,11 @@
     <div class="hero">
       <div class="sem-badge">📗 下學期</div>
       <h1 class="hub-title">五年級下學期・沙漠金字塔尋寶隊</h1>
-      <p>115 學年度・南一版 <b>五下</b> 數學（共 10 個單元）</p>
-      <div class="total">🪙 我的金幣 <b id="totalStars">0</b> / <span id="maxStars">90</span></div>
+      <p id="verLine">115 學年度 五下</p>
+      <div class="total">🪙 我的金幣 <b id="totalStars">0</b> / <span id="maxStars">0</span></div>
       <div><button class="reset-link" id="resetBtn">清除金幣重新開始</button></div>
     </div>
+    <div id="verBar"></div>
     <div class="map" id="unitGrid"></div>
     <section class="exam-sec" aria-label="月考測驗卷"><div id="exam-box"></div></section>
   </section>
@@ -57,16 +58,16 @@
 <div class="toast" id="toast"></div>
 <div class="confetti" id="confetti" aria-hidden="true"></div>
 
-<script src="js/core.js?v=20261102x"></script>
-<script src="js/draw.js?v=20261102x"></script>
-<script src="js/units1-5.js?v=20261102x"></script>
-<script src="js/units6-10.js?v=20261102x"></script>
-<script src="js/main.js?v=20261102x"></script>
-<script src="js/exam-bank.js?v=20261102x"></script>
+<script src="https://kuog88.github.io/kg-ver.js"></script>
+<script src="js/book.js?v=20261103v"></script>
+<script src="js/core.js?v=20261103v"></script>
+<script src="js/draw.js?v=20261103v"></script>
+<script src="js/units1-5.js?v=20261103v"></script>
+<script src="js/units6-10.js?v=20261103v"></script>
+<script src="js/extra.js?v=20261103v"></script>
+<script src="js/main.js?v=20261103v"></script>
+<script src="js/exam-bank.js?v=20261103v"></script>
 <script src="https://kuog88.github.io/kg-exam.js" defer></script>
-<script>
-window.addEventListener('load', function m() { if (window.KGExam) KGExam.mount(document.getElementById('exam-box'), EXAM_BANK); else setTimeout(m, 200); });
-</script>
 <script src="https://kuog88.github.io/home-button.js" defer></script>
 <script src="https://kuog88.github.io/bgm.js" defer></script>
 </body>
