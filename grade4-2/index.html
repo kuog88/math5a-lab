@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>四年級下學期・恐龍谷化石探險隊｜數學</title>
+<link rel="stylesheet" href="style.css?v=20261103v">
+</head>
+<body>
+<div class="valley" aria-hidden="true"><div class="volcano"></div><div class="volcano v2"></div><div class="leaf l1">🌿</div><div class="leaf l2">🌴</div><div class="ground"></div><div class="prints">🐾 🐾 🐾</div></div>
+<a class="grade-link" href="../index.html">← 選年級</a>
+<button class="home-btn" id="homeBtn" hidden>⛺ 回營地</button>
+<button class="sound-btn" id="soundBtn" title="聲音開關">🔊</button>
+
+<div id="app">
+  <!-- 首頁 -->
+  <section id="hub">
+    <div class="hero">
+      <div class="sem-badge">📗 下學期</div>
+      <h1 class="hub-title">四年級下學期・恐龍谷化石探險隊</h1>
+      <p>115 學年度・<b id="verName">南一</b>版 <b>四下</b> 數學（共 <span id="unitCount">10</span> 個單元）</p>
+      <div class="total">🦴 我的化石 <b id="totalStars">0</b> / <span id="maxStars">120</span></div>
+      <div><button class="reset-link" id="resetBtn">清除化石重新開始</button></div>
+    </div>
+    <div id="verBar"></div>
+    <div class="map" id="unitGrid"></div>
+    <section class="exam-sec" aria-label="月考測驗卷"><div id="exam-box"></div></section>
+  </section>
+
+  <!-- 關卡 -->
+  <section id="play" hidden>
+    <div class="lv-title" id="lvTitle"></div>
+    <div class="coach">
+      <div class="coach-face">🦖</div>
+      <div class="coach-bubble" id="bubbleWrap">
+        <span class="who">小暴龍隊長</span>
+        <span id="bubble"></span>
+        <button class="speak" id="speakBtn" title="再唸一次">🔊</button>
+      </div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </section>
+</div>
+
+<!-- 過關畫面 -->
+<div class="result" id="result" hidden>
+  <div class="result-card">
+    <div class="r-title" id="rTitle">過關了！</div>
+    <div class="r-stars" id="rStars"></div>
+    <div class="r-msg" id="rMsg"></div>
+    <div class="nav-next">
+      <button class="btn ghost" id="againBtn">🔁 再玩一次</button>
+      <button class="btn gold" id="nextBtn">下一關 ➜</button>
+      <button class="btn teal" id="backBtn">⛺ 回營地</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script src="https://kuog88.github.io/kg-ver.js"></script>
+<script src="js/book.js?v=20261103v"></script>
+<script src="js/core.js?v=20261103v"></script>
+<script src="js/draw.js?v=20261103v"></script>
+<script src="js/units-a.js?v=20261103v"></script>
+<script src="js/units-b.js?v=20261103v"></script>
+<script src="js/units-c.js?v=20261103v"></script>
+<script src="js/exam-bank.js?v=20261103v"></script>
+<script src="js/main.js?v=20261103v"></script>
+<script src="https://kuog88.github.io/kg-exam.js" defer></script>
+<script src="https://kuog88.github.io/home-button.js" defer></script>
+<script src="https://kuog88.github.io/bgm.js" defer></script>
+</body>
+</html>
