@@ -6,7 +6,7 @@ const hto = n => { const [h, t, o] = split3(n); return `${h} 個百、${t} 個�
 
 /* ===== 1-A 積木排一排：用百格板、十條、小方塊拼出數字 ===== */
 function u1A(st) {
-  const targets = [rand(101, 159), rand(160, 209), rand(210, 299), rand(41, 99)];
+  const M = numMax(), targets = M === 300 ? [rand(101, 159), rand(160, 209), rand(210, 299), rand(41, 99)] : [rand(101, 139), rand(140, 169), rand(170, 199), rand(41, 99)];
   let r = 0;
   function round() {
     if (r >= targets.length) return api.finish();
@@ -22,7 +22,7 @@ function u1A(st) {
     const draw = () => { $('#bf', st).innerHTML = blocksHTML(h, t, o) || ''; $('#hto', st).textContent = `${h} 個百、${t} 個十、${o} 個一`; };
     $$('.badd', st).forEach(b => b.onclick = () => {
       const v = +b.dataset.v; sfx('tap');
-      if (h * 100 + t * 10 + o + v > 300) return toast('這一關最多到 300 喔！');
+      if (h * 100 + t * 10 + o + v > M) return toast(`這一關最多到 ${M} 喔！`);
       if (v === 100) h++;
       if (v === 10) { t++; if (t === 10) { t = 0; h++; toast('10 個十換成 1 個百！'); speak('10 個十換成 1 個百'); } }
       if (v === 1) { o++; if (o === 10) { o = 0; t++; toast('10 個一換成 1 個十！'); speak('10 個一換成 1 個十'); if (t === 10) { t = 0; h++; } } }
@@ -42,16 +42,16 @@ function u1A(st) {
 /* ===== 1-B 認識百位：數積木、幾個百十一、位值換算 ===== */
 function u1B(st) {
   const rounds = [
-    () => { const n = rand(102, 299), [h, t, o] = split3(n); return { q: '積木一共是多少？', vis: blocksHTML(h, t, o), ans: n, hint: '先數百、再數十、最後數一！', after: `${hto(n)}是 ${n}` }; },
+    () => { const n = rand(102, numMax() - 1), [h, t, o] = split3(n); return { q: '積木一共是多少？', vis: blocksHTML(h, t, o), ans: n, hint: '先數百、再數十、最後數一！', after: `${hto(n)}是 ${n}` }; },
     () => {
-      const n = rand(111, 298), [h, t, o] = split3(n);
+      const n = rand(111, numMax() - 2), [h, t, o] = split3(n);
       const fmt = (a, b, c) => `${a} 個百、${b} 個十、${c} 個一`;
       const wrong = [fmt(h, o, t), fmt(t, h, o), fmt(h, (t + 1) % 10, o), fmt(h, t, (o + 1) % 10)];
       return { q: `<span class="big">${n}</span> 是幾個百、幾個十、幾個一？`, sp: `${n} 是幾個百、幾個十、幾個一？`, opts: [hto(n), ...wrong].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3).map((h2, i) => ({ h: `<span style="font-size:22px">${h2}</span>`, ok: i === 0 })), hint: '百位、十位、個位，從左邊數過來！' };
     },
     { q: '1 個百和幾個十一樣多？', vis: blocksHTML(1, 0, 0) + '<span class="eq">＝ ？個</span>' + blocksHTML(0, 1, 0), ans: 10, unit: '個十', hint: '10、20、30……數到 100 要幾個十？', after: '1 個百 = 10 個十 = 100 個一' },
-    () => { const k = rand(11, 29); return { q: `${k} 個十是多少？`, vis: blocksHTML(0, Math.min(k, 29), 0), ans: k * 10, hint: '10 個十換成 1 個百，再看剩下幾個十！', after: `${k} 個十是 ${Math.floor(k / 10)} 個百、${k % 10} 個十，是 ${k * 10}` }; },
-    () => { const h = rand(1, 2), o = rand(10, 19), n = h * 100 + o; return { q: `${h} 個百和 ${o} 個一，合起來是多少？`, ans: n, hint: `${o} 個一可以換成 1 個十和 ${o - 10} 個一！`, after: `${h} 個百、1 個十、${o - 10} 個一是 ${n}` }; }
+    () => { const k = rand(11, numMax() / 10 - 1); return { q: `${k} 個十是多少？`, vis: blocksHTML(0, Math.min(k, 29), 0), ans: k * 10, hint: '10 個十換成 1 個百，再看剩下幾個十！', after: `${k} 個十是 ${Math.floor(k / 10)} 個百、${k % 10} 個十，是 ${k * 10}` }; },
+    () => { const h = numMax() === 300 ? rand(1, 2) : 1, o = rand(10, 19), n = h * 100 + o; return { q: `${h} 個百和 ${o} 個一，合起來是多少？`, ans: n, hint: `${o} 個一可以換成 1 個十和 ${o - 10} 個一！`, after: `${h} 個百、1 個十、${o - 10} 個一是 ${n}` }; }
   ];
   quiz(st, rounds);
 }
@@ -63,13 +63,13 @@ function u1C(st) {
     opts: [{ h: '＞', ok: a > b }, { h: '＝', ok: a === b }, { h: '＜', ok: a < b }], hint: '開口朝向比較大的數！', after: `${a} ${a > b ? '＞' : a < b ? '＜' : '＝'} ${b}`
   });
   const rounds = [
-    () => { const a = rand(100, 289); const b = a + pick([-10, -1, 1, 10, 9]); return cmp(a, b); },
-    () => { const a = rand(100, 199), b = a + 100 + pick([-5, -2, 3, 7]); return Math.random() < .5 ? cmp(a, b) : cmp(b, a); },
-    () => { const n = rand(102, 289), m = n + pick([-10, 0, 1, 10]); return { q: `甲是 ${n}，乙是 ${hto(m)}，哪一個比較大？`, keep: true, opts: [{ h: '甲', ok: n > m }, { h: '乙', ok: m > n }, { h: '一樣大', ok: n === m }], hint: '先把乙說成數字，再比比看！', after: `乙是 ${m}` }; },
-    () => { const s = rand(150, 255), g = rand(1, 4); return { q: '10 個 10 個數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s + k * 10).join(' , ')}</span>`, ans: s + g * 10, hint: '每次多 10，十位加 1！' }; },
-    () => { const s = rand(160, 300), g = rand(1, 4); return { q: '10 個 10 個倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k * 10).join(' , ')}</span>`, ans: s - g * 10, hint: '倒著數，每次少 10！' }; },
-    () => { const s = rand(120, 300), g = rand(1, 4); return { q: '倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k).join(' , ')}</span>`, ans: s - g, hint: '倒著數，每次少 1！' }; },
-    () => { const ns = shuffle([rand(100, 159), rand(160, 219), rand(220, 299)]); const mx = Math.max(...ns); return { q: '哪一個數<b>最大</b>？', keep: true, opts: ns.map(v => ({ h: N(v), ok: v === mx })), hint: '先比百位，百位一樣再比十位！' }; }
+    () => { const a = rand(100, numMax() - 11); const b = a + pick([-10, -1, 1, 10, 9]); return cmp(a, b); },
+    () => { const a = numMax() === 300 ? rand(100, 199) : rand(10, 93), b = a + 100 + pick([-5, -2, 3, 7]); return Math.random() < .5 ? cmp(a, b) : cmp(b, a); },
+    () => { const n = rand(102, numMax() - 11), m = n + pick([-10, 0, 1, 10]); return { q: `甲是 ${n}，乙是 ${hto(m)}，哪一個比較大？`, keep: true, opts: [{ h: '甲', ok: n > m }, { h: '乙', ok: m > n }, { h: '一樣大', ok: n === m }], hint: '先把乙說成數字，再比比看！', after: `乙是 ${m}` }; },
+    () => { const s = rand(numMax() === 300 ? 150 : 110, numMax() - 45), g = rand(1, 4); return { q: '10 個 10 個數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s + k * 10).join(' , ')}</span>`, ans: s + g * 10, hint: '每次多 10，十位加 1！' }; },
+    () => { const s = rand(150, numMax()), g = rand(1, 4); return { q: '10 個 10 個倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k * 10).join(' , ')}</span>`, ans: s - g * 10, hint: '倒著數，每次少 10！' }; },
+    () => { const s = rand(120, numMax()), g = rand(1, 4); return { q: '倒著數，空格裡是多少？', vis: `<span class="eq">${[0, 1, 2, 3, 4].map(k => k === g ? '<span class="box">?</span>' : s - k).join(' , ')}</span>`, ans: s - g, hint: '倒著數，每次少 1！' }; },
+    () => { const ns = shuffle(numMax() === 300 ? [rand(100, 159), rand(160, 219), rand(220, 299)] : [rand(100, 129), rand(130, 159), rand(160, 199)]); const mx = Math.max(...ns); return { q: '哪一個數<b>最大</b>？', keep: true, opts: ns.map(v => ({ h: N(v), ok: v === mx })), hint: '先比百位，百位一樣再比十位！' }; }
   ];
   quiz(st, rounds);
 }
