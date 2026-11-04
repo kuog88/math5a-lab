@@ -12,9 +12,13 @@ const UNITS = [
   // 2026-11 三版本：康軒、翰林六上有、南一六上沒有的內容（關卡在 extra.js）
   { id: 'xcirc', no: '補', name: '圓周長與扇形周長', icon: '🛞', c: '#ff9a4d', modes: ['滾輪子', '周長公式想一想', '弧長與扇形周長挑戰'] },
   { id: 'xscale', no: '補', name: '放大圖、縮圖與比例尺', icon: '🗺️', c: '#a98bff', modes: ['方格紙放大縮小', '放大縮小想一想', '比例尺挑戰'] },
-  { id: 'xbase', no: '補', name: '基準量與比較量', icon: '⚖️', c: '#3fcf9c', modes: ['線段圖塗一塗', '基準量想一想', '兩量和差挑戰'] }
+  { id: 'xbase', no: '補', name: '基準量與比較量', icon: '⚖️', c: '#3fcf9c', modes: ['線段圖塗一塗', '基準量想一想', '兩量和差挑戰'] },
+  // 🎮 闖關任務（只有一關；程式和六下共用 ../grade6-2/js/ratio-detective.js），翰林第 5 單元「兩量關係」
+  { id: 'xgame', no: '補', name: '闖關任務', icon: '🎮', c: '#7c4dff', modes: ['誰才是老大？基準量偵探社'], game: true }
 ];
+LEVELS.xgame = [st => RatioDetective(st)];
 const MODE_TAG = ['🖐 動手做', '💡 想一想', '🏆 挑戰'];
+const tagOf = (u, mi) => u.game ? '🎮 闖關任務' : MODE_TAG[mi];
 const keyOf = (ui, mi) => `${UNITS[ui].id}-${mi}`;
 const starHTML = n => [0, 1, 2].map(k => `<span class="star${k < n ? ' on' : ''}">★</span>`).join('');
 
@@ -36,7 +40,7 @@ function renderHub() {
       <span class="u-no">第 ${v.no} 單元</span><span class="u-icon">${first.icon}</span>
       <h3>${v.title}</h3>
       ${v.levels.map(id => { const ui = uIdx(id), u = UNITS[ui]; return `${v.levels.length > 1 ? `<div class="u-sub" style="--c:${u.c}">${u.icon} ${(v.names || {})[id] || u.name}</div>` : ''}
-      <div class="lv-btns">${u.modes.map((m, mi) => { const s = P[keyOf(ui, mi)] || 0; total += s; max += 3; ORDER.push([ui, mi]); return `<button type="button" class="lv-btn${mi === 3 ? ' adv' : ''}" data-u="${ui}" data-m="${mi}"><span>${MODE_TAG[mi]}<br><small>${m}</small></span><span class="st">${starHTML(s)}</span></button>`; }).join('')}</div>`; }).join('')}
+      <div class="lv-btns">${u.modes.map((m, mi) => { const s = P[keyOf(ui, mi)] || 0; total += s; max += 3; ORDER.push([ui, mi]); return `<button type="button" class="lv-btn${mi === 3 ? ' adv' : ''}${u.game ? ' game' : ''}" data-u="${ui}" data-m="${mi}"><span>${tagOf(u, mi)}<br><small>${m}</small></span><span class="st">${starHTML(s)}</span></button>`; }).join('')}</div>`; }).join('')}
     </div>`; }).join('');
   $('#totalStars').textContent = total;
   $('#maxStars').textContent = max;
@@ -52,8 +56,8 @@ function openLevel(ui, mi) {
   cur = { ui, mi, miss: 0, done: false }; curQ = null;
   $('#hub').hidden = true; $('#play').hidden = false; $('#homeBtn').hidden = false; $('#result').hidden = true;
   const v = vUnitOf(u.id) || { no: u.no, title: u.name }, nm = (v.names || {}).hasOwnProperty(u.id) ? v.names[u.id] : u.name, sub = v.title === nm ? '' : `・${nm}`, head = typeof v.no === 'number' ? `第 ${v.no} 單元 ` : '補充 ';
-  $('#lvTitle').innerHTML = `<span class="u-no" style="background:${u.c}">${head}${v.title}${sub}</span><br>${MODE_TAG[mi]}：${u.modes[mi]}`;
-  window.KGReport && KGReport.level(`${v.no}-${'ABCD'[mi] || mi + 1} ${MODE_TAG[mi]}：${u.modes[mi]}`, `${head}${v.title}${sub}`);
+  $('#lvTitle').innerHTML = `<span class="u-no" style="background:${u.c}">${head}${v.title}${sub}</span><br>${tagOf(u, mi)}：${u.modes[mi]}`;
+  window.KGReport && KGReport.level(`${v.no}-${u.game ? 'E' : 'ABCD'[mi] || mi + 1} ${tagOf(u, mi)}：${u.modes[mi]}`, `${head}${v.title}${sub}`);
   const old = $('#stage'), st = old.cloneNode(false); old.replaceWith(st); // 換新的舞台，清掉舊的事件
   window.scrollTo(0, 0);
   try { LEVELS[u.id][mi](st); } catch (e) { console.error(e); st.innerHTML = '<p>這一關出了點問題，請回首頁再試一次。</p>'; }

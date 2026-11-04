@@ -276,3 +276,4 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 
 /* 2026-11 三版本：一個單元有兩組關卡時的小標題 */
 .u-sub{margin:10px 0 6px;font-size:17px;font-weight:900;color:var(--c);border-top:2px dashed var(--c);padding-top:8px}
+.lv-btn.game{background:linear-gradient(90deg,#efe7ff,#fff);border-color:#7c4dff}
