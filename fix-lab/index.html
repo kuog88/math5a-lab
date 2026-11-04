@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>數學故障修復局：重啟任務！</title>
+<meta name="description" content="把孩子常犯的數學錯誤變成一台台故障機器：找出錯在哪一步，再修好 5 題，機器就能重新啟動。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="stripes" aria-hidden="true"></div>
+<header class="top">
+  <button type="button" class="logo" data-act="home" aria-label="回到修理工廠">
+    <span class="logo-bot" aria-hidden="true">🤖</span>
+    <span class="logo-t"><b>數學故障修復局</b><small>重啟任務！</small></span>
+  </button>
+  <button type="button" class="snd" data-act="mute" aria-label="音效開關">🔊</button>
+</header>
+<main id="app" aria-live="polite"></main>
+<div id="fx" aria-hidden="true"></div>
+<script src="errors.js"></script>
+<script src="diagnose.js"></script>
+<script src="app.js"></script>
+<script src="https://kuog88.github.io/home-button.js" defer></script>
+<script src="https://kuog88.github.io/bgm.js" defer></script>
+</body>
+</html>

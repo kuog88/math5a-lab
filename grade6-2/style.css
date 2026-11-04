@@ -246,6 +246,7 @@ b{color:var(--terra)}
 #verBar{position:relative;z-index:2}
 .ruin .u-ver{display:inline-block;font-size:13px;font-weight:900;color:var(--muted);margin-left:6px}
 .lv-btn.adv{background:#fff6d8;border-color:var(--gold)}
+.lv-btn.game{background:linear-gradient(90deg,#efe7ff,#fff);border-color:#7c4dff}
 .sub-name{font-size:14px;font-weight:900;color:var(--teal2);margin:6px 0 2px}
 /* 進階挑戰 */
 .adv-badge{display:inline-block;background:var(--ink);color:#e8f7ff;font-weight:900;border-radius:8px;padding:2px 12px;font-size:18px;margin-bottom:6px}
