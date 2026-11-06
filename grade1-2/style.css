@@ -258,3 +258,7 @@ button{font-family:inherit;touch-action:manipulation;color:var(--ink)}
 
 /* 2026-11 三版本：一個單元有兩組關卡時的小標題 */
 .u-sub{margin:10px 0 6px;font-size:17px;font-weight:900;color:var(--c);border-top:2px dashed var(--c);padding-top:8px}
+
+/* 注音版窄螢幕：上方兩顆固定按鈕縮小一點，加了注音也不會疊在一起 */
+@media (min-width:601px){.home-btn{left:182px}}
+@media (max-width:480px){.grade-link,.home-btn{font-size:15px;padding:7px 10px}}
