@@ -235,8 +235,8 @@
   window.EXAM_BANK = {
     grade: '一年級上學期 數學',
     papers: [
-      { title: '期中考範圍（第 1～5 單元）', units: U.slice(0, 5), count: 40 },
-      { title: '期末考範圍（第 6～9 單元）', units: U.slice(5, 9), count: 40 },
+      { title: '期中考範圍（第 1～4 單元）', units: U.slice(0, 4), count: 40 },
+      { title: '期末考範圍（第 5～9 單元）', units: U.slice(4, 9), count: 40 },
       { title: '全冊總複習', units: U.slice(0, 9), count: 50 }
     ],
     bank
