@@ -42,13 +42,34 @@ function pickVoice() {
   } catch (e) {}
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+// iPad／iPhone 的 Safari：第一次要在手指點下去時「解鎖」語音和音效，之後自動唸題才會有聲音
+let speechReady = false;
+function unlockAudio() {
+  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) {}
+  if (speechReady || !('speechSynthesis' in window)) return;
+  speechReady = true;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'zh-TW'; speechSynthesis.speak(u); pickVoice(); } catch (e) {}
+  if (lastSay && !muted) setTimeout(() => speak(lastSay), 80);   // 解鎖前錯過的題目，補唸一次
+}
+['pointerdown', 'touchend', 'keydown'].forEach(ev => document.addEventListener(ev, unlockAudio, { capture: true, passive: true }));
+let speakTimer = 0, speakingU = null;
 function speak(text) {
   if (muted || !('speechSynthesis' in window) || !text) return;
   try {
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g, '').replace(/[□？]/g, m => m === '□' ? '幾' : '？').replace(/−/g, '減').replace(/\+/g, '加').replace(/=/g, '等於'));
-    u.lang = 'zh-TW'; if (zhVoice) u.voice = zhVoice; u.rate = 0.9; u.pitch = 1.1;
-    speechSynthesis.speak(u);
+    const say = String(text).replace(/<svg[\s\S]*?<\/svg>/gi, '').replace(/<[^>]+>/g, '').replace(/[□？]/g, m => m === '□' ? '幾' : '？').replace(/−/g, '減').replace(/\+/g, '加').replace(/=/g, '等於').replace(/（\s*）|\(\s*\)/g, '多少');
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
+    if (busy) speechSynthesis.cancel();
+    clearTimeout(speakTimer);
+    // Safari 在 cancel() 之後馬上 speak() 常常會被吃掉，稍等一下再唸
+    speakTimer = setTimeout(() => {
+      try {
+        if (speechSynthesis.paused) speechSynthesis.resume();
+        const u = new SpeechSynthesisUtterance(say);
+        u.lang = 'zh-TW'; if (zhVoice) u.voice = zhVoice; u.rate = 0.9; u.pitch = 1.1;
+        speakingU = u;   // 留住參照，避免被回收後沒聲音
+        speechSynthesis.speak(u);
+      } catch (e) {}
+    }, busy ? 120 : 0);
   } catch (e) {}
 }
 
