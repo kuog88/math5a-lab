@@ -13,7 +13,7 @@
     '補充 三位數的乘法', '補充 除以三位數', '補充 分數的加減與整數倍', '補充 統計圖']; // 2026-11 三版本：康軒、翰林用
   // 統計圖（補充單元用）：o = {t 標題, L 項目, v 數值, s 一格多少, line 折線圖}
   const CH = o => {
-    const W = 300, H = 190, x0 = 40, y0 = 160, yt = 26, top = o.s * 10, n = o.L.length, cw = (W - x0 - 10) / n, Y = v => y0 - v / top * (y0 - yt);
+    const W = 300, H = 190, x0 = 40, y0 = 160, yt = 26, top = Math.max(o.s * 10, Math.ceil(Math.max.apply(null, o.v) / o.s) * o.s + o.s), n = o.L.length   /* 最大值超過 10 格時自動加高，點不會畫到刻度外 */, cw = (W - x0 - 10) / n, Y = v => y0 - v / top * (y0 - yt);
     let g = `<br><svg viewBox="0 0 ${W} ${H}" width="300" xmlns="http://www.w3.org/2000/svg"><text x="${W / 2}" y="15" text-anchor="middle" font-size="14" font-weight="bold">${o.t}</text>`;
     for (let v = 0; v <= top; v += o.s) g += `<line x1="${x0}" y1="${Y(v)}" x2="${W - 6}" y2="${Y(v)}" stroke="#ddd"/><text x="${x0 - 4}" y="${Y(v) + 4}" text-anchor="end" font-size="11">${v}</text>`;
     g += `<line x1="${x0}" y1="${yt - 6}" x2="${x0}" y2="${y0}" stroke="#333" stroke-width="2"/><line x1="${x0}" y1="${y0}" x2="${W - 4}" y2="${y0}" stroke="#333" stroke-width="2"/>`;
